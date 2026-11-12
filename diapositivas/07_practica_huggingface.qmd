@@ -1,0 +1,357 @@
+---
+title: "Práctica: Python, PyTorch y Hugging Face"
+subtitle: "Usa, ajusta y crea tus propios modelos"
+author: "Edith Natalia Villegas García · ICTP"
+date: 2026-12-01
+description: "Repaso de Python, tensores y autograd en PyTorch, pipelines de Hugging Face, ajuste fino de BETO y un mini-GPT entrenado con el Quijote."
+---
+
+```{python}
+from graficas import *
+```
+
+## Plan de la sesión (70 min)
+
+:::: {.columns}
+::: {.column width="50%"}
+1. **10 min** — estas diapositivas
+2. **60 min** — notebook *07 · Hugging Face*:
+   - Python en 5 minutos
+   - PyTorch: tensores y *autograd*
+   - Modelos listos para usar con `pipeline`
+   - **Ajustar** BETO para clasificar reseñas en español
+   - **Crear** un GPT diminuto que escribe como Cervantes
+   - (Opcional) compartir tu modelo con una demo de Gradio
+:::
+::: {.column width="50%"}
+::: {.definicion}
+**Antes de empezar**
+
+1. Abran el notebook desde la página del curso → **Abrir en Colab**
+2. *Archivo → Guardar una copia en Drive*
+3. *Entorno de ejecución → Cambiar tipo de entorno → GPU T4*
+4. Ejecuten las celdas en orden. ¡Los errores son normales! Lean el mensaje: casi siempre dice qué pasó.
+:::
+:::
+::::
+
+## Python en una diapositiva
+
+:::: {.columns}
+::: {.column width="50%"}
+```python
+# Variables y tipos
+nombre = "Tegucigalpa"        # str
+altitud = 990                 # int (metros)
+poblacion = 1.3e6             # float
+es_capital = True             # bool
+
+# Listas y diccionarios
+dias = ["lunes", "martes", "miércoles"]
+dias[0]                       # 'lunes'
+dias[-1]                      # 'miércoles'
+capitales = {"Honduras": "Tegucigalpa",
+             "Perú": "Lima"}
+capitales["Perú"]             # 'Lima'
+```
+:::
+::: {.column width="50%"}
+```python
+# Control de flujo y funciones
+def saludo(nombre, idioma="es"):
+    if idioma == "es":
+        return f"¡Hola, {nombre}!"
+    return f"Hello, {nombre}!"
+
+for d in dias:
+    print(saludo(d))
+
+# Comprensión de listas
+largos = [len(d) for d in dias]          # [5, 6, 9]
+pares = [n for n in range(10) if n % 2 == 0]
+```
+:::
+::::
+
+[📅 Lo vieron a fondo con **Daniela Pinto** · 23 y 24 de noviembre]{.adelante}
+
+## PyTorch: NumPy + GPU + derivadas automáticas
+
+:::: {.columns}
+::: {.column width="50%"}
+```python
+import torch
+
+x = torch.tensor([[1., 2.], [3., 4.]])
+x.shape                     # torch.Size([2, 2])
+x @ x.T                     # producto de matrices
+x.to("cuda")                # ¡a la GPU!
+
+# Autograd: retropropagación automática
+w = torch.tensor(1.0, requires_grad=True)
+f = (3 * w - 6) ** 2
+f.backward()
+w.grad                      # df/dw = 6(3w − 6) = −18
+```
+:::
+::: {.column width="50%"}
+**Un modelo es una clase `nn.Module`:**
+
+```python
+import torch.nn as nn
+
+modelo = nn.Sequential(
+    nn.Linear(784, 128), nn.ReLU(),
+    nn.Linear(128, 10))
+
+opt = torch.optim.Adam(modelo.parameters(), lr=1e-3)
+for x, y in datos:
+    perdida = nn.functional.cross_entropy(modelo(x), y)
+    opt.zero_grad()
+    perdida.backward()
+    opt.step()
+```
+:::
+::::
+
+## Hugging Face: el "GitHub" de los modelos {.compacta}
+
+:::: {.columns}
+::: {.column width="55%"}
+- **Hub** (huggingface.co): millones de **modelos**, **conjuntos de datos** y **demos** (*Spaces*) abiertos — ¡las demos de la primera clase eran Spaces!
+- Bibliotecas de Python:
+  - `transformers`: modelos preentrenados (texto, imagen, audio)
+  - `datasets`: cargar y procesar datos
+  - `huggingface_hub`: descargar y subir modelos
+  - `gradio`: crear una interfaz web en pocas líneas
+- Cada modelo tiene una **tarjeta** (*model card*): con qué datos se entrenó, para qué sirve, **licencia**, limitaciones y sesgos
+:::
+::: {.column width="45%"}
+::: {.caja}
+**Modelos latinoamericanos en el Hub** 🌎
+
+- **BETO** — BERT en español (Universidad de Chile)
+- **RoBERTuito** y **pysentimiento** — modelos para redes sociales en español: sentimiento, emociones, discurso de odio (Universidad de Buenos Aires)
+- **MarIA** — modelos en español (Barcelona Supercomputing Center)
+
+¿Y un modelo con español de Honduras? ¡Podría salir de esta escuela! 😉
+:::
+:::
+::::
+
+## Modelos listos para usar: `pipeline`
+
+:::: {.columns}
+::: {.column width="55%"}
+```python
+from transformers import pipeline
+
+sentimiento = pipeline("text-classification",
+    model="nlptown/bert-base-multilingual-uncased-sentiment")
+sentimiento("¡Me encantó la clase de redes neuronales!")
+# [{'label': '5 stars', 'score': 0.89}]
+
+clasificador = pipeline("zero-shot-classification",
+    model="MoritzLaurer/mDeBERTa-v3-base-mnli-xnli")
+clasificador("El equipo ganó el partido 3 a 1.",
+             candidate_labels=["deportes", "política", "ciencia"])
+# deportes: 0.67
+
+vision = pipeline("image-classification",
+                  model="google/vit-base-patch16-224")
+vision("guacamaya.jpg")   # macaw: 0.99 🦜
+```
+:::
+::: {.column width="45%"}
+| Tarea | Ejemplo |
+|---|---|
+| `text-classification` | sentimiento, spam |
+| `zero-shot-classification` | etiquetas que tú inventas |
+| `fill-mask` | adivinar `[MASK]` (BETO) |
+| `token-classification` | nombres de personas, lugares |
+| `text-generation` | chat, traducción, resúmenes |
+| `image-classification` | ¿qué hay en la foto? |
+| `automatic-speech-recognition` | voz → texto (Whisper) |
+
+::: {.credito}
+Resultados reales de estos modelos (ejecutados al preparar el curso).
+:::
+:::
+::::
+
+## ¿Qué hace `pipeline` por dentro?
+
+```{python}
+pasos = [("Texto", "«¡Me encantó la clase!»", "#e3e2dd", MARINO), ("Tokenizador", "AutoTokenizer → ids [101, 1325, …]", AZUL, "white"),
+         ("Modelo", "AutoModelFor… → logits [−2.1, …, 3.4]", NARANJA, "white"), ("Posprocesamiento", "softmax → «5 estrellas»: 89 %", AQUA, "white")]
+fig = go.Figure()
+for i, (t, d, c, ct) in enumerate(pasos):
+    x = i * 1.0
+    fig.add_shape(type="rect", x0=x, x1=x + 0.8, y0=0, y1=1, fillcolor=c, line=dict(width=0))
+    fig.add_annotation(x=x + 0.4, y=0.72, text=f"<b>{t}</b>", showarrow=False, font=dict(size=21, color=ct))
+    fig.add_annotation(x=x + 0.4, y=0.35, text=d, showarrow=False, font=dict(size=15, color=ct), width=260)
+    if i < 3:
+        fig.add_annotation(x=x + 0.98, y=0.5, ax=x + 0.82, ay=0.5, xref="x", yref="y", axref="x", ayref="y",
+                           showarrow=True, arrowhead=3, arrowwidth=3, arrowcolor=GRIS, text="")
+fig.update_layout(xaxis=dict(visible=False, range=[-0.05, 3.85]), yaxis=dict(visible=False, range=[-0.05, 1.05]),
+                  plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=0, r=0, t=0, b=0))
+mostrar(fig, 1450, 260)
+```
+
+```python
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+nombre = "nlptown/bert-base-multilingual-uncased-sentiment"
+tokenizador = AutoTokenizer.from_pretrained(nombre)
+modelo = AutoModelForSequenceClassification.from_pretrained(nombre)
+
+entrada = tokenizador("¡Me encantó la clase!", return_tensors="pt")
+logits = modelo(**entrada).logits
+probs = logits.softmax(dim=-1)          # ¡la misma softmax del lunes!
+```
+
+## Crear tu propio modelo, opción 1: ajuste fino
+
+:::: {.columns}
+::: {.column width="50%"}
+**Aprendizaje por transferencia** (*transfer learning*):
+
+1. Partir de un modelo **preentrenado** (BETO ya "sabe" español)
+2. Cambiar la última capa por una nueva **cabeza** para nuestra tarea
+3. **Ajustar** todos los pesos con pocos datos etiquetados
+
+```python
+modelo = AutoModelForSequenceClassification.from_pretrained(
+    "dccuchile/bert-base-spanish-wwm-cased", num_labels=2)
+entrenador = Trainer(model=modelo, args=argumentos,
+                     train_dataset=entreno, eval_dataset=prueba,
+                     compute_metrics=exactitud)
+entrenador.train()
+```
+:::
+::: {.column width="50%"}
+::: {.definicion}
+**En el notebook:** reseñas de productos de Amazon en español (1–5 estrellas) → **positiva o negativa**.
+
+Con ~4 000 ejemplos y ~2 minutos de GPU llegarán a más de 90 % de exactitud.
+:::
+
+::: {.caja-naranja .pequeno}
+Pregúntense: ¿de dónde vienen los datos? ¿Funcionará igual con español de Honduras, con voseo, con regionalismos? ¿Con reseñas escritas por personas mayores? **Evalúen por grupo** cuando puedan.
+:::
+:::
+::::
+
+## Crear tu propio modelo, opción 2: un GPT desde cero
+
+```{python}
+import html
+mg = cargar("minigpt_quijote.json")
+curva = np.array(mg["curva"])
+pasos_m = [int(k) for k in mg["muestras"]]
+fig = make_subplots(rows=1, cols=2, column_widths=[0.42, 0.58], horizontal_spacing=0.06,
+                    specs=[[{"type": "xy"}, {"type": "xy"}]],
+                    subplot_titles=["Pérdida (entropía cruzada por carácter)", "Texto generado a partir de «En un lugar de la Mancha»"])
+titulos_sub = [a.to_plotly_json() for a in fig.layout.annotations]
+fig.add_trace(go.Scatter(x=curva[:, 0], y=curva[:, 1], name="entrenamiento", line=dict(color=AZUL, width=3)), 1, 1)
+fig.add_trace(go.Scatter(x=curva[:, 0], y=curva[:, 2], name="validación", line=dict(color=NARANJA, width=3)), 1, 1)
+def texto_muestra(p):
+    t = html.escape(mg["muestras"][str(p)]).replace("\n", " ⏎ ")
+    lineas, linea = [], ""
+    for palabra in t.split(" "):
+        if len(linea) + len(palabra) > 52:
+            lineas.append(linea)
+            linea = ""
+        linea += palabra + " "
+    lineas.append(linea)
+    return "<br>".join(lineas[:9])
+pasos = []
+for p in pasos_m:
+    anot = [dict(x=0.6, y=0.95, xref="paper", yref="paper", text=f"<b>después de {p} pasos</b>", showarrow=False,
+                 font=dict(size=18, color=GRIS), xanchor="left"),
+            dict(x=0.6, y=0.84, xref="paper", yref="paper", text=texto_muestra(p), showarrow=False, align="left",
+                 xanchor="left", yanchor="top", font=dict(size=17, family="JetBrains Mono, monospace", color=MARINO))]
+    forma = [dict(type="line", xref="x", yref="paper", x0=p, x1=p, y0=0, y1=1, line=dict(color=GRIS, dash="dot", width=2))]
+    pasos.append(dict(method="relayout", label=str(p), args=[{"annotations": titulos_sub + anot, "shapes": forma}]))
+fig.update_layout(annotations=pasos[0]["args"][0]["annotations"],
+                  shapes=pasos[0]["args"][0]["shapes"], sliders=deslizador(pasos, prefijo="paso de entrenamiento: "),
+                  legend=dict(x=0.25, y=0.98, font=dict(size=15)), margin=dict(t=50))
+fig.update_xaxes(title_text="paso", row=1, col=1)
+fig.update_yaxes(range=[1, 5], row=1, col=1)
+fig.update_xaxes(visible=False, row=1, col=2)
+fig.update_yaxes(visible=False, row=1, col=2)
+mostrar(fig, 1500, 640)
+```
+
+::: {.pequeno}
+Entrenamos el mismo código del notebook (un transformer de **833 115** parámetros, 4 capas, 4 cabezas) con los ~2 millones de caracteres de *Don Quijote* (dominio público, Proyecto Gutenberg) en una laptop, sin GPU, durante ~5 minutos. ¡De ruido a algo que *suena* a Cervantes!
+:::
+
+## Compartir: demos con Gradio y el Hub
+
+:::: {.columns}
+::: {.column width="50%"}
+```python
+import gradio as gr
+
+def clasificar(texto):
+    probs = predecir(texto)            # tu modelo
+    return {"negativa": probs[0], "positiva": probs[1]}
+
+gr.Interface(fn=clasificar, inputs="text",
+             outputs="label").launch(share=True)
+```
+
+Así se construyen los *Spaces* que usamos en la primera clase.
+
+```python
+# Subir tu modelo a tu cuenta (opcional)
+from huggingface_hub import notebook_login
+notebook_login()                       # tu token personal
+entrenador.push_to_hub("mi-clasificador-resenas")
+```
+:::
+::: {.column width="50%"}
+::: {.caja-naranja}
+🔐 **Seguridad:** su *token* de Hugging Face es como una contraseña. Nunca lo escriban en un notebook compartido ni lo suban a GitHub.
+:::
+
+::: {.definicion}
+**Publicar de forma responsable**
+
+- Escriban una **tarjeta del modelo**: datos, uso previsto, limitaciones, sesgos conocidos
+- Elijan una **licencia**
+- Revisen que los datos no tengan información personal
+:::
+:::
+::::
+
+## ¡A programar! 💻 {.compacta}
+
+:::: {.columns}
+::: {.column width="55%"}
+**Notebook *07 · Python, PyTorch y Hugging Face***
+
+| Sección | Tiempo sugerido |
+|---|---|
+| 1. Python en 5 minutos | 5 min |
+| 2. PyTorch y *autograd* | 10 min |
+| 3. Pipelines | 10 min |
+| 4. Ajuste fino de BETO | 15 min |
+| 5. Mini-GPT del Quijote | 15 min |
+| 6. 🏆 Retos y Gradio | el resto |
+:::
+::: {.column width="45%"}
+::: {.definicion}
+**Para seguir aprendiendo (gratis)**
+
+- Curso de Hugging Face (*LLM Course*), con traducciones al español: huggingface.co/learn
+- Andrej Karpathy, *Neural Networks: Zero to Hero* (videos; construye un GPT desde cero)
+- Tutoriales oficiales de PyTorch: pytorch.org/tutorials
+- *Dive into Deep Learning* (d2l.ai), libro interactivo
+:::
+:::
+::::
+
+::: {.fragment .center .grande}
+¡Gracias por estas sesiones! Mañana: **Aprendizaje en grafos** y **Agentes de IA** 🚀
+:::

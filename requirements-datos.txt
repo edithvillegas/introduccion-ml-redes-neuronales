@@ -1,0 +1,11 @@
+# Dependencias extra SOLO para regenerar los datos precalculados (scripts/precalcular_*.py)
+# y para construir/probar los notebooks localmente. No hacen falta para construir las diapositivas.
+-r requirements.txt
+torch>=2.2
+torchvision>=0.17
+transformers>=4.45
+datasets>=3.0
+accelerate>=1.0
+gensim>=4.4
+sentencepiece
+safetensors

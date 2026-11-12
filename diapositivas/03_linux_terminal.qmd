@@ -1,0 +1,432 @@
+---
+title: "Linux, la terminal y git"
+subtitle: "…y por qué C es más rápido que Python · Sesión práctica"
+author: "Edith Natalia Villegas García · Joshua Lemus"
+date: 2026-11-23
+description: "Sistema operativo y Linux, comandos básicos de la terminal, tuberías, permisos, git, y lenguajes compilados vs. interpretados."
+---
+
+```{python}
+from graficas import *
+```
+
+## Plan de la sesión (60 min)
+
+:::: {.columns}
+::: {.column width="50%"}
+1. **¿Por qué la terminal?** (5 min)
+2. **Linux y el sistema de archivos** (10 min)
+3. **Comandos esenciales, tuberías y permisos** (10 min)
+4. **git: control de versiones** (5 min)
+5. **Compilado vs. interpretado** (5 min)
+6. **¡Manos a la obra!** Notebook de ejercicios (25 min)
+:::
+::: {.column width="50%"}
+::: {.definicion}
+**Para practicar no necesitan instalar nada:**
+
+- Google Colab corre en una máquina virtual con **Linux** 🐧
+- Abran el notebook *03 · La terminal de Linux* desde la página del curso
+- En Windows pueden instalar **WSL** (Subsistema de Windows para Linux); en Mac, la app **Terminal** ya trae una shell
+:::
+:::
+::::
+
+## ¿Por qué aprender a usar la terminal?
+
+:::: {.columns}
+::: {.column width="55%"}
+- 🖥️ **Las 500 supercomputadoras más rápidas del mundo usan Linux** (desde 2017)
+- ☁️ La nube, los servidores, los clústeres de las universidades… y Google Colab
+- 🔁 **Automatizar**: repetir una tarea en 10 000 archivos con una línea
+- 🔬 **Reproducibilidad**: los comandos quedan escritos; los clics no
+- 🧪 Muchas herramientas científicas **solo** tienen interfaz de línea de comandos
+- 📱 Android también usa el núcleo (*kernel*) de Linux
+:::
+::: {.column width="45%"}
+```{python}
+fig = go.Figure(go.Pie(labels=["Linux", "Otros"], values=[500, 0.0001], hole=0.6, sort=False,
+                       marker=dict(colors=[TURQUESA, GRIS_CLARO]), textinfo="none",
+                       hovertemplate="%{label}: %{value:.0f} de 500<extra></extra>"))
+fig.add_annotation(text="<b>500 / 500</b><br>supercomputadoras<br>del TOP500", showarrow=False,
+                   font=dict(size=26, color=MARINO))
+fig.update_layout(showlegend=False, margin=dict(l=0, r=0, t=0, b=0))
+mostrar(fig, 560, 480)
+```
+::: {.credito}
+Fuente: TOP500.org (lista de noviembre de 2017 en adelante).
+:::
+:::
+::::
+
+## ¿Qué es un sistema operativo?
+
+:::: {.columns}
+::: {.column width="45%"}
+```{python}
+capas = [("Hardware (CPU, memoria, disco, GPU)", "#0d366b"), ("Núcleo / kernel (Linux)", "#1c5cab"),
+         ("Shell (bash, zsh)", "#3987e5"), ("Programas y aplicaciones", "#86b6ef"), ("Tú 🙂", "#cde2fb")]
+fig = go.Figure()
+for i, (t, c) in enumerate(capas):
+    fig.add_shape(type="rect", x0=-2 + i * 0.3, x1=2 - i * 0.3, y0=i, y1=i + 0.9, fillcolor=c, line=dict(width=0))
+    fig.add_annotation(x=0, y=i + 0.45, text=f"<b>{t}</b>", showarrow=False,
+                       font=dict(size=21, color="white" if i < 3 else MARINO))
+fig.update_layout(xaxis=dict(visible=False, range=[-2.1, 2.1]), yaxis=dict(visible=False, range=[-0.1, 5]),
+                  plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=0, r=0, t=0, b=0))
+mostrar(fig, 640, 520)
+```
+:::
+::: {.column width="55%"}
+- **Núcleo (*kernel*)**: administra el hardware, la memoria y los procesos
+- **Shell**: programa que interpreta los comandos que escribimos
+- **Terminal**: la ventana donde escribimos y vemos la salida
+
+![](img/tux.svg){height="150" style="float:right; margin-left:0.5em"}
+
+::: {.caja .pequeno}
+**Un poco de historia:** Unix nace en los Laboratorios Bell (1969, Ken Thompson y Dennis Ritchie, que también crearon el lenguaje C). Richard Stallman inicia el proyecto GNU de software libre (1983). Linus Torvalds, estudiante en Finlandia, publica el núcleo Linux en 1991. Hoy hay muchas *distribuciones*: Ubuntu, Debian, Fedora, Arch…
+:::
+
+::: {.credito}
+Tux: Larry Ewing, Simon Budig y Garrett LeSage.
+:::
+:::
+::::
+
+## Anatomía de la terminal
+
+```
+ana@laptop:~/escuela$ ls -l -h datos/
+```
+
+:::: {.columns}
+::: {.column width="50%"}
+| Parte | Significado |
+|---|---|
+| `ana` | usuario |
+| `laptop` | nombre de la máquina |
+| `~/escuela` | carpeta actual (`~` = carpeta personal) |
+| `$` | listo para recibir un comando |
+:::
+::: {.column width="50%"}
+| Parte | Significado |
+|---|---|
+| `ls` | **comando** (listar archivos) |
+| `-l -h` | **opciones** (formato largo, tamaños legibles) |
+| `datos/` | **argumento** (sobre qué actúa) |
+:::
+::::
+
+::: {.caja}
+💡 ¿No recuerdan qué hace un comando? `man ls` (manual) o `ls --help`. Usen **Tab** para autocompletar y **↑** para repetir comandos anteriores.
+:::
+
+## El sistema de archivos es un árbol 🌳
+
+```{python}
+nodos = [
+    ("/", "", "La raíz: todo cuelga de aquí"),
+    ("home", "/", "Carpetas personales de los usuarios"),
+    ("ana", "home", "~ para el usuario ana"),
+    ("escuela", "ana", "Un proyecto"),
+    ("datos", "escuela", "Datos del proyecto"),
+    ("notebooks", "escuela", "Notebooks"),
+    ("Documentos", "ana", "Documentos"),
+    ("joshua", "home", "Carpeta personal de joshua"),
+    ("bin", "/", "Programas esenciales (ls, cp, bash…)"),
+    ("etc", "/", "Archivos de configuración del sistema"),
+    ("usr", "/", "Programas y bibliotecas instalados"),
+    ("local", "usr", "Programas instalados localmente"),
+    ("lib", "usr", "Bibliotecas compartidas"),
+    ("tmp", "/", "Archivos temporales (se borran al reiniciar)"),
+    ("var", "/", "Datos que cambian: registros (logs), cachés"),
+    ("dev", "/", "Dispositivos: discos, terminales… ¡como archivos!"),
+    ("proc", "/", "Información de procesos en ejecución"),
+    ("mnt", "/", "Discos montados (USB, red)"),
+]
+ids = [n[0] if n[0] != "/" else "/" for n in nodos]
+fig = go.Figure(go.Sunburst(
+    ids=[n[0] for n in nodos], labels=[n[0] for n in nodos], parents=[n[1] for n in nodos],
+    hovertext=[n[2] for n in nodos], hoverinfo="label+text",
+    marker=dict(colors=["#0b2545"] + [CATEGORICOS[i % 8] for i in range(len(nodos) - 1)]),
+    insidetextfont=dict(size=18, color="white"), maxdepth=4))
+fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
+mostrar(fig, 700, 640)
+```
+
+::: {.pequeno}
+Rutas **absolutas** empiezan en `/` (`/home/ana/escuela/datos`); **relativas** parten de la carpeta actual (`datos/`, `../Documentos`). `.` = aquí, `..` = la carpeta de arriba, `~` = mi carpeta personal. Hagan clic en el gráfico para "entrar" a una carpeta.
+:::
+
+## Comandos esenciales
+
+:::: {.columns}
+::: {.column width="50%"}
+| Comando | Para qué sirve |
+|---|---|
+| `pwd` | ¿dónde estoy? |
+| `ls -la` | listar (incluye ocultos) |
+| `cd carpeta` · `cd ..` · `cd ~` | moverse |
+| `mkdir -p a/b` | crear carpetas |
+| `touch archivo.txt` | crear archivo vacío |
+| `cp origen destino` | copiar (`-r` para carpetas) |
+| `mv origen destino` | mover o renombrar |
+| `rm archivo` · `rm -r carpeta` | borrar ⚠️ ¡sin papelera! |
+:::
+::: {.column width="50%"}
+| Comando | Para qué sirve |
+|---|---|
+| `cat` · `less` | ver un archivo |
+| `head -n 5` · `tail -n 5` | primeras / últimas líneas |
+| `wc -l` | contar líneas |
+| `grep palabra archivo` | buscar texto |
+| `sort` · `uniq -c` | ordenar · contar repetidos |
+| `cut -d, -f2` | extraer columnas |
+| `find . -name "*.csv"` | buscar archivos |
+| `history` · `clear` | historial · limpiar pantalla |
+:::
+::::
+
+## Tuberías y redirección: componer comandos
+
+::: {.grande}
+`comando1 | comando2` → la salida de uno es la entrada del otro
+:::
+
+```bash
+# ¿Cuántas fincas de café hay en cada departamento?
+cut -d, -f2 fincas.csv | tail -n +2 | sort | uniq -c | sort -nr
+
+# Guardar el resultado en un archivo (> sobrescribe, >> agrega al final)
+grep "Copán" fincas.csv > fincas_copan.csv
+echo "análisis terminado: $(date)" >> bitacora.txt
+
+# Comodines: * = cualquier texto, ? = un carácter
+ls datos/*.csv
+for archivo in datos/*.csv; do echo "$archivo tiene $(wc -l < "$archivo") líneas"; done
+```
+
+::: {.caja .fragment}
+**Filosofía Unix:** programas pequeños que hacen **una cosa bien** y que se pueden **combinar**.
+:::
+
+## Permisos, procesos y conexión remota
+
+:::: {.columns}
+::: {.column width="50%"}
+```
+$ ls -l analisis.sh
+-rwxr-x--- 1 ana estudiantes 512 nov 23 analisis.sh
+```
+- `r` leer, `w` escribir, `x` ejecutar
+- para el **dueño** · el **grupo** · **otros**
+- `chmod +x analisis.sh` → hacerlo ejecutable
+- `./analisis.sh` → ejecutarlo
+
+**Procesos:** `top` / `htop` (qué se está ejecutando), `ps`, `kill`, `Ctrl+C` para detener
+:::
+::: {.column width="50%"}
+**Trabajar en otra computadora (clúster):**
+```bash
+ssh ana@cluster.universidad.edu
+scp datos.csv ana@cluster.universidad.edu:~/proyecto/
+```
+
+**Instalar programas:**
+```bash
+sudo apt install git     # Ubuntu / Debian
+pip install numpy        # paquetes de Python
+```
+`sudo` = ejecutar como administrador ⚠️
+:::
+::::
+
+## Una terminal Linux real… dentro del navegador
+
+<iframe class="demo" data-src="https://bellard.org/jslinux/vm.html?url=alpine-x86.cfg&mem=192" height="640" loading="lazy"></iframe>
+
+::: {.credito}
+JSLinux (Fabrice Bellard): una computadora virtual con Alpine Linux que corre en el navegador. Prueben `ls /`, `uname -a`, `echo hola > a.txt`, `cat a.txt`. [Abrir en otra pestaña](https://bellard.org/jslinux/vm.html?url=alpine-x86.cfg&mem=192).
+:::
+
+# git: control de versiones {background-color="#0b2545" .seccion}
+
+Nunca más `tesis_final_FINAL_v3_ahora_si.docx`
+
+## ¿Qué es git? {.compacta}
+
+:::: {.columns}
+::: {.column width="45%"}
+- **git** guarda la **historia** de un proyecto: quién cambió qué, cuándo y por qué
+- Permite volver a cualquier versión anterior
+- Permite trabajar en **equipo** sin pisarse (ramas)
+- **GitHub / GitLab** guardan copias en la nube y facilitan colaborar
+- Creado por Linus Torvalds en 2005 para desarrollar Linux
+- Todo el material de esta escuela está en GitHub 😉
+:::
+::: {.column width="55%"}
+```{python}
+zonas = [("Carpeta de trabajo", 0, AZUL), ("Área de preparación<br>(staging)", 1.6, AQUA),
+         ("Repositorio local<br>(.git)", 3.2, VIOLETA), ("Repositorio remoto<br>(GitHub)", 4.8, NARANJA)]
+fig = go.Figure()
+for t, x, c in zonas:
+    fig.add_shape(type="rect", x0=x - 0.65, x1=x + 0.65, y0=-0.6, y1=0.6, fillcolor=c, line=dict(width=0))
+    fig.add_annotation(x=x, y=0, text=f"<b>{t}</b>", showarrow=False, font=dict(size=17, color="white"))
+flechas = [(0, 1.6, 1.0, "git add"), (1.6, 3.2, 1.0, "git commit"), (3.2, 4.8, 1.0, "git push"),
+           (4.8, 0, -1.25, "git pull"), (4.8, 0, -1.85, "git clone (la primera vez)")]
+for x0, x1, y, t in flechas:
+    fig.add_annotation(x=x1 + (0.1 if x1 < x0 else -0.1), y=y, ax=x0 + (-0.1 if x1 < x0 else 0.1), ay=y,
+                       xref="x", yref="y", axref="x", ayref="y", showarrow=True, arrowhead=3, arrowwidth=3,
+                       arrowcolor=GRIS, text="")
+    fig.add_annotation(x=(x0 + x1) / 2, y=y + 0.22, text=f"<b>{t}</b>", showarrow=False,
+                       font=dict(size=18, color=MARINO, family="JetBrains Mono, monospace"))
+fig.update_layout(xaxis=dict(visible=False, range=[-0.8, 5.6]), yaxis=dict(visible=False, range=[-2.2, 1.5]),
+                  plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=0, r=0, t=0, b=0))
+mostrar(fig, 790, 460)
+```
+:::
+::::
+
+## Los comandos de git que más usarán
+
+:::: {.columns}
+::: {.column width="50%"}
+```bash
+# Configurar (una sola vez)
+git config --global user.name "Ana López"
+git config --global user.email "ana@ejemplo.com"
+
+# Empezar un proyecto
+git init                  # o: git clone URL
+git status                # ¿qué cambió?
+git add analisis.py       # preparar cambios
+git commit -m "Agrega análisis de café"
+git log --oneline         # ver la historia
+git diff                  # ver cambios no guardados
+```
+:::
+::: {.column width="50%"}
+```bash
+# Ramas: experimentar sin romper nada
+git switch -c experimento  # crear rama y cambiarse
+git switch main            # volver a main
+git merge experimento      # traer los cambios
+
+# Sincronizar con GitHub
+git push                   # subir
+git pull                   # bajar
+
+# Ignorar archivos (datos grandes, contraseñas)
+echo "datos_grandes/" >> .gitignore
+```
+:::
+::::
+
+::: {.caja-naranja .pequeno}
+⚠️ **Nunca** suban contraseñas, claves de API ni datos personales a un repositorio público. Lo que se sube a internet es muy difícil de borrar.
+:::
+
+# Compilado vs. interpretado {background-color="#0b2545" .seccion}
+
+¿Por qué hay lenguajes "rápidos" y lenguajes "cómodos"?
+
+## Dos formas de ejecutar un programa {.compacta}
+
+:::: {.columns}
+::: {.column width="50%"}
+[Compilado (C, C++, Fortran, Rust, Go)]{.titulo-tarjeta}
+
+```c
+// pi.c
+#include <stdio.h>
+int main(void) {
+    double suma = 0.0;
+    for (long k = 0; k < 100000000; k++)
+        suma += (k % 2 == 0 ? 1.0 : -1.0) / (2.0 * k + 1.0);
+    printf("pi = %.10f\n", 4.0 * suma);
+    return 0;
+}
+```
+```bash
+gcc -O2 pi.c -o pi    # 1) traducir TODO a código máquina
+./pi                  # 2) ejecutar el binario
+```
+:::
+::: {.column width="50%"}
+[Interpretado (Python, R, JavaScript, Bash)]{.titulo-tarjeta}
+
+```python
+# pi.py
+suma = 0.0
+for k in range(100_000_000):
+    suma += (1.0 if k % 2 == 0 else -1.0) / (2.0 * k + 1.0)
+print(f"pi = {4 * suma:.10f}")
+```
+```bash
+python3 pi.py         # el intérprete lee y ejecuta
+                      # instrucción por instrucción
+```
+
+::: {.caja .pequeno}
+En medio: **compilación "justo a tiempo"** (JIT): Java, Julia, JavaScript moderno, Numba, PyPy.
+:::
+:::
+::::
+
+## ¿Cuánto más rápido?
+
+:::: {.columns}
+::: {.column width="58%"}
+```{python}
+tiempos = [("Python puro (bucle for)", 9.95, NARANJA), ("NumPy (vectorizado)", 0.47, AQUA),
+           ("C sin optimizar (gcc -O0)", 0.36, AZUL), ("C optimizado (gcc -O2)", 0.09, AZUL)]
+fig = go.Figure(go.Bar(
+    y=[t[0] for t in tiempos][::-1], x=[t[1] for t in tiempos][::-1], orientation="h",
+    marker=dict(color=[t[2] for t in tiempos][::-1]),
+    text=[f"{t[1]:.2f} s" for t in tiempos][::-1], textposition="outside", textfont=dict(size=20),
+    hovertemplate="%{y}: %{x:.2f} s<extra></extra>"))
+fig.update_layout(title="Calcular π con 100 millones de términos de la serie de Leibniz",
+                  xaxis=dict(title="tiempo (segundos)", range=[0, 11.5]), showlegend=False, margin=dict(l=260))
+mostrar(fig, 900, 520)
+```
+::: {.credito}
+Medido en una laptop (Apple M2 Pro), Python 3.12. En el notebook lo medirán ustedes en Colab.
+:::
+:::
+::: {.column width="42%"}
+| | Compilado | Interpretado |
+|---|---|---|
+| Velocidad | ⚡ muy alta | 🐢 más lenta |
+| Escribir y probar | más lento | muy rápido |
+| Errores | al compilar | al ejecutar |
+| Portabilidad | recompilar por sistema | mismo código |
+
+::: {.caja .pequeno}
+**El truco de Python científico:** NumPy, scikit-learn y PyTorch tienen su núcleo escrito en **C, C++ y CUDA**. Escribimos en Python cómodo y los cálculos pesados corren en código compilado.
+:::
+:::
+::::
+
+## ¡Manos a la obra! 💻
+
+:::: {.columns}
+::: {.column width="55%"}
+**Notebook: *03 · La terminal de Linux***
+
+1. Abrir en Google Colab (enlace en la página del curso)
+2. *Archivo → Guardar una copia en Drive*
+3. Ejecutar las celdas en orden con `Shift + Enter`
+4. Resolver cada ✏️ **Ejercicio** donde dice `# TU CÓDIGO AQUÍ`; la celda siguiente responde ✅ o ❌
+
+Temas: navegar, crear y mover archivos · analizar un archivo de fincas de café con tuberías · un *script* de bash · git paso a paso · C vs. Python
+:::
+::: {.column width="45%"}
+::: {.definicion}
+**Para seguir aprendiendo**
+
+- Software Carpentry en español: *La terminal de Unix* y *Control de versiones con Git* (swcarpentry.github.io)
+- William Shotts, *The Linux Command Line* (libro gratuito)
+- *Pro Git* (Chacon y Straub), gratuito y traducido al español: git-scm.com/book/es
+:::
+:::
+::::

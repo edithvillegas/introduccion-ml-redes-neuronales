@@ -1,0 +1,30 @@
+# Salida de Quarto
+_site/
+.quarto/
+*.quarto_ipynb
+diapositivas/*_files/
+/.luarc.json
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# Datos descargados al ejecutar notebooks o scripts
+# (¡ojo! diapositivas/datos/ SÍ se versiona: son los datos precalculados de las gráficas)
+/datos/
+notebooks/datos/
+soluciones/datos/
+beto-resenas/
+gensim-data/
+
+# Sistema y editores
+.DS_Store
+.claude/
+.vscode/
+.idea/
+
+/.quarto/
+**/*.quarto_ipynb

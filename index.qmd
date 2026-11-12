@@ -1,0 +1,109 @@
+---
+title: "Inteligencia artificial y redes neuronales"
+subtitle: "Escuela de Machine Learning: teoría y aplicaciones · ICTP–PWF Honduras 2026"
+description: "Diapositivas interactivas y notebooks de las sesiones de Edith Natalia Villegas García."
+toc: true
+toc-title: "Sesiones"
+---
+
+📅 23 de noviembre – 4 de diciembre de 2026 · 📍 Universidad Nacional Autónoma de Honduras (UNAH), Tegucigalpa · 🌐 [machine-learning-honduras.org](https://machine-learning-honduras.org/)
+
+Materiales de las sesiones sobre **introducción a la IA**, **Linux**, **redes neuronales**, **redes convolucionales**, **transformers** y **Hugging Face**. Las diapositivas son interactivas (gráficas en Python con Plotly): pasen el cursor, muevan los deslizadores y hagan clic en los botones. Los notebooks se abren en Google Colab sin instalar nada.
+
+::: {.callout-tip}
+## Cómo usar los notebooks
+
+1. Hagan clic en **Abrir en Colab**.
+2. En Colab: *Archivo → Guardar una copia en Drive* (así guardan sus cambios).
+3. Para los notebooks de redes neuronales: *Entorno de ejecución → Cambiar tipo de entorno de ejecución → GPU T4*.
+4. Ejecuten las celdas en orden con `Shift + Enter` y resuelvan cada **✏️ Ejercicio**; la celda siguiente responde ✅ o ❌.
+:::
+
+::: {.callout-note collapse="true"}
+## Atajos para las diapositivas
+
+`→` / `←` avanzar y retroceder · `F` pantalla completa · `O` o `Esc` vista general · `S` notas de la ponente · `C` pizarra para dibujar · `M` menú · `Alt + clic` acercar
+:::
+
+## Lunes 23 de noviembre
+
+::: {.tarjeta-sesion}
+### 1. Introducción a la IA y al aprendizaje automático — Parte 1
+[10:00 – 10:50]{.fecha}
+
+Bienvenida y programa de la escuela · IA, aprendizaje automático, aprendizaje profundo y ciencia de datos · historia · la IA en la vida diaria (asistentes, imágenes y video generados, demostraciones en vivo) · la IA en la ciencia (AlphaFold, proteínas, medicina, clima, física, matemáticas).
+
+[📊 Diapositivas](diapositivas/01_introduccion_ia.html){.btn .btn-primary .btn-sm}
+:::
+
+::: {.tarjeta-sesion}
+### 2. Introducción a la IA y al aprendizaje automático — Parte 2
+[11:30 – 12:20]{.fecha}
+
+Aprendizaje supervisado, no supervisado, autosupervisado y semisupervisado · clasificación vs. regresión · generalización y sobreajuste · preprocesamiento e ingeniería de características · redes neuronales en tres diapositivas · ética: sesgos en contratación y medicina, equidad, leyes, medio ambiente, trabajo, deepfakes · interpretabilidad.
+
+[📊 Diapositivas](diapositivas/02_fundamentos_ml.html){.btn .btn-primary .btn-sm}
+:::
+
+::: {.tarjeta-sesion}
+### 3. Linux, la terminal y git · Compilado vs. interpretado
+[13:30 – 14:30 · con Joshua Lemus]{.fecha}
+
+Sistema operativo y Linux · comandos esenciales, tuberías, permisos · git · C contra Python.
+
+[📊 Diapositivas](diapositivas/03_linux_terminal.html){.btn .btn-primary .btn-sm}
+[![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/03_terminal_linux.ipynb)
+[Soluciones](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/soluciones/03_terminal_linux_soluciones.ipynb){.small}
+:::
+
+## Viernes 27 de noviembre
+
+::: {.tarjeta-sesion}
+### 4. Teoría de redes neuronales
+[11:30 – 12:20]{.fecha}
+
+La neurona artificial y el perceptrón · XOR · redes multicapa · aproximación universal · pérdida, descenso de gradiente y retropropagación · sobreajuste · TensorFlow Playground · ImageNet y representaciones jerárquicas · redes de Hopfield (Nobel de Física 2024).
+
+[📊 Diapositivas](diapositivas/04_redes_neuronales.html){.btn .btn-primary .btn-sm}
+:::
+
+## Lunes 30 de noviembre
+
+::: {.tarjeta-sesion}
+### 5. Redes neuronales convolucionales y autocodificadores
+[13:30 – 14:30]{.fecha}
+
+Convolución paso a paso · filtros · *pooling* · arquitecturas · qué aprenden las redes (interpretabilidad, circuitos) · ejemplos adversarios · autocodificadores y espacio latente.
+
+[📊 Diapositivas](diapositivas/05_redes_convolucionales.html){.btn .btn-primary .btn-sm}
+[![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/05_redes_convolucionales.ipynb)
+[Soluciones](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/soluciones/05_redes_convolucionales_soluciones.ipynb){.small}
+:::
+
+::: {.tarjeta-sesion}
+### 6. Transformers y modelos de lenguaje
+[14:50 – 16:00]{.fecha}
+
+Modelos de lenguaje y tokens · vectores de palabras (rey − hombre + mujer, días y meses en círculo) · palabra enmascarada y siguiente token · atención y arquitectura transformer · interpretabilidad (características, circuitos, emociones) · RNN, Mamba y otras alternativas.
+
+[📊 Diapositivas](diapositivas/06_transformers_lenguaje.html){.btn .btn-primary .btn-sm}
+[![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/06_transformers_lenguaje.ipynb)
+[Soluciones](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/soluciones/06_transformers_lenguaje_soluciones.ipynb){.small}
+:::
+
+## Martes 1 de diciembre
+
+::: {.tarjeta-sesion}
+### 7. Práctica: Python, PyTorch y Hugging Face
+[14:50 – 16:00]{.fecha}
+
+Repaso de Python · tensores y *autograd* · `pipeline` · ajuste fino de BETO con reseñas en español · un mini-GPT entrenado con el Quijote · demos con Gradio.
+
+[📊 Diapositivas](diapositivas/07_practica_huggingface.html){.btn .btn-primary .btn-sm}
+[![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/07_huggingface.ipynb)
+[Soluciones](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/soluciones/07_huggingface_soluciones.ipynb){.small}
+:::
+
+---
+
+**Organizan:** ICTP – Physics Without Frontiers, Universidad Nacional Autónoma de Honduras (UNAH) y Tecnológico de Monterrey. Programa completo y ponentes en [machine-learning-honduras.org](https://machine-learning-honduras.org/). Materiales de otras sesiones (Python, visualización, clasificación, agentes): [escuela-machine-learning-honduras-2026](https://github.com/dapivei/escuela-machine-learning-honduras-2026) (Daniela Pinto Veizaga).

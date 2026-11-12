@@ -1,0 +1,41 @@
+project:
+  type: website
+  output-dir: _site
+  render:
+    - index.qmd
+    - diapositivas/*.qmd
+  resources:
+    - notebooks/*.ipynb
+    - soluciones/*.ipynb
+    - diapositivas/img/*.webm
+
+lang: es
+
+website:
+  title: "Escuela de ML Honduras 2026 · IA y redes neuronales"
+  description: "Diapositivas interactivas y notebooks de la Escuela de Machine Learning (ICTP–PWF Honduras 2026)."
+  site-url: "https://edithvillegas.github.io/introduccion-ml-redes-neuronales/"
+  repo-url: "https://github.com/edithvillegas/introduccion-ml-redes-neuronales"
+  repo-actions: [source, issue]
+  page-navigation: false
+  navbar:
+    background: "#0b2545"
+    left:
+      - text: "Inicio"
+        href: index.qmd
+    right:
+      - icon: github
+        href: "https://github.com/edithvillegas/introduccion-ml-redes-neuronales"
+        aria-label: GitHub
+  page-footer:
+    center: "ICTP · Physics Without Frontiers · UNAH — Tegucigalpa, 23 nov – 4 dic 2026"
+
+format:
+  html:
+    theme: [cosmo, assets/sitio.scss]
+    toc: false
+
+execute:
+  echo: false
+  warning: false
+  message: false

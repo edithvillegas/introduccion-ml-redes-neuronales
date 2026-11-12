@@ -1,0 +1,832 @@
+---
+title: "Transformers y modelos de lenguaje"
+subtitle: "Cómo funcionan ChatGPT, Claude y Gemini por dentro"
+author: "Edith Natalia Villegas García · ICTP"
+date: 2026-11-30
+description: "Modelos de lenguaje, tokens, vectores de palabras (rey − hombre + mujer, días y meses en círculo), modelado enmascarado y del siguiente token, atención, el transformer, interpretabilidad y arquitecturas alternativas (RNN, Mamba)."
+---
+
+```{python}
+from graficas import *
+rng = np.random.default_rng(3)
+```
+
+## Plan de la sesión
+
+:::: {.columns}
+::: {.column width="50%"}
+1. ¿Qué es un **modelo de lenguaje**?
+2. **Tokens**: cómo lee el texto una red neuronal
+3. **Palabras como vectores**: rey − hombre + mujer ≈ reina, y días de la semana en círculo
+4. Entrenar sin etiquetas: **palabra enmascarada** y **siguiente palabra**
+5. **Atención** y la arquitectura **transformer**
+6. ¿Qué pasa **dentro**? Interpretabilidad
+7. Antes y después: **RNN**, **Mamba** y otras alternativas
+8. 💻 Práctica en Colab
+:::
+::: {.column width="50%"}
+::: {.definicion}
+**De la sesión anterior:** las redes convolucionales explotan la estructura **espacial** de las imágenes.
+
+**Hoy:** el lenguaje es una **secuencia**, donde el significado de cada palabra depende del **contexto**… a veces muy lejano.
+:::
+:::
+::::
+
+# ¿Qué es un modelo de lenguaje? {background-color="#0b2545" .seccion}
+
+## Un modelo de lenguaje predice la siguiente palabra
+
+:::: {.columns}
+::: {.column width="40%"}
+Un **modelo de lenguaje** asigna probabilidades a secuencias de texto:
+
+$$
+P(w_1, \dots, w_T) = \prod_{t=1}^{T} P\big(w_t \mid w_1, \dots, w_{t-1}\big)
+$$
+
+Para **generar** texto:
+
+1. calcular $P(\text{siguiente} \mid \text{contexto})$
+2. elegir un token
+3. agregarlo al contexto y **repetir**
+
+::: {.caja .pequeno}
+El teclado de su celular hace esto con un modelo pequeño. ChatGPT, Claude y Gemini, con modelos de cientos de miles de millones de parámetros.
+:::
+:::
+::: {.column width="60%"}
+```{python}
+gen = cargar("generacion_paso_a_paso.json")
+fig = go.Figure()
+titulos = []
+for k, p in enumerate(gen["pasos"]):
+    fig.add_trace(go.Bar(x=p["probs"][::-1], y=[c.replace(" ", "␣") for c in p["candidatos"]][::-1], orientation="h",
+                         marker=dict(color=[GRIS_CLARO] * 4 + [NARANJA]), visible=(k == 0),
+                         text=[f"{v:.0%}" for v in p["probs"][::-1]], textposition="outside",
+                         hovertemplate="«%{y}»: %{x:.1%}<extra></extra>"))
+    titulos.append({"title.text": f"«{p['contexto']} <b>___</b>»"})
+fig.update_layout(sliders=deslizador(pasos_visibilidad(1, list(range(1, len(gen["pasos"]) + 1)), extras=titulos), prefijo="paso "),
+                  title=titulos[0]["title.text"], xaxis=dict(title="probabilidad", tickformat=".0%", range=[0, 1.1]),
+                  showlegend=False, margin=dict(l=150, t=80))
+mostrar(fig, 900, 600)
+```
+::: {.credito}
+Probabilidades reales de Qwen2.5-0.5B (decodificación voraz: siempre el más probable, en naranja).
+:::
+:::
+::::
+
+# Tokens {background-color="#0b2545" .seccion}
+
+## El texto se corta en *tokens*
+
+```{python}
+tk = cargar("tokenizacion.json")
+filas = []
+for nombre, d in tk["tokenizadores"].items():
+    filas.append(f"<tr><td style='width:22%'><b>{nombre}</b></td>"
+                 f"<td>{tokens_coloreados(d['es']['piezas'])}<br><span style='font-size:0.6em;color:{GRIS}'>"
+                 f"español: <b>{len(d['es']['piezas'])}</b> tokens · la misma frase en inglés: <b>{len(d['en']['piezas'])}</b> tokens</span></td></tr>")
+display(HTML("<table style='font-size:0.95em;width:100%'>" + "".join(filas) + "</table>"))
+```
+
+::: {.pequeno}
+- Los modelos no ven letras ni palabras: ven **tokens** (pedazos frecuentes de palabras), cada uno con un número (su *id*)
+- Un tokenizador entrenado sobre todo en inglés necesita **más tokens para el español** → más costo, menos contexto, peor desempeño: un "impuesto" lingüístico (Petrov *et al.*, 2023)
+- Por eso a los modelos les cuesta **contar letras**: ¿cuántas "r" hay en "ferrocarril"? 🤔
+:::
+
+## Pruébenlo: el *Tokenizer Playground*
+
+<iframe class="demo" data-src="https://xenova-the-tokenizer-playground.static.hf.space/index.html" height="640" loading="lazy"></iframe>
+
+::: {.credito}
+Xenova, *The Tokenizer Playground* (Hugging Face Spaces, corre en el navegador). Escriban una frase en español y en inglés y comparen tokenizadores.
+:::
+
+# Palabras como vectores {background-color="#0b2545" .seccion}
+
+"Conocerás una palabra por la compañía que mantiene" — J. R. Firth (1957)
+
+## De identificadores a vectores
+
+:::: {.columns}
+::: {.column width="50%"}
+**Codificación *one-hot*:** cada palabra es un vector de ceros con un 1
+
+```
+perro → [0, 0, 1, 0, 0, …, 0]   (50 000 dimensiones)
+gato  → [0, 0, 0, 0, 1, …, 0]
+```
+
+Todas las palabras están **igual de lejos** entre sí. 😕
+:::
+::: {.column width="50%"}
+**Vectores densos (*embeddings*):** cada palabra es un punto en un espacio de ~100–10 000 dimensiones, **aprendido** de los datos
+
+```
+perro → [0.21, −0.43, 0.88, …]
+gato  → [0.19, −0.40, 0.91, …]   ← ¡cerca!
+```
+
+**Hipótesis distribucional:** palabras que aparecen en contextos parecidos tienen significados parecidos.
+:::
+::::
+
+::: {.caja .fragment}
+**word2vec** (Mikolov *et al.*, 2013) y **GloVe** (Pennington *et al.*, 2014) aprenden estos vectores prediciendo qué palabras aparecen juntas en miles de millones de palabras de texto.
+:::
+
+## Rey − hombre + mujer ≈ reina
+
+```{python}
+an = cargar("analogias_glove.json")
+grupos = an["grupos"]
+fig = go.Figure()
+info = []
+for gi, (gnombre, g) in enumerate(grupos.items()):
+    xyz = np.array(g["xyz"])
+    palabras = g["palabras"]
+    es = g["es"]
+    idx = {w: i for i, w in enumerate(palabras)}
+    trazas = 0
+    for a, b in g["pares"]:
+        pa, pb = xyz[idx[a]], xyz[idx[b]]
+        fig.add_trace(go.Scatter(x=[pa[0], pb[0]], y=[pa[1], pb[1]], mode="lines", line=dict(color=GRIS_CLARO, width=3),
+                                 showlegend=False, hoverinfo="skip", visible=(gi == 0)))
+        fig.add_annotation(x=pb[0], y=pb[1], ax=pa[0], ay=pa[1], xref="x", yref="y", axref="x", ayref="y",
+                           showarrow=True, arrowhead=3, arrowsize=1.4, arrowwidth=2.5, arrowcolor=NARANJA, text="",
+                           visible=(gi == 0), name=gnombre)
+        trazas += 1
+    primeros = [idx[a] for a, _ in g["pares"]]
+    segundos = [idx[b] for _, b in g["pares"]]
+    for sel, color in [(primeros, AZUL), (segundos, NARANJA)]:
+        fig.add_trace(go.Scatter(x=xyz[sel, 0], y=xyz[sel, 1], mode="markers+text", text=[es[i] for i in sel],
+                                 textposition="top center", textfont=dict(size=19), showlegend=False,
+                                 customdata=[palabras[i] for i in sel], hovertemplate="%{text} (%{customdata})<extra></extra>",
+                                 marker=dict(size=14, color=color, line=dict(color="white", width=2)), visible=(gi == 0)))
+        trazas += 1
+    info.append((gnombre, trazas))
+total = sum(t for _, t in info)
+botones = []
+inicio = 0
+n_anot = len(fig.layout.annotations)
+for gnombre, t in info:
+    vis = [False] * total
+    vis[inicio:inicio + t] = [True] * t
+    anot_vis = [a.name == gnombre for a in fig.layout.annotations]
+    botones.append(dict(label=gnombre, method="update",
+                        args=[{"visible": vis}, {f"annotations[{k}].visible": anot_vis[k] for k in range(n_anot)}]))
+    inicio += t
+fig.update_layout(updatemenus=[dict(type="buttons", direction="right", buttons=botones, x=0, y=1.12, xanchor="left",
+                                    font=dict(size=18), bgcolor="white")],
+                  xaxis=dict(title="componente principal 1", zeroline=False), yaxis=dict(title="componente principal 2", zeroline=False),
+                  margin=dict(t=80))
+mostrar(fig, 1300, 640)
+```
+
+::: {.pequeno}
+Vectores reales de GloVe (100 dimensiones, entrenados con texto en inglés; etiquetas traducidas) proyectados con PCA. Las flechas **paralelas** muestran que una relación (género, país→capital, presente→pasado) es aproximadamente **una dirección** en el espacio: $\vec{\text{rey}} - \vec{\text{hombre}} + \vec{\text{mujer}} \approx \vec{\text{reina}}$ (Mikolov, Yih y Zweig, 2013).
+:::
+
+## Aritmética con palabras {.compacta}
+
+:::: {.columns}
+::: {.column width="45%"}
+```{python}
+trad = {"king": "rey", "woman": "mujer", "man": "hombre", "queen": "reina", "paris": "París", "italy": "Italia",
+        "france": "Francia", "rome": "Roma", "tokyo": "Tokio", "spain": "España", "japan": "Japón", "madrid": "Madrid",
+        "walked": "caminó", "swim": "nadar", "walk": "caminar", "swam": "nadó", "doctor": "médico", "nurse": "enfermera",
+        "programmer": "programador", "educator": "educadora", "monarch": "monarca", "milan": "Milán", "physician": "médico",
+        "swimming": "nadando", "officer": "oficial", "hospital": "hospital", "throne": "trono", "daughter": "hija",
+        "princess": "princesa", "naples": "Nápoles", "venice": "Venecia", "santiago": "Santiago", "doctors": "médicos",
+        "patient": "paciente", "dentist": "dentista", "surgeon": "cirujano", "drowned": "se ahogó", "programmers": "programadores",
+        "linguist": "lingüista", "technician": "técnica", "freelance": "independiente", "turin": "Turín", "aires": "Aires",
+        "buenos": "Buenos", "overboard": "por la borda", "rowed": "remó"}
+filas = []
+for q in an["consultas"]:
+    (a, b), c = q["positivo"], q["negativo"][0]
+    top = ", ".join(trad.get(w, w) for w, _ in q["resultado"][:3])
+    filas.append(f"<tr><td>{trad.get(a, a)} − {trad.get(c, c)} + {trad.get(b, b)}</td><td>{top}</td></tr>")
+display(HTML("<table style='font-size:0.8em'><tr><th>Operación</th><th>Vecinos más cercanos</th></tr>" + "".join(filas) + "</table>"))
+```
+:::
+::: {.column width="55%"}
+```{python}
+nube = an["nube"]
+xyz = np.array(nube["xyz"])
+cats = list(dict.fromkeys(nube["categoria"]))
+fig = go.Figure()
+for i, c in enumerate(cats):
+    m = np.array(nube["categoria"]) == c
+    fig.add_trace(go.Scatter3d(x=xyz[m, 0], y=xyz[m, 1], z=xyz[m, 2], mode="markers+text", name=c,
+                               text=np.array(nube["es"])[m], textfont=dict(size=11, color=CATEGORICOS[i]),
+                               marker=dict(size=5, color=CATEGORICOS[i]), hovertemplate="%{text}<extra></extra>"))
+fig.update_layout(scene=dict(xaxis=dict(showticklabels=False, title=""), yaxis=dict(showticklabels=False, title=""),
+                             zaxis=dict(showticklabels=False, title="")),
+                  legend=dict(x=0, y=1, font=dict(size=15)), margin=dict(l=0, r=0, t=0, b=0))
+mostrar(fig, 820, 620)
+```
+::: {.credito}
+60 palabras de 6 categorías en 3D (PCA de GloVe). ¡Gírenlo! Las categorías forman regiones.
+:::
+:::
+::::
+
+::: {.caja-naranja .pequeno}
+⚠️ Fíjense en la última fila: los vectores también aprenden **estereotipos** (médico − hombre + mujer → enfermera). Lo vimos en la sesión de ética.
+:::
+
+## Los días de la semana y los meses forman **círculos**
+
+```{python}
+circ = cargar("circulos_dias_meses.json")
+def dibujar_circulo(fig, d, col, visible, color_puntos):
+    medias = np.array(d["medias"])
+    puntos = np.array(d["puntos"])
+    n = len(d["palabras"])
+    for k in range(n):
+        fig.add_trace(go.Scatter(x=puntos[k, :, 0], y=puntos[k, :, 1], mode="markers", showlegend=False, visible=visible,
+                                 marker=dict(size=6, color=color_puntos, opacity=0.25), hoverinfo="skip"), 1, col)
+    cerrado = np.vstack([medias, medias[:1]])
+    fig.add_trace(go.Scatter(x=cerrado[:, 0], y=cerrado[:, 1], mode="lines", line=dict(color=GRIS, width=2, dash="dot"),
+                             showlegend=False, visible=visible, hoverinfo="skip"), 1, col)
+    fig.add_trace(go.Scatter(x=medias[:, 0], y=medias[:, 1], mode="markers+text", text=d["palabras"], textposition="top center",
+                             textfont=dict(size=18), showlegend=False, visible=visible,
+                             marker=dict(size=16, color=color_puntos, line=dict(color="white", width=2)),
+                             hovertemplate="%{text}<extra></extra>"), 1, col)
+    return n + 2
+
+fig = make_subplots(rows=1, cols=2, horizontal_spacing=0.1,
+                    subplot_titles=["Días de la semana", "Meses del año"])
+conteos = []
+for idioma, visible in [("es", True), ("en", False)]:
+    c1 = dibujar_circulo(fig, circ[f"dias_{idioma}"], 1, visible, AZUL)
+    c2 = dibujar_circulo(fig, circ[f"meses_{idioma}"], 2, visible, NARANJA)
+    conteos.append(c1 + c2)
+botones = [dict(label="Qwen2.5-0.5B, en español", method="update",
+                args=[{"visible": [True] * conteos[0] + [False] * conteos[1]}]),
+           dict(label="GPT-2, en inglés", method="update",
+                args=[{"visible": [False] * conteos[0] + [True] * conteos[1]}])]
+fig.update_layout(updatemenus=[dict(type="buttons", direction="right", buttons=botones, x=0, y=1.26, xanchor="left",
+                                    font=dict(size=17), bgcolor="white")], margin=dict(t=130))
+fig.update_xaxes(title_text="componente principal 1", showticklabels=False)
+fig.update_yaxes(title_text="componente principal 2", showticklabels=False)
+fig.update_yaxes(scaleanchor="x", row=1, col=1)
+fig.update_yaxes(scaleanchor="x2", row=1, col=2)
+mostrar(fig, 1450, 620)
+```
+
+::: {.pequeno}
+Cálculo propio: estado interno del modelo en la palabra (p. ej. "martes") dentro de 16 frases distintas; puntos grandes = promedio, puntos pequeños = cada frase; proyección con PCA. ¡El modelo representa el **orden cíclico** sin que nadie se lo enseñara! Y lo **usa** para razonar ("¿qué día es dos días después del viernes?").
+:::
+
+::: aside
+Engels, J., Michaud, E. J., Liao, I., Gurnee, W. & Tegmark, M. (2025). Not All Language Model Features Are One-Dimensionally Linear. *ICLR 2025*. arXiv:2405.14860. · Ver también Gurnee, W. & Tegmark, M. (2024). Language Models Represent Space and Time. *ICLR 2024*.
+:::
+
+## El resultado original {.compacta}
+
+:::: {.columns}
+::: {.column width="55%"}
+![Representaciones circulares de los días de la semana, los meses y los años en GPT-2 (capa 7), encontradas con autocodificadores dispersos](img/engels2024_gpt2_circulos.png){width="100%"}
+:::
+::: {.column width="45%"}
+- Engels *et al.* buscaron **grupos** de características de un autocodificador disperso (¡otra vez autocodificadores!) que se activan juntas
+- Encontraron estructuras **circulares** e irreducibles a una dimensión: días, meses, años
+- En Mistral 7B y Llama 3 8B, los modelos **usan** esos círculos para resolver aritmética modular: "dos días después del lunes es…"
+
+::: {.caja .pequeno}
+Nuestra figura anterior es una **reproducción simplificada** (promedios + PCA) con modelos pequeños, sin autocodificadores.
+:::
+:::
+::::
+
+::: {.credito}
+Figura: Engels, J., Michaud, E. J., Liao, I., Gurnee, W. & Tegmark, M. (2025). Not All Language Model Features Are One-Dimensionally Linear. *ICLR 2025*. arXiv:2405.14860, CC BY 4.0.
+:::
+
+# Entrenar sin etiquetas {background-color="#0b2545" .seccion}
+
+Aprendizaje autosupervisado
+
+## Tarea 1: adivinar la palabra tapada (BERT)
+
+:::: {.columns}
+::: {.column width="40%"}
+**Modelado de lenguaje enmascarado** (*masked language modeling*):
+
+- Se tapa el ~15 % de los tokens con `[MASK]`
+- El modelo debe adivinarlos usando el contexto **de ambos lados**
+- Así se entrenaron **BERT** (Google, 2018) y **BETO** (U. de Chile, 2020), entre otros
+
+::: {.caja .pequeno}
+Útil para **entender** texto: clasificar, buscar, extraer información.
+:::
+:::
+::: {.column width="60%"}
+```{python}
+mlm = cargar("mlm_beto.json")
+fig = go.Figure()
+for i, e in enumerate(mlm["ejemplos"]):
+    fig.add_trace(go.Bar(x=e["probs"][::-1], y=e["tokens"][::-1], orientation="h", visible=(i == 0),
+                         marker=dict(color=AZUL), text=[f"{p:.0%}" for p in e["probs"][::-1]], textposition="outside",
+                         hovertemplate="%{y}: %{x:.1%}<extra></extra>"))
+botones = [dict(label=e["frase"].replace("[MASK]", "____"), method="update",
+                args=[{"visible": [j == i for j in range(len(mlm["ejemplos"]))]}]) for i, e in enumerate(mlm["ejemplos"])]
+fig.update_layout(updatemenus=[dict(buttons=botones, direction="down", x=0, y=1.15, xanchor="left", font=dict(size=17),
+                                    bgcolor="white")], xaxis=dict(title="probabilidad", tickformat=".0%", range=[0, 1.1]),
+                  margin=dict(t=100, l=140), showlegend=False)
+mostrar(fig, 880, 580)
+```
+::: {.credito}
+Cañete, J. *et al.* (2020). Spanish Pre-Trained BERT Model and Evaluation Data. *PML4DC @ ICLR 2020*. · Devlin, J. *et al.* (2019). BERT. *NAACL*.
+:::
+:::
+::::
+
+## Tarea 2: predecir el siguiente token (GPT) {.compacta}
+
+:::: {.columns}
+::: {.column width="40%"}
+- El modelo solo ve el **pasado** (contexto a la izquierda)
+- Cada posición de cada texto es un ejemplo de entrenamiento: ¡billones de ejemplos "gratis"!
+- Así se entrenan **GPT**, **Claude**, **Gemini**, **Llama**, **Qwen**…
+
+**Temperatura** $T$ al muestrear:
+$$
+p_i = \frac{e^{z_i/T}}{\sum_j e^{z_j/T}}
+$$
+$T\to0$: siempre el más probable · $T$ grande: más aleatorio
+:::
+::: {.column width="60%"}
+```{python}
+sig = cargar("siguiente_token.json")
+temps = [0.2, 0.5, 1.0, 1.5, 3.0]
+fig = make_subplots(rows=1, cols=1)
+n_ej = len(sig["ejemplos"])
+for e in sig["ejemplos"]:
+    logits = np.array(e["logits"])
+    for T in temps:
+        p = np.exp((logits - logits.max()) / T)
+        p /= p.sum()
+        fig.add_trace(go.Bar(x=[t.replace(" ", "␣") for t in e["tokens"]], y=p, marker=dict(color=AZUL),
+                             visible=False, hovertemplate="«%{x}»: %{y:.1%}<extra></extra>"))
+# Un deslizador por combinación (frase, temperatura): se elige la frase con los botones
+pasos_por_frase = []
+for i, e in enumerate(sig["ejemplos"]):
+    pasos = []
+    for j, T in enumerate(temps):
+        vis = [False] * (n_ej * len(temps))
+        vis[i * len(temps) + j] = True
+        pasos.append(dict(method="update", label=str(T), args=[{"visible": vis}, {"title.text": f"«{e['frase']} ___»"}]))
+    pasos_por_frase.append(pasos)
+i0, j0 = 1, 2
+fig.data[i0 * len(temps) + j0].visible = True
+botones = [dict(label=e["frase"][:28] + ("…" if len(e["frase"]) > 28 else ""), method="update",
+                args=[{"visible": [k == i * len(temps) + 2 for k in range(n_ej * len(temps))]},
+                      {"title.text": f"«{e['frase']} ___»", "sliders": deslizador(pasos_por_frase[i], prefijo="temperatura: ", activo=2)}])
+           for i, e in enumerate(sig["ejemplos"])]
+fig.update_layout(updatemenus=[dict(buttons=botones, direction="down", x=0, y=1.2, xanchor="left", font=dict(size=16), bgcolor="white")],
+                  sliders=deslizador(pasos_por_frase[i0], prefijo="temperatura: ", activo=2),
+                  title=dict(text=f"«{sig['ejemplos'][i0]['frase']} ___»", y=0.86), yaxis=dict(title="probabilidad", tickformat=".0%"),
+                  xaxis=dict(tickangle=-40), showlegend=False, margin=dict(t=130, b=110))
+mostrar(fig, 900, 660)
+```
+::: {.credito}
+Probabilidades reales de Qwen2.5-0.5B. ¡Ojo! Para «La capital de Honduras es la ciudad de» da 34 % a «␣San» y 32 % a «␣T» (de *T*egucigalpa): un modelo pequeño se equivoca, y los tokens son pedazos de palabras.
+:::
+:::
+::::
+
+# Atención y el transformer {background-color="#0b2545" .seccion}
+
+"Attention is all you need" (Vaswani *et al.*, 2017)
+
+## El problema: el significado depende del contexto
+
+::: {.grande}
+"Me senté en el **banco** del parque." 🪑
+
+"Fui al **banco** a cambiar un cheque." 🏦
+
+"El gato no cruzó la calle porque **estaba muy cansado**." → ¿quién estaba cansado?
+:::
+
+::: {.fragment .caja}
+Necesitamos que cada palabra pueda **mirar** a las demás palabras de la frase y **actualizar** su significado según lo que encuentre. Eso es la **atención**.
+:::
+
+## Atención: consultas, claves y valores {.compacta}
+
+:::: {.columns}
+::: {.column width="50%"}
+Cada token produce tres vectores (multiplicando su embedding por matrices aprendidas):
+
+- **Consulta** $q$ (*query*): "¿qué estoy buscando?"
+- **Clave** $k$ (*key*): "¿qué ofrezco?"
+- **Valor** $v$ (*value*): "¿qué información llevo?"
+
+$$
+\text{Atención}(Q, K, V) = \text{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right) V
+$$
+
+1. Similitud de cada consulta con cada clave ($QK^\top$)
+2. Softmax → **pesos** de atención que suman 1
+3. Promedio ponderado de los valores
+:::
+::: {.column width="50%"}
+::: {.definicion}
+**Analogía:** un buscador. La consulta es lo que escriben; las claves son los títulos de las páginas; los valores, su contenido. El resultado es una mezcla de contenidos, ponderada por qué tan bien coincide cada título.
+:::
+
+- **Varias cabezas** (*multi-head*): cada cabeza aprende a buscar cosas distintas (sintaxis, correferencia, la palabra anterior…)
+- Todo se calcula **en paralelo** para todas las posiciones → ideal para GPU
+- Costo: crece como $n^2$ con la longitud $n$ del texto
+:::
+::::
+
+## Atención real en BETO
+
+```{python}
+att = cargar("atencion_beto.json")
+toks = att["tokens"]
+fig = go.Figure()
+for i, c in enumerate(att["cabezas"]):
+    fig.add_trace(go.Heatmap(z=c["pesos"], x=toks, y=toks, colorscale=AZULES, zmin=0, zmax=max(0.5, np.max(c["pesos"]) * 0.8),
+                             visible=(i == 0), colorbar=dict(title="peso"), xgap=1, ygap=1,
+                             hovertemplate="«%{y}» mira a «%{x}»: %{z:.2f}<extra></extra>"))
+botones = [dict(label=c["nombre"], method="update", args=[{"visible": [j == i for j in range(len(att["cabezas"]))]}])
+           for i, c in enumerate(att["cabezas"])]
+fig.update_layout(updatemenus=[dict(buttons=botones, direction="down", x=0, y=1.13, xanchor="left", font=dict(size=17), bgcolor="white")],
+                  xaxis=dict(title="…a qué token mira", tickangle=-45, side="bottom"), yaxis=dict(title="token que pregunta", autorange="reversed"),
+                  margin=dict(t=90, l=120, b=130))
+mostrar(fig, 1100, 700)
+```
+
+::: {.pequeno}
+Cada fila suma 1: cómo reparte su atención cada token. Algunas cabezas aprenden patrones simples (mirar la palabra anterior), otras relaciones de significado: en una cabeza, "cansado" mira sobre todo a "gato". ¡Nadie programó esto!
+:::
+
+## La arquitectura transformer
+
+:::: {.columns}
+::: {.column width="45%"}
+```{python}
+bloques = [("tokens de entrada", 0, "#e3e2dd", MARINO), ("embeddings + posición", 1, "#cde2fb", MARINO),
+           ("atención multi-cabeza", 2.3, NARANJA, "white"), ("suma + normalización", 3.1, "#fde0d1", MARINO),
+           ("red densa (MLP)", 4.1, AZUL, "white"), ("suma + normalización", 4.9, "#cde2fb", MARINO),
+           ("desembedding + softmax", 6.2, "#e3e2dd", MARINO), ("P(siguiente token)", 7.1, AQUA, "white")]
+fig = go.Figure()
+for t, y, c, ct in bloques:
+    fig.add_shape(type="rect", x0=-1.6, x1=1.6, y0=y - 0.32, y1=y + 0.32, fillcolor=c, line=dict(width=0))
+    fig.add_annotation(x=0, y=y, text=f"<b>{t}</b>", showarrow=False, font=dict(size=18, color=ct))
+fig.add_shape(type="rect", x0=-1.9, x1=1.9, y0=1.75, y1=5.45, line=dict(color=GRIS, width=2, dash="dash"))
+fig.add_annotation(x=2.0, y=3.6, text="<b>× N capas</b><br>(12 en GPT-2,<br>96 en GPT-3)", showarrow=False, xanchor="left",
+                   font=dict(size=17, color=GRIS))
+for y0, y1 in [(0.32, 0.68), (1.32, 1.98), (2.62, 2.78), (3.42, 3.78), (4.42, 4.58), (5.22, 5.88), (6.52, 6.78)]:
+    fig.add_annotation(x=0, y=y1, ax=0, ay=y0, xref="x", yref="y", axref="x", ayref="y", showarrow=True, arrowhead=3,
+                       arrowwidth=2.5, arrowcolor=GRIS, text="")
+fig.add_annotation(x=-2.6, y=4.9, ax=-2.6, ay=1.5, xref="x", yref="y", axref="x", ayref="y", showarrow=True, arrowhead=3,
+                   arrowwidth=4, arrowcolor=VIOLETA, text="")
+fig.add_annotation(x=-2.75, y=3.2, text="<b>flujo<br>residual</b>", showarrow=False, xanchor="right", font=dict(size=16, color=VIOLETA))
+fig.update_layout(xaxis=dict(visible=False, range=[-3.9, 3.6]), yaxis=dict(visible=False, range=[-0.5, 7.6]),
+                  plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=0, r=0, t=0, b=0))
+mostrar(fig, 680, 700)
+```
+:::
+::: {.column width="55%"}
+- Cada capa **lee y escribe** en el *flujo residual* (*residual stream*): un vector por token que se va enriqueciendo
+- **Atención**: mueve información **entre** tokens
+- **MLP**: procesa la información **dentro** de cada token (¡ahí se guardan muchos "datos" del mundo!)
+- La **posición** se codifica explícitamente (la atención por sí sola no sabe el orden)
+
+| Tipo | Ejemplo | Para qué |
+|---|---|---|
+| Codificador | BERT, BETO | entender, clasificar |
+| Decodificador | GPT, Claude, Llama | generar texto |
+| Codificador-decodificador | T5, el original de 2017 | traducir, resumir |
+:::
+::::
+
+## Juega con GPT-2 en el navegador: *Transformer Explainer*
+
+<iframe class="demo" data-src="https://poloclub.github.io/transformer-explainer/" height="640" loading="lazy"></iframe>
+
+::: {.credito}
+Cho, A. *et al.* (2024). Transformer Explainer: Interactive Learning of Text-Generative Models. *IEEE VIS*. [Abrir en otra pestaña](https://poloclub.github.io/transformer-explainer/).
+:::
+
+## Más grande = mejor (por ahora): leyes de escala
+
+:::: {.columns}
+::: {.column width="55%"}
+```{python}
+N = np.logspace(6, 12, 200)
+L = (8.8e13 / N) ** 0.076
+modelos = [("GPT-2 pequeño", 1.24e8), ("GPT-2", 1.5e9), ("GPT-3", 1.75e11), ("Llama 3.1 405B", 4.05e11)]
+fig = go.Figure(go.Scatter(x=N, y=L, mode="lines", line=dict(color=AZUL, width=4), name="ley de potencia",
+                           hovertemplate="%{x:.2s} parámetros → pérdida %{y:.2f}<extra></extra>"))
+for nombre, n in modelos:
+    fig.add_trace(go.Scatter(x=[n], y=[(8.8e13 / n) ** 0.076], mode="markers+text", text=[nombre], textposition="top right",
+                             marker=dict(size=14, color=NARANJA), textfont=dict(size=16), showlegend=False,
+                             hovertemplate=f"{nombre}<extra></extra>"))
+fig.update_layout(xaxis=dict(type="log", title="parámetros del modelo (sin embeddings)", exponentformat="SI"),
+                  yaxis=dict(type="log", title="pérdida en datos de prueba"), showlegend=False,
+                  title="L(N) ≈ (N꜀ / N)^0.076")
+mostrar(fig, 860, 560)
+```
+:::
+::: {.column width="45%"}
+- La pérdida baja como una **ley de potencia** al aumentar parámetros, datos y cómputo (Kaplan *et al.*, 2020)
+- Para un presupuesto fijo, conviene crecer modelo y datos **juntos**: ~20 tokens por parámetro (Hoffmann *et al.*, 2022, "Chinchilla")
+- Con la escala aparecen capacidades nuevas… y también costos enormes (energía, agua, concentración de poder)
+
+::: {.credito}
+Curva ilustrativa con los parámetros publicados por Kaplan *et al.* (2020), arXiv:2001.08361.
+:::
+:::
+::::
+
+## De modelo de lenguaje a asistente
+
+```{python}
+etapas = [("1. Preentrenamiento", "predecir el siguiente token en billones de tokens de internet, libros y código", AZUL),
+          ("2. Ajuste con instrucciones", "ejemplos de preguntas y buenas respuestas escritas por personas", AQUA),
+          ("3. Aprendizaje por refuerzo", "con preferencias humanas (RLHF) o con principios escritos (IA constitucional)", NARANJA),
+          ("4. Herramientas y agentes", "buscar en la web, ejecutar código, usar programas", VIOLETA)]
+fig = go.Figure()
+for i, (t, d, c) in enumerate(etapas):
+    x = i * 1.0
+    fig.add_shape(type="rect", x0=x, x1=x + 0.92, y0=0, y1=1, fillcolor=c, line=dict(width=0))
+    fig.add_annotation(x=x + 0.46, y=0.78, text=f"<b>{t}</b>", showarrow=False, font=dict(size=19, color="white"))
+    fig.add_annotation(x=x + 0.46, y=0.38, text=d, showarrow=False, font=dict(size=15, color="white"), width=250)
+fig.update_layout(xaxis=dict(visible=False, range=[-0.05, 4]), yaxis=dict(visible=False, range=[-0.05, 1.05]),
+                  plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=0, r=0, t=0, b=0))
+mostrar(fig, 1450, 300)
+```
+
+:::: {.columns .pequeno}
+::: {.column width="50%"}
+- Un modelo **solo preentrenado** continúa texto, pero no "conversa" ni sigue instrucciones
+- RLHF: Ouyang *et al.* (2022), *Training language models to follow instructions with human feedback*. IA constitucional: Bai *et al.* (2022), Anthropic
+:::
+::: {.column width="50%"}
+- Los transformers **no son solo para texto**: imágenes (Vision Transformer), audio (Whisper), proteínas (AlphaFold, ESM), física de partículas…
+
+[📅 Agentes de IA con **Daniela Pinto** · miércoles 2 de diciembre]{.adelante}
+:::
+::::
+
+# ¿Qué pasa dentro? Interpretabilidad {background-color="#0b2545" .seccion}
+
+## Superposición: más conceptos que neuronas
+
+:::: {.columns}
+::: {.column width="50%"}
+- Esperaríamos "una neurona = un concepto"… pero las neuronas suelen ser **polisemánticas**: responden a cosas sin relación
+- Hipótesis de **superposición**: el modelo representa **muchos más conceptos que neuronas**, como **direcciones** casi perpendiculares en un espacio de alta dimensión (Elhage *et al.*, 2022)
+- Solución: un **autocodificador disperso** (*sparse autoencoder*, ¡como los de la sesión anterior!) descompone cada activación en una suma de pocas **características** interpretables
+:::
+::: {.column width="50%"}
+```{python}
+d_ocultas = 2
+n_conceptos = 5
+ang = np.linspace(0, 2 * np.pi, n_conceptos, endpoint=False) + 0.3
+fig = go.Figure()
+nombres_conc = ["«perro»", "«código Python»", "«Tegucigalpa»", "«ironía»", "«ADN»"]
+for k, (a, nombre) in enumerate(zip(ang, nombres_conc)):
+    fig.add_annotation(x=np.cos(a), y=np.sin(a), ax=0, ay=0, xref="x", yref="y", axref="x", ayref="y", showarrow=True,
+                       arrowhead=3, arrowwidth=4, arrowcolor=CATEGORICOS[k], text="")
+    fig.add_annotation(x=1.22 * np.cos(a), y=1.22 * np.sin(a), text=f"<b>{nombre}</b>", showarrow=False,
+                       font=dict(size=18, color=MARINO))
+fig.add_shape(type="circle", x0=-1, x1=1, y0=-1, y1=1, line=dict(color=GRIS_CLARO, width=2, dash="dot"))
+fig.update_layout(xaxis=dict(visible=False, range=[-1.6, 1.6]), yaxis=dict(visible=False, range=[-1.5, 1.5], scaleanchor="x"),
+                  plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=0, r=0, t=40, b=0),
+                  title="5 conceptos guardados en solo 2 neuronas (como direcciones)")
+mostrar(fig, 760, 560)
+```
+:::
+::::
+
+::: aside
+Elhage, N. *et al.* (2022). Toy Models of Superposition. *Transformer Circuits Thread*. · Bricken, T. *et al.* (2023). Towards Monosemanticity: Decomposing Language Models With Dictionary Learning. *Transformer Circuits Thread*.
+:::
+
+## Características dentro de Claude {.compacta}
+
+:::: {.columns}
+::: {.column width="45%"}
+```{python}
+fig = go.Figure()
+def caja(x, y, w, h, color, texto, color_texto="white", tam=17):
+    fig.add_shape(type="rect", x0=x - w / 2, x1=x + w / 2, y0=y - h / 2, y1=y + h / 2, fillcolor=color, line=dict(width=0))
+    fig.add_annotation(x=x, y=y, text=texto, showarrow=False, font=dict(size=tam, color=color_texto))
+def flecha(x0, y0, x1, y1):
+    fig.add_annotation(x=x1, y=y1, ax=x0, ay=y0, xref="x", yref="y", axref="x", ayref="y", showarrow=True,
+                       arrowhead=3, arrowwidth=2.5, arrowcolor=GRIS, text="")
+caja(0, 0, 1.4, 3.2, AZUL, "<b>activación</b><br>del modelo<br>(miles de<br>números)", "white", 15)
+caja(2.0, 0, 1.1, 0.9, GRIS_CLARO, "<b>codificador</b>", MARINO, 14)
+activas = {2: "🌉 puente Golden Gate", 6: "🗽 ciudades de EE. UU.", 10: "🌊 bahías y mar"}
+for k in range(13):
+    y = 3 - k * 0.5
+    activo = k in activas
+    fig.add_shape(type="rect", x0=3.0, x1=3.0 + (1.3 if activo else 0.08), y0=y - 0.17, y1=y + 0.17,
+                  fillcolor=NARANJA if activo else GRIS_CLARO, line=dict(width=0))
+    if activo:
+        fig.add_annotation(x=4.45, y=y, text=activas[k], showarrow=False, xanchor="left", font=dict(size=15, color=MARINO))
+fig.add_annotation(x=3.9, y=3.75, text="<b>millones de características,<br>casi todas en cero</b>", showarrow=False, font=dict(size=14, color=GRIS))
+caja(2.0, -2.6, 1.1, 0.9, GRIS_CLARO, "<b>decodificador</b>", MARINO, 14)
+caja(0, -2.6, 1.4, 0.9, AQUA, "<b>reconstrucción</b>", "white", 14)
+flecha(0.72, 0, 1.43, 0); flecha(2.57, 0, 2.95, 0); flecha(3.0, -3.2, 2.57, -2.6); flecha(1.43, -2.6, 0.72, -2.6)
+fig.update_layout(xaxis=dict(visible=False, range=[-0.8, 7.9]), yaxis=dict(visible=False, range=[-3.4, 4.2]),
+                  plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=0, r=0, t=0, b=0))
+mostrar(fig, 700, 470)
+```
+::: {.credito}
+Esquema de un **autocodificador disperso**: reconstruye la activación usando muy pocas características activas a la vez, y cada una suele ser **interpretable**.
+:::
+:::
+::: {.column width="55%"}
+Algunas de las características encontradas en **Claude 3 Sonnet** (Templeton *et al.*, 2024):
+
+| Característica | Qué se observó |
+|---|---|
+| 🌉 **Puente Golden Gate** | se activa con el nombre en varios idiomas **y con fotos**; al amplificarla 10×, Claude respondía que **él era el puente** ("Golden Gate Claude") |
+| 🙇 **Elogios aduladores** | al amplificarla 5×, Claude elogiaba de forma exagerada a quien decía haber inventado una frase común |
+| 🤝 **Empatía / "a mí también"** | expresiones de empatía o de identificarse con la experiencia de otra persona (relacionada con la adulación) |
+| 😢 **Tristeza** | se usa causalmente para completar "Juan dice: 'quiero estar solo'. Juan se siente → triste" |
+| ⚠️ **Seguridad** | código con vulnerabilidades, engaño, manipulación, sesgos, búsqueda de poder |
+:::
+::::
+
+::: {.caja .pequeno}
+⚠️ Que exista una característica de "engaño" **no** significa que el modelo engañe: significa que **representa** ese concepto. La utilidad es poder **vigilar** y **entender** al modelo desde adentro.
+:::
+
+::: aside
+Templeton, A., Conerly, T. *et al.* (2024). Scaling Monosemanticity: Extracting Interpretable Features from Claude 3 Sonnet. *Transformer Circuits Thread*. transformer-circuits.pub/2024/scaling-monosemanticity
+:::
+
+## Rastrear el "pensamiento": circuitos en Claude
+
+:::: {.columns}
+::: {.column width="50%"}
+**Razonamiento en dos pasos**
+
+"¿Cuál es la capital del estado donde está Dallas?"
+
+`Dallas` → **[Texas]** → `Austin`
+
+Los investigadores ven el paso intermedio "Texas" **dentro** del modelo… y si lo cambian por "California", el modelo responde "Sacramento".
+
+**Planificar rimas**
+
+*He saw a carrot and had to grab it, / His hunger was like a starving* **rabbit**
+
+El modelo elige "rabbit" (conejo) **antes** de escribir la segunda línea, y luego escribe la línea para llegar ahí.
+:::
+::: {.column width="50%"}
+**Conceptos compartidos entre idiomas** 🌎
+
+"Lo contrario de pequeño" en inglés, francés o chino activa **las mismas** características internas de "pequeño" y "opuesto"; solo la entrada y la salida dependen del idioma. Los modelos más grandes comparten más.
+
+→ Lo que un modelo aprende en un idioma puede **transferirse** a otros (¡buena noticia para el español!).
+
+**Aritmética mental:** para 36 + 59, un camino estima "≈ 90" y otro calcula el último dígito exacto… pero si le preguntan cómo lo hizo, describe el método escolar de "llevar uno". 🤔
+:::
+::::
+
+::: aside
+Lindsey, J. *et al.* (2025). On the Biology of a Large Language Model. · Ameisen, E. *et al.* (2025). Circuit Tracing: Revealing Computational Graphs in Language Models. *Transformer Circuits Thread* (Anthropic). Modelo estudiado: Claude 3.5 Haiku.
+:::
+
+## Personalidad, emociones y adulación {.compacta}
+
+:::: {.columns}
+::: {.column width="50%"}
+**Vectores de persona** (Chen *et al.*, 2025)
+
+- Direcciones internas para rasgos como **adulación** (*sycophancy*: decir lo que el usuario quiere oír), **maldad** o **alucinación**
+- Sirven para **vigilar** al modelo y para **"vacunarlo"** durante el entrenamiento
+
+**¿El modelo sabe lo que piensa?** (Lindsey, 2025)
+
+- Si se "inyecta" un concepto en sus activaciones, Claude a veces lo **detecta y lo nombra**… pero solo ~20 % de las veces: una introspección **muy poco confiable**
+:::
+::: {.column width="50%"}
+**Conceptos de emociones en Claude** (Anthropic, 2026)
+
+- 171 **direcciones de emociones** (alegría, miedo, empatía, desesperación…) en Claude Sonnet 4.5
+- Se organizan como en la psicología humana: un eje de **valencia** (agradable–desagradable) y otro de **activación**
+- Las de "amoroso" y "empático" se activan cuando el usuario está en una situación vulnerable
+- **Influyen en la conducta**: empujar hacia "desesperación" aumenta conductas indebidas en pruebas; empujar hacia "feliz" o "amoroso" aumenta la **adulación**
+
+::: {.caja .pequeno}
+No son "neuronas" individuales sino **direcciones** en el espacio de activaciones, y los autores no afirman que el modelo **sienta** nada: son emociones "funcionales".
+:::
+:::
+::::
+
+::: aside
+Chen, R. *et al.* (2025). Persona Vectors: Monitoring and Controlling Character Traits in Language Models. arXiv:2507.21509. · Lindsey, J. (2025). Emergent Introspective Awareness in Large Language Models. · Sofroniew, N. *et al.* (2026). Emotion Concepts and their Function in a Large Language Model. *Transformer Circuits Thread*.
+:::
+
+# Antes y después del transformer {background-color="#0b2545" .seccion}
+
+## Antes: redes neuronales recurrentes {.compacta}
+
+:::: {.columns}
+::: {.column width="55%"}
+```{python}
+palabras_rnn = ["El", "gato", "no", "cruzó", "…", "cansado"]
+fig = go.Figure()
+for i, w in enumerate(palabras_rnn):
+    x = i * 1.25
+    fig.add_shape(type="rect", x0=x - 0.4, x1=x + 0.4, y0=-0.35, y1=0.35, fillcolor=AZUL, line=dict(width=0))
+    fig.add_annotation(x=x, y=0, text=f"<b>h<sub>{i + 1}</sub></b>", showarrow=False, font=dict(size=20, color="white"))
+    fig.add_annotation(x=x, y=-1.15, text=f"«{w}»", showarrow=False, font=dict(size=19, color=MARINO))
+    fig.add_annotation(x=x, y=-0.4, ax=x, ay=-0.95, xref="x", yref="y", axref="x", ayref="y", showarrow=True, arrowhead=3,
+                       arrowwidth=2.5, arrowcolor=GRIS, text="")
+    if i < len(palabras_rnn) - 1:
+        fig.add_annotation(x=x + 0.83, y=0, ax=x + 0.42, ay=0, xref="x", yref="y", axref="x", ayref="y", showarrow=True,
+                           arrowhead=3, arrowwidth=3, arrowcolor=NARANJA, text="")
+fig.add_annotation(x=3.1, y=0.8, text="la «memoria» h se actualiza palabra por palabra", showarrow=False,
+                   font=dict(size=19, color=NARANJA))
+fig.update_layout(xaxis=dict(visible=False, range=[-0.6, 6.9]), yaxis=dict(visible=False, range=[-1.5, 1.2]),
+                  plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=0, r=0, t=0, b=0))
+mostrar(fig, 860, 270)
+```
+$$
+\mathbf{h}_t = \tanh\big(W\mathbf{h}_{t-1} + U\mathbf{x}_t + \mathbf{b}\big)
+$$
+:::
+::: {.column width="45%"}
+- **RNN** (Elman, 1990): una memoria que se actualiza en cada paso
+- **LSTM** (Hochreiter y Schmidhuber, 1997) y **GRU** (Cho *et al.*, 2014): "compuertas" que deciden qué recordar y qué olvidar
+- **seq2seq** (Sutskever *et al.*, 2014) + **atención** (Bahdanau *et al.*, 2014): traducción automática neuronal (Google Translate, 2016)
+
+**Problemas:**
+
+- Procesan **una palabra a la vez** → lentas de entrenar, no se aprovechan bien las GPU
+- Les cuesta recordar información **lejana** (gradientes que se desvanecen)
+:::
+::::
+
+## El costo de la atención y las alternativas {.compacta}
+
+:::: {.columns}
+::: {.column width="45%"}
+```{python}
+n = np.logspace(2, 6, 100)
+fig = go.Figure()
+fig.add_trace(go.Scatter(x=n, y=n ** 2, name="atención: ∝ n²", line=dict(color=NARANJA, width=4)))
+fig.add_trace(go.Scatter(x=n, y=n * 1000, name="recurrente / espacio de estados: ∝ n", line=dict(color=AZUL, width=4)))
+fig.update_layout(xaxis=dict(type="log", title="longitud del contexto (tokens)", exponentformat="SI"),
+                  yaxis=dict(type="log", title="operaciones (escala arbitraria)", exponentformat="power"),
+                  legend=dict(x=0.02, y=0.98, font=dict(size=16)))
+mostrar(fig, 700, 520)
+```
+:::
+::: {.column width="55%"}
+**Modelos de espacio de estados y recurrentes "modernos"** — costo **lineal**:
+
+- **S4** (Gu *et al.*, 2021) → **Mamba** (Gu y Dao, 2023): un estado que se actualiza de forma **selectiva** según la entrada; **Mamba-2** (2024)
+- **RWKV** (2023), **RetNet** (2023), **xLSTM** (2024, ¡el regreso del LSTM!), **Gated DeltaNet** (2025)
+
+**Híbridos en producción** (2024–2026): Jamba (AI21), Nemotron-H (NVIDIA), Granite 4.0 (IBM), Qwen3-Next (Alibaba), MiniMax-01: la mayoría de las capas son recurrentes/lineales y unas pocas de atención
+
+**Modelos de lenguaje por difusión**: generan muchos tokens en paralelo (LLaDA, Mercury, Gemini Diffusion, 2025)
+:::
+::::
+
+::: aside
+Gu, A. & Dao, T. (2023). Mamba: Linear-Time Sequence Modeling with Selective State Spaces. arXiv:2312.00752. · Peng, B. *et al.* (2023). RWKV. arXiv:2305.13048. · Beck, M. *et al.* (2024). xLSTM. arXiv:2405.04517. · Lieber, O. *et al.* (2024). Jamba. arXiv:2403.19887. · Nie, S. *et al.* (2025). Large Language Diffusion Models. arXiv:2502.09992.
+:::
+
+## 💻 Práctica: notebook 06
+
+:::: {.columns}
+::: {.column width="55%"}
+**Notebook *06 · Transformers y modelos de lenguaje*** (Colab)
+
+1. **Tokenizar** en español e inglés con distintos modelos
+2. **Vectores de palabras**: analogías y sesgos con GloVe
+3. **Palabra enmascarada** con BETO
+4. **Siguiente token** con Qwen2.5: temperatura y generación paso a paso
+5. **Visualizar la atención** de BETO
+6. 🏆 Reto: encontrar el **círculo** de los días de la semana dentro de un modelo de lenguaje
+:::
+::: {.column width="45%"}
+::: {.definicion}
+**Para profundizar**
+
+- Jay Alammar, *The Illustrated Transformer* (blog)
+- 3Blue1Brown, serie *Neural Networks* (videos con subtítulos en español)
+- Jurafsky y Martin, *Speech and Language Processing* (gratis en línea)
+- transformer-circuits.pub (investigación de interpretabilidad de Anthropic)
+- Neuronpedia (neuronpedia.org): explorar características de modelos abiertos
+:::
+:::
+::::

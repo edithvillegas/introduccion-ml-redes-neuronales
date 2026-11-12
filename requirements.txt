@@ -1,0 +1,12 @@
+# Dependencias para construir las diapositivas (las usa GitHub Actions)
+numpy>=1.26
+pandas>=2.0
+scipy>=1.11
+scikit-learn>=1.4
+plotly>=6.0
+pillow>=10.0
+jupyter
+nbformat
+nbclient
+ipykernel
+pyyaml

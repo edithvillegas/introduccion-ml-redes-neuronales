@@ -1,0 +1,19 @@
+/*-- scss:defaults --*/
+$primary: #0095b6;
+$body-color: #0b2545;
+$font-family-sans-serif: "Source Sans 3", "Source Sans Pro", Helvetica, Arial, sans-serif;
+$link-color: #007a96;
+
+/*-- scss:rules --*/
+@import url("https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap");
+
+.tarjeta-sesion {
+  border: 1px solid #e3e2dd;
+  border-left: 6px solid #0095b6;
+  border-radius: 10px;
+  padding: 0.8rem 1rem;
+  margin-bottom: 1rem;
+  background: #fff;
+}
+.tarjeta-sesion h3 { margin-top: 0; font-size: 1.2rem; }
+.tarjeta-sesion .fecha { color: #52514e; font-size: 0.9rem; }
