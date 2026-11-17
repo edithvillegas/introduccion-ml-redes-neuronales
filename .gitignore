@@ -23,6 +23,7 @@ gensim-data/
 # Sistema y editores
 .DS_Store
 .claude/
+CLAUDE.md
 .vscode/
 .idea/
 
