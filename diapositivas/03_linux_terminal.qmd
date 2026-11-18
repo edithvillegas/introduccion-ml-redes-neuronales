@@ -16,7 +16,7 @@ from graficas import *
 1. **¿Por qué la terminal?** (5 min)
 2. **Linux y el sistema de archivos** (10 min)
 3. **Comandos esenciales, tuberías y permisos** (10 min)
-4. **git: control de versiones** (5 min)
+4. **git y GitHub** (5 min)
 5. **Compilado vs. interpretado** (5 min)
 6. **¡Manos a la obra!** Notebook de ejercicios (25 min)
 :::
@@ -325,6 +325,82 @@ echo "datos_grandes/" >> .gitignore
 **Nunca** suban contraseñas, claves de API ni datos personales a un repositorio público. Lo que se sube a internet es muy difícil de borrar.
 :::
 
+## GitHub: *fork*, *clone* y *push* {.compacta}
+
+:::: {.columns}
+::: {.column width="55%"}
+```{python}
+cajas = [("<b>Repositorio original</b><br>edithvillegas/introduccion-…", 0.9, 0.6, ABETO),
+         ("<b>Su fork</b><br>SU_USUARIO/introduccion-…", 4.7, 0.6, CORAL),
+         ("<b>Su copia local</b><br>Colab o su computadora", 4.7, -2.0, ZAFIRO)]
+fig = go.Figure()
+fig.add_shape(type="rect", x0=-0.55, x1=6.15, y0=-0.2, y1=1.75, line=dict(color=GRIS, width=2, dash="dash"))
+fig.add_annotation(x=-0.45, y=1.55, text="<b>GitHub (en la nube)</b>", showarrow=False, xanchor="left", font=dict(size=17, color=GRIS))
+for t, x, y, c in cajas:
+    fig.add_shape(type="rect", x0=x - 1.3, x1=x + 1.3, y0=y - 0.5, y1=y + 0.5, fillcolor=c, line=dict(width=0))
+    fig.add_annotation(x=x, y=y, text=t, showarrow=False, font=dict(size=17, color=texto_sobre(c)))
+flechas = [((2.25, 0.85), (3.35, 0.85), "Fork", 0.85 + 0.25),
+           ((3.35, 0.35), (2.25, 0.35), "Pull request", 0.35 - 0.27),
+           ((4.25, 0.05), (4.25, -1.45), "git clone", None),
+           ((5.15, -1.45), (5.15, 0.05), "git push", None)]
+for (x0, y0), (x1, y1), t, yt in flechas:
+    fig.add_annotation(x=x1, y=y1, ax=x0, ay=y0, xref="x", yref="y", axref="x", ayref="y", showarrow=True,
+                       arrowhead=3, arrowwidth=3, arrowcolor=GRIS, text="")
+    if yt is not None:
+        fig.add_annotation(x=(x0 + x1) / 2, y=yt, text=f"<b>{t}</b>", showarrow=False,
+                           font=dict(size=17, color=PAVO_REAL, family="JetBrains Mono, monospace"))
+    else:
+        fig.add_annotation(x=x0 + (-0.12 if x0 < 4.7 else 0.12), y=-0.7, text=f"<b>{t}</b>", showarrow=False,
+                           xanchor="right" if x0 < 4.7 else "left",
+                           font=dict(size=17, color=PAVO_REAL, family="JetBrains Mono, monospace"))
+fig.update_layout(xaxis=dict(visible=False, range=[-0.7, 6.4]), yaxis=dict(visible=False, range=[-2.65, 1.9]),
+                  plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=0, r=0, t=0, b=0))
+mostrar(fig, 820, 520)
+```
+:::
+::: {.column width="45%"}
+- **Fork**: una copia de un repositorio ajeno **en su propia cuenta** de GitHub; ahí pueden cambiar lo que quieran
+- **git clone**: descarga su fork a su máquina (o a Colab)
+- **git push**: sube sus *commits* a su fork
+- **Pull request**: propone sus cambios al proyecto original, que lo revisa y decide si los acepta. Así se colabora en el software libre
+- **Sync fork**: trae a su fork las novedades del original (¡nuevas diapositivas!)
+:::
+::::
+
+## Ejercicio: su primer *commit* en GitHub {.compacta}
+
+:::: {.columns}
+::: {.column width="48%"}
+[En el navegador]{.titulo-tarjeta}
+
+1. **Creen una cuenta** en github.com (gratis). Usen un correo que revisen y activen la **verificación en dos pasos**. Estudiantes: *GitHub Student Developer Pack* (education.github.com)
+2. **Hagan *fork*** del repositorio del curso: [github.com/edithvillegas/introduccion-ml-redes-neuronales](https://github.com/edithvillegas/introduccion-ml-redes-neuronales/tree/main) → botón **Fork** → *Create fork*
+3. Creen un **token** para subir cambios desde la terminal: *Settings → Developer settings → Personal access tokens → Fine-grained*. Solo para su fork, permiso **Contents: Read and write**
+4. En Colab, guárdenlo en **Secretos** (ícono de llave) con el nombre `GITHUB_TOKEN`
+:::
+::: {.column width="52%"}
+[En la terminal (notebook 03, sección 7.1)]{.titulo-tarjeta}
+
+```bash
+REPO=introduccion-ml-redes-neuronales
+git clone https://github.com/SU_USUARIO/$REPO.git
+cd $REPO
+mkdir -p participantes
+echo "Hola, soy Ana y quiero aprender redes neuronales" \
+     > participantes/SU_USUARIO.md
+git add participantes/
+git commit -m "Agrega participante"
+git push        # pide su usuario y el token (no la contraseña)
+```
+
+5. Abran su fork en GitHub: ¡ahí está su archivo, con su *commit* en la historia!
+
+::: {.caja-naranja .pequeno}
+Un *token* es como una contraseña: **nunca** lo escriban en una celda ni lo suban a un repositorio. Denle solo los permisos necesarios y una fecha de expiración corta.
+:::
+:::
+::::
+
 # Compilado vs. interpretado {background-color="#053229" .seccion}
 
 ¿Por qué hay lenguajes "rápidos" y lenguajes "cómodos"?
@@ -417,7 +493,7 @@ Medido en una laptop (Apple M2 Pro), Python 3.12. En el notebook lo medirán ust
 3. Ejecutar las celdas en orden con `Shift + Enter`
 4. Resolver cada **Ejercicio** donde dice `# TU CÓDIGO AQUÍ`; la celda siguiente responde ✅ o ❌
 
-Temas: navegar, crear y mover archivos · analizar un archivo de fincas de café con tuberías · un *script* de bash · git paso a paso · C vs. Python
+Temas: navegar, crear y mover archivos · analizar un archivo de fincas de café con tuberías · un *script* de bash · git paso a paso · GitHub: cuenta, *fork* y *push* · C vs. Python
 :::
 ::: {.column width="45%"}
 ::: {.definicion}
@@ -430,10 +506,10 @@ Temas: navegar, crear y mover archivos · analizar un archivo de fincas de café
 :::
 ::::
 
-## {.center .qr-final}
+::: {.absolute bottom="0" right="0" width="200" style="text-align: center;"}
+![](img/qr_sitio.png){width="180" fig-alt="Código QR que lleva a edithvillegas.github.io"}
 
-![](img/qr_sitio.png){height="560" fig-align="center" fig-alt="Código QR que lleva a edithvillegas.github.io"}
-
-::: {.qr-url}
+::: {.qr-url style="font-size: 0.45em;"}
 [edithvillegas.github.io](https://edithvillegas.github.io)
+:::
 :::

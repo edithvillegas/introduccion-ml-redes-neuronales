@@ -737,34 +737,62 @@ GNoME (2023) propuso ~2.2 millones de cristales nuevos, ~380 000 de ellos establ
 Degrave, J. *et al.* (2022). *Nature* 602, 414–419. · Merchant, A. *et al.* (2023). Scaling deep learning for materials discovery. *Nature* 624, 80–85.
 :::
 
-## ¿La IA ya escribe artículos científicos? {.compacta}
+## La IA en las matemáticas de frontera (2026) {.compacta}
 
 :::: {.columns}
-::: {.column width="55%"}
+::: {.column width="60%"}
 ::: {.incremental}
-- **Física de partículas (MIT + CERN, 2026):** agentes de IA (Claude Code) hicieron un análisis **completo** con datos abiertos de LEP y CMS —selección de eventos, fondos, incertidumbres, inferencia estadística— y **redactaron el artículo**; un humano solo aprueba antes de "abrir la caja" (*unblinding*)
-- **AI Scientist (Sakana, 2025):** un artículo 100 % generado por IA pasó la revisión por pares de un taller de ICLR (luego fue retirado, como estaba acordado); publicado en *Nature* en 2026
-- **Agents4Science (Stanford, 2025):** primer congreso donde la IA **debía** ser primera autora: 48 artículos aceptados
-- **Física teórica (2026):** GPT-5.2 conjeturó y ayudó a demostrar una fórmula para amplitudes de gluones que se creían nulas
+- **Navier–Stokes (septiembre):** un sistema de OpenAI (~10 000 agentes, 88 horas) demostró —verificado en Lean— que un fluido 3D **con una fuerza externa** puede alcanzar velocidad infinita en tiempo finito. **Sin fuerza**, sigue abierto
+- **Riemann (agosto–octubre):** Claude encontró una prueba de que más de **2/3** de los ceros de la función zeta están en la recta crítica (antes: ~41 %), confirmada con otra prueba independiente. OpenAI anunció una "cuasi hipótesis de Riemann", aún en revisión
+- **Física matemática (noviembre):** un comité de físicos encabezado por David Gross (Nobel 2004) validó una prueba de OpenAI de que existe la teoría cuántica de **Yang–Mills** en 4D; la "brecha de masa" sigue abierta
+- **Problemas de Erdős:** un aficionado resolvió con GPT-5.4 Pro un problema abierto desde 1966; Terence Tao y otros extendieron el método. Pero de 13 problemas "resueltos" por Aletheia (DeepMind), 8 ya tenían solución publicada
 :::
 :::
-::: {.column width="45%"}
-::: {.caja-naranja .fragment}
-**Para discutir:**
+::: {.column width="40%"}
+::: {.definicion .fragment}
+**¿Cómo sabemos que una prueba es correcta?**
 
-- ¿Quién es autor/a? ¿Quién es **responsable** si hay un error?
-- ¿Cómo verificamos resultados que nadie hizo "a mano"?
-- ¿Qué pasa con la formación de nuevos científicos y científicas?
+**Lean** es un lenguaje en el que la computadora revisa cada paso de una demostración. Ayuda muchísimo, pero alguien tiene que comprobar que el enunciado escrito en Lean dice lo mismo que el artículo.
 :::
 
-::: {.caja .fragment .pequeno}
-La mayoría son **preprints** o pruebas de concepto: los propios autores advierten que los resultados no están validados como mediciones oficiales.
+::: {.caja-naranja .fragment .pequeno}
+Casi nada de esto ha pasado todavía la **revisión por pares**; el Instituto Clay evalúa el resultado de Navier–Stokes sin prisa. Un día antes, Buckmaster y Alpöge (con mucha ayuda de Claude y GPT) habían demostrado lo mismo para las ecuaciones de Euler, y hubo una **disputa pública** por el crédito.
 :::
 :::
 ::::
 
 ::: aside
-Moreno, E. A. *et al.* (2026). AI Agents Can Already Autonomously Perform Experimental High Energy Physics. arXiv:2603.20179. · Badea, A. *et al.* (2026). *HiHEP* 2(3), 10. · Lu, C. *et al.* (2026). Towards end-to-end automation of AI research. *Nature* 651, 914–919. · Bianchi, F. *et al.* (2025). arXiv:2511.15534. · Guevara, A. *et al.* (2026). Single-minus gluon tree amplitudes are nonzero. arXiv:2602.12176.
+OpenAI (2026). Finite time blowup for Navier–Stokes [preprint]. · Buckmaster, T. & Alpöge, L. (2026). Blowup for the Euler equations with smooth forcing [preprint]. · Alpöge, L. & Furman, R. (2026). More than two thirds of the zeta zeros are simple and on the critical line. arXiv:2608.13637. · Lamzouri, Y. (2026). arXiv:2609.02882. · Douglas, M. R. *et al.* (2026). Proof by OpenAI of the existence of Quantum Yang–Mills Theory: 3rd Statement by the Shepherding Committee. · Alexeev, B. *et al.* (2026). Primitive sets and von Mangoldt chains: Erdős Problem #1196 and beyond. arXiv:2605.00301. · Feng, T. *et al.* (2026). Semi-Autonomous Mathematics Discovery with Gemini. arXiv:2601.22401.
+:::
+
+## ¿La IA ya escribe artículos científicos? {.compacta}
+
+:::: {.columns}
+::: {.column width="60%"}
+::: {.incremental}
+- **Física de partículas (MIT + CERN, 2026):** agentes de IA (Claude Code) hicieron un análisis **completo** con datos abiertos de LEP y CMS y **redactaron el artículo**; un humano solo aprueba antes de "abrir la caja" (*unblinding*)
+- **Biomedicina (*Nature*, mayo de 2026):** Robin (FutureHouse) y Co-Scientist (Google) propusieron hipótesis y analizaron datos; Robin sugirió un fármaco existente para la degeneración macular. Los experimentos los hicieron personas
+- **AI Scientist (Sakana):** el primer artículo 100 % generado por IA que pasó una revisión por pares (taller de ICLR, 2025; luego retirado, como estaba acordado); el sistema se publicó en *Nature* en 2026
+- **La avalancha:** en septiembre de 2026 arXiv recibió **40 363** artículos, el doble que en 2024; desde octubre limita los envíos a **2 por mes** por persona
+:::
+:::
+::: {.column width="40%"}
+::: {.caja-naranja .fragment}
+**Para discutir:**
+
+- ¿Quién es autor/a? ¿Quién es **responsable** si hay un error? (*Nature* y *Science* no aceptan a una IA como autora)
+- ¿Cómo verificamos resultados que nadie hizo "a mano"?
+- ¿Qué pasa con la formación de nuevos científicos y científicas?
+:::
+
+::: {.caja .fragment .pequeno}
+La mayoría son **preprints** o pruebas de concepto. Verificar (en Lean, o repitiendo el análisis) ayuda, pero no reemplaza la revisión por pares.
+:::
+:::
+::::
+
+::: aside
+Moreno, E. A. *et al.* (2026). AI Agents Can Already Autonomously Perform Experimental High Energy Physics. arXiv:2603.20179. · Ghareeb, A. E. *et al.* (2026). A multi-agent system for automating scientific discovery. *Nature*. · Gottweis, J. *et al.* (2026). Accelerating scientific discovery with Co-Scientist. *Nature*. · Lu, C. *et al.* (2026). Towards end-to-end automation of AI research. *Nature* 651, 914–919. · arXiv (2026). Updated rate limit policy. blog.arxiv.org.
 :::
 
 ## La IA en los temas de esta escuela

@@ -356,10 +356,10 @@ entrenador.push_to_hub("mi-clasificador-resenas")
 ¡Gracias por estas sesiones! Más adelante en la escuela: **aprendizaje en grafos** y **agentes de IA**
 :::
 
-## {.center .qr-final}
+::: {.absolute bottom="0" right="0" width="200" style="text-align: center;"}
+![](img/qr_sitio.png){width="180" fig-alt="Código QR que lleva a edithvillegas.github.io"}
 
-![](img/qr_sitio.png){height="560" fig-align="center" fig-alt="Código QR que lleva a edithvillegas.github.io"}
-
-::: {.qr-url}
+::: {.qr-url style="font-size: 0.45em;"}
 [edithvillegas.github.io](https://edithvillegas.github.io)
+:::
 :::

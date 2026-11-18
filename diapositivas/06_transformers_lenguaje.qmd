@@ -409,41 +409,299 @@ Probabilidades reales de Qwen2.5-0.5B. ¡Ojo! Para «La capital de Honduras es l
 ::: {.grande}
 "Me senté en el **banco** del parque."
 
-"Fui al **banco** a cambiar un cheque."
+"Saqué dinero del **banco**."
 
 "El gato no cruzó la calle porque **estaba muy cansado**." → ¿quién estaba cansado?
 :::
 
 ::: {.fragment .caja}
-Necesitamos que cada palabra pueda **mirar** a las demás palabras de la frase y **actualizar** su significado según lo que encuentre. Eso es la **atención**.
+Al principio, "banco" tiene **el mismo vector** (*embedding*) en las dos frases. Necesitamos que cada palabra pueda **mirar** a las demás e **incorporar información de su contexto**. Eso hace la **atención**.
 :::
 
-## Atención: consultas, claves y valores {.compacta}
+## Atención: cada palabra mira a su contexto
+
+```{=html}
+<svg class="arcos-atencion" viewBox="0 0 1460 470" width="1460" height="470" xmlns="http://www.w3.org/2000/svg" role="img"
+     aria-label="En «el banco del parque», banco presta atención a parque y se interpreta como un asiento; en «el dinero del banco», banco presta atención a dinero y se interpreta como una institución financiera.">
+  <defs>
+    <symbol id="ico-banca" viewBox="0 0 100 80">
+      <g fill="none" stroke="#355E58" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 14 H88 M12 28 H88 M20 14 V46 M80 14 V46 M16 46 L12 74 M84 46 L88 74"/>
+        <path d="M6 46 H94" stroke-width="8"/>
+      </g>
+    </symbol>
+    <symbol id="ico-parque" viewBox="0 0 100 80">
+      <g fill="none" stroke="#355E58" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="38" cy="30" r="22"/><path d="M38 52 V74"/>
+        <circle cx="76" cy="46" r="13"/><path d="M76 59 V74"/>
+        <path d="M8 74 H94"/>
+      </g>
+    </symbol>
+    <symbol id="ico-edificio" viewBox="0 0 100 80">
+      <g fill="none" stroke="#355E58" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 26 L50 6 L90 26 Z"/>
+        <path d="M14 32 H86 M24 38 V61 M41 38 V61 M59 38 V61 M76 38 V61 M14 67 H86 M8 74 H92"/>
+      </g>
+    </symbol>
+    <symbol id="ico-billete" viewBox="0 0 100 80">
+      <g fill="none" stroke="#355E58" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="6" y="16" width="88" height="50" rx="6"/>
+        <circle cx="50" cy="41" r="12"/>
+        <path d="M16 26 H26 M74 56 H84"/>
+      </g>
+    </symbol>
+  </defs>
+
+  <line x1="730" y1="40" x2="730" y2="450" stroke="#BCDDDC" stroke-width="3" stroke-dasharray="8 10"/>
+
+  <!-- Las dos frases -->
+  <g font-size="56" text-anchor="middle" fill="#053229">
+    <text x="143" y="260">el</text>
+    <text x="262" y="260" fill="#355E58" font-weight="700">banco</text>
+    <text x="392" y="260">del</text>
+    <text x="531" y="260">parque</text>
+    <text x="880" y="260">el</text>
+    <text x="1000" y="260">dinero</text>
+    <text x="1133" y="260">del</text>
+    <text x="1263" y="260" fill="#355E58" font-weight="700">banco</text>
+  </g>
+
+  <!-- Íconos de las palabras que no son ambiguas -->
+  <use href="#ico-parque" x="476" y="318" width="110" height="88"/>
+  <use href="#ico-billete" x="945" y="318" width="110" height="88"/>
+
+  <!-- 1: «banco» mira a su contexto -->
+  <g class="fragment" data-fragment-index="1">
+    <rect x="446" y="206" width="170" height="72" rx="12" fill="none" stroke="#B89D47" stroke-width="4"/>
+    <circle cx="262" cy="188" r="10" fill="#355E58"/>
+    <path d="M262 178 V118 H531 V206" fill="none" stroke="#5E7A75" stroke-width="4" stroke-dasharray="2 10" stroke-linecap="round"/>
+    <text x="396" y="104" font-size="28" text-anchor="middle" fill="#5E7A75">atención</text>
+    <rect x="924" y="206" width="152" height="72" rx="12" fill="none" stroke="#FE9179" stroke-width="4"/>
+    <circle cx="1263" cy="188" r="10" fill="#355E58"/>
+    <path d="M1263 178 V118 H1000 V206" fill="none" stroke="#5E7A75" stroke-width="4" stroke-dasharray="2 10" stroke-linecap="round"/>
+    <text x="1131" y="104" font-size="28" text-anchor="middle" fill="#5E7A75">atención</text>
+  </g>
+
+  <!-- 2: el significado de «banco» se resuelve -->
+  <g class="fragment fade-out" data-fragment-index="2">
+    <g opacity="0.45">
+      <use href="#ico-banca" x="178" y="334" width="70" height="56"/>
+      <text x="262" y="378" font-size="40" text-anchor="middle" fill="#5E7A75">?</text>
+      <use href="#ico-edificio" x="276" y="334" width="70" height="56"/>
+      <use href="#ico-banca" x="1179" y="334" width="70" height="56"/>
+      <text x="1263" y="378" font-size="40" text-anchor="middle" fill="#5E7A75">?</text>
+      <use href="#ico-edificio" x="1277" y="334" width="70" height="56"/>
+    </g>
+  </g>
+  <g class="fragment" data-fragment-index="2" font-size="27" text-anchor="middle" fill="#5E7A75">
+    <use href="#ico-banca" x="207" y="318" width="110" height="88"/>
+    <text x="262" y="446">un asiento</text>
+    <use href="#ico-edificio" x="1208" y="318" width="110" height="88"/>
+    <text x="1263" y="446">una institución financiera</text>
+  </g>
+</svg>
+```
+
+::: {.fragment .caja}
+Con la atención, cada palabra **incorpora información de las demás**: junto a "parque", "banco" se vuelve un asiento; junto a "dinero", un lugar donde se guarda dinero.
+:::
+
+## El mapa de atención: ¿cuánto mira cada palabra a las demás? {.compacta}
+
+```{python}
+s1, s2 = ["el", "banco", "del", "parque"], ["el", "dinero", "del", "banco"]
+# Pesos ilustrativos (cada fila suma 1, como después de un softmax)
+A1 = np.array([[0.85, 0.05, 0.05, 0.05],
+               [0.05, 0.50, 0.05, 0.40],
+               [0.05, 0.05, 0.85, 0.05],
+               [0.05, 0.30, 0.05, 0.60]])
+A2 = np.array([[0.85, 0.05, 0.05, 0.05],
+               [0.05, 0.60, 0.05, 0.30],
+               [0.05, 0.05, 0.85, 0.05],
+               [0.05, 0.40, 0.05, 0.50]])
+fig = make_subplots(rows=1, cols=2, horizontal_spacing=0.16)
+for col, (toks, A, fila, frase) in enumerate([(s1, A1, 1, "«el banco del parque»"), (s2, A2, 3, "«el dinero del banco»")], start=1):
+    fig.add_trace(go.Heatmap(z=A, x=toks, y=toks, colorscale=SECUENCIAL, zmin=0, zmax=0.9, showscale=False,
+                             xgap=4, ygap=4, texttemplate="%{z:.2f}", textfont=dict(size=22),
+                             hovertemplate="«%{y}» mira a «%{x}»: %{z:.2f}<extra></extra>"), row=1, col=col)
+    fig.add_shape(type="rect", x0=-0.52, x1=3.52, y0=fila - 0.52, y1=fila + 0.52, line=dict(color=CORAL_OSCURO, width=5),
+                  row=1, col=col)
+    dominio = fig.layout[f"xaxis{'' if col == 1 else col}"].domain
+    fig.add_annotation(x=(dominio[0] + dominio[1]) / 2, y=-0.04, xref="paper", yref="paper", xanchor="center", yanchor="top", showarrow=False,
+                       text=f"<b>{frase}</b>", font=dict(size=22, color=ABETO))
+fig.update_xaxes(side="top", tickfont=dict(size=22), showgrid=False, title=dict(text="mira a…", font=dict(size=18, color=GRIS)))
+fig.update_yaxes(autorange="reversed", tickfont=dict(size=22), showgrid=False)
+fig.update_yaxes(title=dict(text="palabra que pregunta", font=dict(size=18, color=GRIS)), col=1)
+fig.update_layout(plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=110, r=20, t=80, b=60))
+mostrar(fig, 1300, 430)
+```
 
 :::: {.columns}
-::: {.column width="50%"}
-Cada token produce tres vectores (multiplicando su embedding por matrices aprendidas):
+::: {.column width="42%"}
+- Cada **fila**: una palabra que "pregunta"; cada **columna**: a quién mira
+- Cada fila **suma 1**: la palabra reparte su atención
+- "el" y "del" casi solo se miran a sí mismas
+:::
+::: {.column width="58%"}
+::: {.fragment .caja}
+La nueva versión de cada palabra es una **mezcla** ponderada por su fila:
 
-- **Consulta** $q$ (*query*): "¿qué estoy buscando?"
-- **Clave** $k$ (*key*): "¿qué ofrezco?"
-- **Valor** $v$ (*value*): "¿qué información llevo?"
+- *banco* junto a *parque* → 0.05 el + 0.50 banco + 0.05 del + **0.40 parque**
+- *banco* junto a *dinero* → 0.05 el + **0.40 dinero** + 0.05 del + 0.50 banco
+:::
+:::
+::::
 
+## Cada palabra absorbe información de su contexto {auto-animate="true"}
+
+::: {.frase-atencion}
+[Frase original]{.etiqueta-frase data-id="et1"} [el]{.tok .tok-func data-id="a1"} [banco]{.tok .tok-banco data-id="a2"} [del]{.tok .tok-func data-id="a3"} [parque]{.tok .tok-parque data-id="a4"}
+:::
+
+::: {.frase-atencion}
+[Frase original]{.etiqueta-frase data-id="et2"} [el]{.tok .tok-func data-id="b1"} [dinero]{.tok .tok-dinero data-id="b2"} [del]{.tok .tok-func data-id="b3"} [banco]{.tok .tok-banco data-id="b4"}
+:::
+
+::: {.caja .pequeno}
+Cada color representa la información que lleva cada palabra. Avancen para aplicar la atención con los pesos del mapa.
+:::
+
+## Cada palabra absorbe información de su contexto {auto-animate="true"}
+
+::: {.frase-atencion}
+[Después de la atención]{.etiqueta-frase data-id="et1"} [el]{.tok .tok-func data-id="a1"} [[0.5 banco]{.seg .tok-banco}[+ 0.4 parque]{.seg .tok-parque}[+ …]{.seg .tok-func}]{.tok .tok-mezcla data-id="a2"} [del]{.tok .tok-func data-id="a3"} [[0.6 parque]{.seg .tok-parque}[+ 0.3 banco]{.seg .tok-banco}[+ …]{.seg .tok-func}]{.tok .tok-mezcla data-id="a4"}
+:::
+
+::: {.frase-atencion}
+[Después de la atención]{.etiqueta-frase data-id="et2"} [el]{.tok .tok-func data-id="b1"} [[0.6 dinero]{.seg .tok-dinero}[+ 0.3 banco]{.seg .tok-banco}[+ …]{.seg .tok-func}]{.tok .tok-mezcla data-id="b2"} [del]{.tok .tok-func data-id="b3"} [[0.5 banco]{.seg .tok-banco}[+ 0.4 dinero]{.seg .tok-dinero}[+ …]{.seg .tok-func}]{.tok .tok-mezcla data-id="b4"}
+:::
+
+::: {.caja .pequeno}
+Ahora el vector de "banco" **ya no es ambiguo**: lleva algo de "parque" o algo de "dinero". Las palabras se **contextualizan** unas a otras, y un transformer repite esto en cada una de sus capas.
+:::
+
+## El significado de "banco" se mueve {.compacta}
+
+:::: {.columns}
+::: {.column width="63%"}
+```{python}
+vec = {"parque": (-3.2, 2.0), "árbol": (-3.9, 0.9), "silla": (-2.4, 3.1), "jardín": (-4.1, 2.9),
+       "dinero": (3.2, 2.0), "cheque": (3.9, 0.9), "préstamo": (2.4, 3.1), "cuenta": (4.1, 2.9),
+       "el": (-0.5, -2.4), "del": (0.5, -2.6), "banco": (0.0, 1.0)}
+vec = {p: np.array(v) for p, v in vec.items()}
+fig = go.Figure()
+fig.add_shape(type="circle", x0=-5.1, x1=-1.6, y0=-0.1, y1=4.1, fillcolor=mezclar(SALVIA, 0.6), line=dict(width=0), layer="below")
+fig.add_shape(type="circle", x0=1.6, x1=5.1, y0=-0.1, y1=4.1, fillcolor=mezclar(CORAL, 0.72), line=dict(width=0), layer="below")
+fig.add_annotation(x=-3.35, y=4.45, text="<b>asientos y parques</b>", showarrow=False, font=dict(size=19, color=oscurecer(PISTACHO)))
+fig.add_annotation(x=3.35, y=4.45, text="<b>dinero y finanzas</b>", showarrow=False, font=dict(size=19, color=CORAL_OSCURO))
+for palabras, color in [(["parque", "árbol", "silla", "jardín"], PISTACHO),
+                        (["dinero", "cheque", "préstamo", "cuenta"], CORAL), (["el", "del"], GRIS)]:
+    fig.add_trace(go.Scatter(x=[vec[p][0] for p in palabras], y=[vec[p][1] for p in palabras], mode="markers+text",
+                             text=palabras, textposition="bottom center", marker=dict(size=13, color=color),
+                             textfont=dict(size=19, color=oscurecer(color, 0.4)), hoverinfo="skip", showlegend=False))
+fig.add_trace(go.Scatter(x=[0], y=[1], mode="markers", marker=dict(size=24, color="rgba(0,0,0,0)", line=dict(color=ZAFIRO, width=3)),
+                         hovertemplate="«banco» sin contexto<extra></extra>", showlegend=False))
+
+def estado(contexto):
+    """Posición de «banco» después de la atención y segmentos hacia las palabras que mira."""
+    b0 = vec["banco"]
+    if contexto is None:
+        fuentes, nuevo = [b0] * 4, b0
+    else:
+        fuentes = [vec["el"], b0, vec["del"], vec[contexto]]
+        nuevo = 0.05 * fuentes[0] + 0.50 * fuentes[1] + 0.05 * fuentes[2] + 0.40 * fuentes[3]
+    trazas = []
+    for f, ancho, color, guion in zip(fuentes, [1.5, 3, 1.5, 5], [GRIS, ZAFIRO, GRIS, ABETO], ["dot", "solid", "dot", "solid"]):
+        trazas.append(go.Scatter(x=[nuevo[0], f[0]], y=[nuevo[1], f[1]], mode="lines",
+                                 line=dict(width=ancho, color=color, dash=guion), hoverinfo="skip", showlegend=False))
+    trazas.append(go.Scatter(x=[nuevo[0]], y=[nuevo[1]], mode="markers+text", text=["<b>banco</b>"], textposition="top center",
+                             marker=dict(size=26, color=ZAFIRO, line=dict(color=PAVO_REAL, width=2)),
+                             textfont=dict(size=24, color=PAVO_REAL), showlegend=False,
+                             hovertemplate="«banco» con contexto: (%{x:.2f}, %{y:.2f})<extra></extra>"))
+    return trazas
+
+n_fijas = len(fig.data)
+for t in estado(None):
+    fig.add_trace(t)
+pasos, cuadros = [], []
+for nombre, contexto in [("sin contexto", None), ("«el banco del parque»", "parque"), ("«el dinero del banco»", "dinero")]:
+    cuadros.append(go.Frame(name=nombre, data=estado(contexto), traces=list(range(n_fijas, n_fijas + 5))))
+    pasos.append(dict(method="animate", label=nombre,
+                      args=[[nombre], dict(mode="immediate", frame=dict(duration=700, redraw=False),
+                                           transition=dict(duration=700, easing="cubic-in-out"))]))
+fig.frames = cuadros
+fig.update_layout(xaxis=dict(visible=False, range=[-5.3, 5.3]), yaxis=dict(visible=False, range=[-3.3, 4.8]),
+                  plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=10, r=10, t=10, b=10),
+                  sliders=deslizador(pasos, prefijo="Contexto: ", y=0.0, x=0.08, largo=0.84))
+mostrar(fig, 920, 680)
+```
+:::
+::: {.column width="37%"}
+- Cada palabra es un **vector**; aquí, en 2D para poder dibujarlo
+- Sin contexto, "banco" queda **entre** los dos significados
+
+::: {.fragment}
+- La atención lo reemplaza por un **promedio ponderado** de los vectores de su frase, con los pesos del mapa
+- Así "banco" se **desplaza** hacia el significado que indica su contexto
+:::
+
+::: {.fragment .definicion .pequeno}
+Un transformer real hace esto con cientos de dimensiones (768 en BETO), en paralelo para todas las palabras, con muchas cabezas y en cada capa.
+:::
+
+::: {.pequeno .gris}
+Muevan el deslizador. (Simplificación: aquí la mezcla usa los propios *embeddings*.)
+:::
+:::
+::::
+
+## ¿Cómo se calculan los pesos? Consultas, claves y valores {.compacta}
+
+:::: {.columns}
+::: {.column width="55%"}
 $$
 \text{Atención}(Q, K, V) = \text{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right) V
 $$
 
-1. Similitud de cada consulta con cada clave ($QK^\top$)
-2. Softmax → **pesos** de atención que suman 1
-3. Promedio ponderado de los valores
-:::
-::: {.column width="50%"}
-::: {.definicion}
-**Analogía:** un buscador. La consulta es lo que escriben; las claves son los títulos de las páginas; los valores, su contenido. El resultado es una mezcla de contenidos, ponderada por qué tan bien coincide cada título.
+::: {.fragment .fade-in-then-semi-out}
+**① Proyecciones lineales de la entrada:** cada *embedding* $x_i$ se multiplica por tres matrices **aprendidas**
+
+$$
+q_i = x_i W_Q \qquad k_i = x_i W_K \qquad v_i = x_i W_V
+$$
 :::
 
-- **Varias cabezas** (*multi-head*): cada cabeza aprende a buscar cosas distintas (sintaxis, correferencia, la palabra anterior…)
-- Todo se calcula **en paralelo** para todas las posiciones → ideal para GPU
-- Costo: crece como $n^2$ con la longitud $n$ del texto
+::: {.fragment .fade-in-then-semi-out}
+**② Mapa de atención:** se compara cada consulta con cada clave; el softmax convierte cada fila en pesos que suman 1 (la tabla de antes)
+
+$$
+A = \text{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right)
+$$
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+**③ Mezcla:** cada palabra nueva es el promedio de los valores, ponderado por su fila del mapa (la "frase modificada")
+
+$$
+y_i = \sum_j A_{ij}\, v_j \qquad\Longleftrightarrow\qquad Y = A\,V
+$$
+:::
+:::
+::: {.column width="45%"}
+::: {.definicion}
+**Consulta** $q$ (*query*): "¿qué estoy buscando?"<br>
+[→ "banco": *¿alguna palabra me dice qué tipo de banco soy?*]{.gris}
+
+**Clave** $k$ (*key*): "¿qué ofrezco?"<br>
+[→ "parque": *soy un lugar con árboles y asientos*]{.gris}
+
+**Valor** $v$ (*value*): "¿qué información llevo?"<br>
+[→ lo que "banco" absorbe de "parque"]{.gris}
+:::
+
+::: {.fragment .caja .pequeno}
+**Analogía:** un buscador. La consulta es lo que escriben; las claves, los títulos de las páginas; los valores, su contenido. El resultado mezcla contenidos según qué tan bien coincide cada título.
+:::
 :::
 ::::
 
@@ -466,7 +724,7 @@ mostrar(fig, 1100, 700)
 ```
 
 ::: {.pequeno}
-Cada fila suma 1: cómo reparte su atención cada token. Algunas cabezas aprenden patrones simples (mirar la palabra anterior), otras relaciones de significado: en una cabeza, "cansado" mira sobre todo a "gato". ¡Nadie programó esto!
+Cada fila suma 1: cómo reparte su atención cada token. BETO tiene **12 cabezas** de atención en cada una de sus 12 capas, calculadas en paralelo (ideal para GPU); cada cabeza aprende a buscar algo distinto. Algunas aprenden patrones simples (mirar la palabra anterior), otras relaciones de significado: en una cabeza, "cansado" mira sobre todo a "gato". ¡Nadie programó esto!
 :::
 
 ## La arquitectura transformer
@@ -806,7 +1064,7 @@ mostrar(fig, 700, 520)
 Gu, A. & Dao, T. (2023). Mamba: Linear-Time Sequence Modeling with Selective State Spaces. arXiv:2312.00752. · Peng, B. *et al.* (2023). RWKV. arXiv:2305.13048. · Beck, M. *et al.* (2024). xLSTM. arXiv:2405.04517. · Lieber, O. *et al.* (2024). Jamba. arXiv:2403.19887. · Nie, S. *et al.* (2025). Large Language Diffusion Models. arXiv:2502.09992.
 :::
 
-## Práctica: notebook 06
+## Práctica: notebook 06 {.compacta}
 
 :::: {.columns}
 ::: {.column width="55%"}
@@ -832,10 +1090,10 @@ Gu, A. & Dao, T. (2023). Mamba: Linear-Time Sequence Modeling with Selective Sta
 :::
 ::::
 
-## {.center .qr-final}
+::: {.absolute bottom="0" right="0" width="200" style="text-align: center;"}
+![](img/qr_sitio.png){width="180" fig-alt="Código QR que lleva a edithvillegas.github.io"}
 
-![](img/qr_sitio.png){height="560" fig-align="center" fig-alt="Código QR que lleva a edithvillegas.github.io"}
-
-::: {.qr-url}
+::: {.qr-url style="font-size: 0.45em;"}
 [edithvillegas.github.io](https://edithvillegas.github.io)
+:::
 :::

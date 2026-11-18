@@ -1052,6 +1052,7 @@ Lo que "buscan" neuronas de capas cada vez más profundas de una red de imágene
 
 ## Para llevar a casa
 
+::: {style="max-width: 78%;"}
 ::: {.incremental}
 - **Supervisado** (clasificación y regresión), **no supervisado** (agrupamiento y reducción de dimensionalidad), **autosupervisado** y **semisupervisado**
 - Lo que importa es **generalizar** a datos nuevos: cuidado con el sobreajuste y con la fuga de datos
@@ -1064,11 +1065,12 @@ Lo que "buscan" neuronas de capas cada vez más profundas de una red de imágene
 ::: {.fragment .center .grande}
 ¡Gracias! ¿Preguntas?
 :::
+:::
 
-## {.center .qr-final}
+::: {.absolute bottom="0" right="0" width="200" style="text-align: center;"}
+![](img/qr_sitio.png){width="180" fig-alt="Código QR que lleva a edithvillegas.github.io"}
 
-![](img/qr_sitio.png){height="560" fig-align="center" fig-alt="Código QR que lleva a edithvillegas.github.io"}
-
-::: {.qr-url}
+::: {.qr-url style="font-size: 0.45em;"}
 [edithvillegas.github.io](https://edithvillegas.github.io)
+:::
 :::

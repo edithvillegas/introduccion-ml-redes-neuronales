@@ -217,15 +217,53 @@ $presentation-title-slide-text-align: left;
   .footer { color: $gris; font-size: 0.42em !important; }
 }
 
-// Diapositiva final con el código QR al sitio personal
-.reveal .slides section.qr-final {
-  text-align: center;
-  img { height: 560px; margin: 0 auto; }
-  .quarto-figure, p { margin: 0; }
-  .qr-url {
-    margin-top: 0.4em;
-    font-size: 1.5em;
-    font-weight: 700;
-    a { color: $abeto; text-decoration: none; }
+// Atención (06): tokens de colores que se mezclan con su contexto
+.reveal {
+  svg.arcos-atencion { display: block; margin: 0 auto; font-family: inherit; overflow: visible; }
+  .frase-atencion {
+    margin: 0.9em 0;
+    font-size: 1.45em;
+    p { margin: 0; display: flex; align-items: center; gap: 0.45em; flex-wrap: nowrap; }
   }
+  h2 + .frase-atencion { margin-top: 1.6em; }
+  .etiqueta-frase {
+    display: inline-block;
+    width: 6.4em;
+    font-size: 0.55em;
+    font-weight: 700;
+    color: $gris;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+  }
+  .tok {
+    display: inline-block;
+    padding: 0.2em 0.55em;
+    border-radius: 12px;
+    border: 2px solid rgba(5, 50, 41, 0.18);
+    font-weight: 600;
+    color: $pavo-real;
+    white-space: nowrap;
+  }
+  .tok-func { background: #DDEEED; }
+  .tok-banco { background: $zafiro; }
+  .tok-parque { background: $salvia; }
+  .tok-dinero { background: $coral; }
+  .tok-mezcla {
+    display: inline-flex;
+    padding: 0;
+    overflow: hidden;
+    font-size: 0.72em;
+    .seg { padding: 0.5em 0.45em; }
+    .seg:first-child { padding-left: 0.7em; }
+    .seg:last-child { padding-right: 0.7em; }
+  }
+}
+
+// Código QR pequeño en la esquina inferior derecha de la última diapositiva de cada presentación
+// (bloque `::: {.absolute bottom="0" right="0" width="200"}` con la imagen y `.qr-url`)
+.reveal .qr-url {
+  margin-top: 0.1em;
+  line-height: 1.2;
+  a { color: $abeto; font-weight: 700; text-decoration: none; }
 }

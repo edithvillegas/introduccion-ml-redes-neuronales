@@ -50,7 +50,7 @@ Google Colab corre en una **máquina virtual con Linux**. En este notebook usare
 4. Ver y analizar archivos de texto
 5. Tuberías y redirección: analizar fincas de café
 6. Bucles y *scripts* de bash
-7. git paso a paso
+7. git paso a paso y GitHub
 8. Compilado vs. interpretado: C contra Python
 9. Retos finales
 
@@ -507,14 +507,94 @@ revisar(lambda: bash("cd proyecto && git branch --show-current") == "main"
         "La rama experimento se fusionó en main.", "¿Estás en main? ¿Hiciste el merge?")
 """),
     ("md", """
-> **Para subir a GitHub** necesitarías una cuenta y un *token* de acceso; los comandos serían `git remote add origin https://github.com/USUARIO/REPO.git` y `git push -u origin main`. **Nunca** pegues tu *token* en un notebook que vayas a compartir.
+## 7.1 GitHub: tu propia copia del repositorio
 
-También puedes **clonar** cualquier repositorio público. Por ejemplo, el de esta escuela:
+**GitHub** guarda repositorios de git en la nube. Vamos a hacer el ciclo completo: ***fork* → *clone* → *commit* → *push***.
+
+**Antes de empezar (en el navegador):**
+
+1. **Crea una cuenta** en [github.com](https://github.com/signup) (gratis). Usa un correo que revises y activa la **verificación en dos pasos**. Si eres estudiante, pide el *GitHub Student Developer Pack* (education.github.com).
+2. **Haz un *fork*** del repositorio del curso: abre https://github.com/edithvillegas/introduccion-ml-redes-neuronales/tree/main y pulsa **Fork → Create fork**. Ahora tienes una copia en `github.com/TU_USUARIO/introduccion-ml-redes-neuronales`.
+3. **Crea un *token* de acceso** para poder subir cambios desde aquí: en GitHub, *Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token*. En *Repository access* elige **solo tu fork**; en *Permissions*, da a **Contents** acceso *Read and write*. Ponle una fecha de expiración corta.
+4. **Guarda el token en Colab, no en el notebook:** en la barra izquierda abre la **llave** (*Secretos*), agrega un secreto llamado `GITHUB_TOKEN`, pega el token y activa el acceso para este notebook.
+
+> **Nunca** pegues un *token* o una contraseña directamente en una celda: si compartes el notebook, cualquiera podría usarlo.
+
+Escribe tu usuario de GitHub y clona **tu fork** (no el original):
 """),
     ("code", """
-%%bash
-git clone --depth 1 https://github.com/edithvillegas/introduccion-ml-redes-neuronales.git material_escuela 2>&1 | tail -n 2 || true
-ls material_escuela 2>/dev/null | head || echo "(cambia la URL por la del repositorio del curso)"
+USUARIO = "TU_USUARIO"   # ← escribe aquí tu usuario de GitHub
+FORK = f"https://github.com/{USUARIO}/introduccion-ml-redes-neuronales.git"
+print(bash(f"git clone --depth 1 {FORK} mi_fork 2>&1 | tail -n 2"))
+print(bash("ls mi_fork | head"))
+"""),
+    ("code", """
+revisar(lambda: USUARIO != "TU_USUARIO" and USUARIO in bash("git -C mi_fork remote get-url origin"),
+        "Clonaste tu fork.", "¿Cambiaste TU_USUARIO por tu usuario? ¿Hiciste el fork en GitHub?")
+"""),
+    ("md", """
+### Ejercicio 10 · Tu primer *commit* en GitHub
+
+Dentro de `mi_fork`:
+
+1. Configura tu nombre y correo **solo para este repositorio**. Para no publicar tu correo, usa el que GitHub da a cada cuenta: `TU_USUARIO@users.noreply.github.com`.
+2. Crea la carpeta `participantes` y dentro el archivo `participantes/TU_USUARIO.md` con tu nombre y una frase sobre qué quieres aprender en la escuela.
+3. Guarda el cambio con `git add` y `git commit`, con el mensaje `Agrega participante`.
+
+En la celda, `$1` contiene tu usuario (se lo pasamos con `%%bash -s "$USUARIO"`).
+
+<details><summary>Pista</summary>
+
+`git config user.email "$1@users.noreply.github.com"`, `mkdir -p participantes`, `echo "Hola, soy ..." > participantes/$1.md`, `git add participantes/$1.md`, `git commit -m "Agrega participante"`
+</details>
+"""),
+    ("ej", """
+%%bash -s "$USUARIO"
+cd mi_fork
+# TU CÓDIGO AQUÍ
+""", """
+%%bash -s "$USUARIO"
+cd mi_fork
+git config user.name "Tu Nombre"
+git config user.email "$1@users.noreply.github.com"
+mkdir -p participantes
+echo "# $1" > participantes/$1.md
+echo "Quiero aprender a entrenar redes neuronales." >> participantes/$1.md
+git add participantes/$1.md
+git commit -m "Agrega participante"
+git log --oneline -n 3
+"""),
+    ("code", """
+revisar(lambda: os.path.exists(f"mi_fork/participantes/{USUARIO}.md")
+                and "Agrega participante" in bash("git -C mi_fork log --format=%s")
+                and bash("git -C mi_fork status --porcelain") == "",
+        "Commit listo. ¡Ahora a subirlo!", "¿Creaste participantes/TU_USUARIO.md e hiciste add y commit?")
+"""),
+    ("md", """
+Ahora sí, **subimos** (*push*) el *commit* a tu fork con el token guardado en los Secretos de Colab. La salida nunca muestra el token.
+"""),
+    ("code", """
+import getpass
+try:
+    from google.colab import userdata
+    token = userdata.get("GITHUB_TOKEN")
+except Exception:                        # fuera de Colab (o sin el secreto): lo pide sin mostrarlo
+    token = getpass.getpass("Token de GitHub: ")
+url = f"https://{USUARIO}:{token}@github.com/{USUARIO}/introduccion-ml-redes-neuronales.git"
+r = subprocess.run(["git", "-C", "mi_fork", "push", url, "HEAD:main"], capture_output=True, text=True)
+print((r.stdout + r.stderr).replace(token, "***"))
+"""),
+    ("code", """
+revisar(lambda: bash(f"git ls-remote {FORK} refs/heads/main").split()[0] == bash("git -C mi_fork rev-parse HEAD"),
+        f"¡Listo! Mira tu archivo en https://github.com/{USUARIO}/introduccion-ml-redes-neuronales/tree/main/participantes",
+        "El push no llegó. ¿El token es de tu fork y tiene permiso Contents: Read and write?")
+"""),
+    ("md", """
+**Para explorar en GitHub (en el navegador):**
+
+- **Sync fork**: trae a tu fork las novedades del repositorio original (por ejemplo, diapositivas nuevas).
+- **Pull request**: propone cambios de una rama a otra, o al repositorio original. Así se colabora en el software libre: alguien revisa tus cambios y decide si los acepta.
+- **Codespaces** (*Code → Codespaces*): una terminal Linux en el navegador con tu repositorio ya clonado.
 """),
     ("md", """
 ## 8. Compilado vs. interpretado: C contra Python
@@ -574,7 +654,7 @@ time python3 pi.py
     ("md", """
 **¿Por qué tanta diferencia?** En cada vuelta del bucle, Python tiene que averiguar de qué tipo es cada variable, crear objetos nuevos para cada número y revisar errores. El compilador de C sabe de antemano que todo son números `double` y genera instrucciones de máquina directas (y con `-O2` además las optimiza). NumPy hace el bucle en C, sobre arreglos completos.
 
-### Ejercicio 10 · Optimizaciones del compilador
+### Ejercicio 11 · Optimizaciones del compilador
 
 Compila `pi.c` **sin optimizaciones** (`-O0`) en un ejecutable llamado `pi_lento`, mide su tiempo con `time` y compáralo con el de `-O2`.
 """),
@@ -664,6 +744,7 @@ revisar(_ok, f"{esperado.index[0]} produce más: {esperado.iloc[0]} quintales.",
 - La terminal permite **automatizar** y **reproducir** el trabajo: `ls`, `cd`, `mkdir`, `cp`, `mv`, `rm`, `cat`, `head`, `grep`, `cut`, `sort`, `uniq`, `wc`…
 - La **tubería** `|` y la redirección `>` / `>>` combinan comandos pequeños en análisis completos.
 - **git** guarda la historia del proyecto: `init`, `add`, `commit`, `log`, `diff`, `switch`, `merge`, `push`, `pull`.
+- **GitHub** la guarda en la nube: *fork* (tu copia de un proyecto ajeno), `clone`, `push` y *pull requests* para colaborar.
 - Los lenguajes **compilados** (C) son mucho más rápidos; los **interpretados** (Python) son más cómodos. NumPy y PyTorch combinan lo mejor de ambos.
 
 **Para seguir:** Software Carpentry en español (*La terminal de Unix*, *Control de versiones con Git*) · *Pro Git* en español: https://git-scm.com/book/es
