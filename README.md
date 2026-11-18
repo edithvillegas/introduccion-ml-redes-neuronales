@@ -1,12 +1,17 @@
 # Inteligencia artificial y redes neuronales · Escuela de Machine Learning Honduras 2026
 
 **ICTP – Physics Without Frontiers · Machine Learning: Theory and Applications**
-23 de noviembre al 4 de diciembre de 2026 · UNAH, Tegucigalpa, Honduras · [machine-learning-honduras.org](https://machine-learning-honduras.org/)
+
+23 de noviembre al 4 de diciembre de 2026 · 
+
+UNAH, Tegucigalpa, Honduras · 
+
+[machine-learning-honduras.org](https://machine-learning-honduras.org/)
 
 Materiales de las sesiones de **Edith Natalia Villegas García** (ICTP): introducción a la inteligencia artificial y al aprendizaje automático, Linux y la terminal, teoría de redes neuronales, redes convolucionales y autocodificadores, transformers y modelos de lenguaje, y una práctica con PyTorch y Hugging Face.
 
-- **Diapositivas interactivas** hechas con [Quarto](https://quarto.org) + [reveal.js](https://revealjs.com), con gráficas en **Python** ([Plotly](https://plotly.com/python/)) que se pueden explorar en vivo: deslizadores, botones, gráficas 3D y demos incrustadas.
-- **Notebooks de práctica** para Google Colab, con ejercicios que se revisan solos (✅ / ❌) y sus **soluciones**.
+- **Diapositivas interactivas** hechas con [Quarto](https://quarto.org) + [reveal.js](https://revealjs.com), con gráficas en **Python** ([Plotly](https://plotly.com/python/)) que se pueden explorar en vivo: deslizadores, botones, gráficas 3D y demos.
+- **Notebooks de práctica** para Google Colab, con ejercicios y sus **soluciones**.
 
 **Diapositivas en línea:** https://edithvillegas.github.io/introduccion-ml-redes-neuronales/
 
@@ -16,7 +21,7 @@ Materiales de las sesiones de **Edith Natalia Villegas García** (ICTP): introdu
 |---|---|---|---|---|
 | 1 | Introducción a la IA y al aprendizaje automático (parte 1) | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/01_introduccion_ia.html) | — | — |
 | 2 | Introducción a la IA y al aprendizaje automático (parte 2) | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/02_fundamentos_ml.html) | — | — |
-| 3 | Linux, la terminal y git · compilado vs. interpretado | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/03_linux_terminal.html) | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/03_terminal_linux.ipynb) | [Colab](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/soluciones/03_terminal_linux_soluciones.ipynb) |
+| 3 | Linux, la terminal y git | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/03_linux_terminal.html) | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/03_terminal_linux.ipynb) | [Colab](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/soluciones/03_terminal_linux_soluciones.ipynb) |
 | 4 | Teoría de redes neuronales | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/04_redes_neuronales.html) | — | — |
 | 5 | Redes convolucionales y autocodificadores | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/05_redes_convolucionales.html) | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/05_redes_convolucionales.ipynb) | [Colab](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/soluciones/05_redes_convolucionales_soluciones.ipynb) |
 | 6 | Transformers y modelos de lenguaje | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/06_transformers_lenguaje.html) | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/06_transformers_lenguaje.ipynb) | [Colab](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/soluciones/06_transformers_lenguaje_soluciones.ipynb) |
@@ -64,55 +69,9 @@ Materiales de las sesiones de **Edith Natalia Villegas García** (ICTP): introdu
 └── .github/workflows/publicar.yml   # publica el sitio en GitHub Pages
 ```
 
-## Construir las diapositivas en su computadora
-
-Necesitan [Quarto](https://quarto.org/docs/get-started/) (≥ 1.4) y Python ≥ 3.10.
-
-```bash
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-quarto preview                      # sitio completo con recarga automática
-quarto render diapositivas/04_redes_neuronales.qmd   # una sola presentación
-```
-
-El sitio queda en `_site/`. Las gráficas se calculan con Python al construir el sitio; los datos que requieren modelos grandes (vectores de palabras, BETO, Qwen, redes entrenadas con MNIST, el ejemplo adversario, el mini-GPT) ya están precalculados en `diapositivas/datos/`. Para regenerarlos:
-
-```bash
-pip install -r requirements-datos.txt
-python scripts/precalcular_lenguaje.py
-python scripts/precalcular_cnn.py
-python scripts/precalcular_adversario.py
-python scripts/precalcular_minigpt.py --texto pg2000.txt   # https://www.gutenberg.org/cache/epub/2000/pg2000.txt
-```
-
-Para regenerar los notebooks (versión estudiante y soluciones) después de editar sus fuentes:
-
-```bash
-cd scripts/fuentes_notebooks
-for f in nb*.py; do python "$f"; done
-```
-
-## Publicar en GitHub Pages
-
-1. Cambien los marcadores `edithvillegas` / `introduccion-ml-redes-neuronales` por los reales:
-   ```bash
-   python scripts/configurar_repo.py su-usuario su-repositorio
-   ```
-2. En GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-3. Cada `git push` a `main` reconstruye y publica el sitio (`.github/workflows/publicar.yml`).
-
-## Notas para presentar
-
-- Atajos: `→`/`←` avanzar, `F` pantalla completa, `O` vista general, `S` notas de la ponente (incluyen sugerencias para las demos en vivo), `C` pizarra, `M` menú.
-- Las demos incrustadas (chat de Hugging Face, generador de imágenes, TensorFlow Playground, CNN Explainer, Transformer Explainer, JSLinux, AlphaFold) necesitan **internet**. Revisen el día anterior que los *Spaces* de Hugging Face estén funcionando. El generador de imágenes usa *ZeroGPU*: inicien sesión en Hugging Face en el navegador para tener más cuota.
-- Los videos de YouTube no se reproducen si abren el HTML directamente como archivo (`file://`); usen `quarto preview` o el sitio publicado.
-
 ## Créditos
 
-**Materiales:** Edith Natalia Villegas García (ICTP), con la colaboración de Joshua Lemus en la sesión de Linux. Preparados con ayuda de Claude (Anthropic).
-
-**Organizan la escuela:** Edith Natalia Villegas García (ICTP), Carlos Soto (OGS), Joshua Lemus (Universidad de Módena y Reggio Emilia), Daniela Pinto Veizaga (NYU); coordinación local: Lucio Villanueva y Melissa Cruz (UNAH). Con el apoyo de ICTP – Physics Without Frontiers, la UNAH y el Tecnológico de Monterrey.
-
-Materiales de otras sesiones (Python, visualización, clasificación, agentes): [dapivei/escuela-machine-learning-honduras-2026](https://github.com/dapivei/escuela-machine-learning-honduras-2026).
-
-Las imágenes de terceros conservan sus licencias originales (ver [`diapositivas/img/CREDITOS.md`](diapositivas/img/CREDITOS.md)).
+**Materiales:** Edith Natalia Villegas García (ICTP).
+**Organizan la escuela:** Edith Natalia Villegas García (ICTP), Carlos Soto (OGS), Joshua Lemus (Universidad de Módena y Reggio Emilia)
+coordinación local: Lucio Villanueva y Melissa Cruz (UNAH).
+Con el apoyo de ICTP – Physics Without Frontiers, la UNAH y el Tecnológico de Monterrey.
