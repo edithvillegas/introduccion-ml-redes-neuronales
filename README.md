@@ -1,4 +1,4 @@
-# Inteligencia artificial y redes neuronales · Escuela de Machine Learning Honduras 2026
+# Machine learning y redes neuronales · Escuela de Machine Learning Honduras 2026
 
 **ICTP – Physics Without Frontiers · Machine Learning: Theory and Applications**
 
