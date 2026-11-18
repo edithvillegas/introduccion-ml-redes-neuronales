@@ -69,7 +69,7 @@ Materiales de las sesiones de **Edith Natalia Villegas García** (ICTP): introdu
 
 ## Créditos
 
-**Materiales:** Edith Natalia Villegas García (ICTP).
+**Materiales:** Edith Natalia Villegas García (ICTP).  
 **Organizan la escuela:** 
 Edith Natalia Villegas García (ICTP),  Carlos Soto (OGS),  
 coordinación local: Lucio Villanueva y Melissa Cruz (UNAH).  
