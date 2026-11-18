@@ -6,9 +6,11 @@ toc: true
 toc-title: "Sesiones"
 ---
 
-23 de noviembre – 4 de diciembre de 2026 · Universidad Nacional Autónoma de Honduras (UNAH), Tegucigalpa · [machine-learning-honduras.org](https://machine-learning-honduras.org/)
+📅 Fechas: 23 de noviembre al 4 de diciembre del 2026  
+📍 Universidad Nacional Autónoma de Honduras (UNAH), Tegucigalpa, Honduras  
+[machine-learning-honduras.org](https://machine-learning-honduras.org/)  
 
-Materiales de las sesiones sobre **introducción a la IA**, **Linux**, **redes neuronales**, **redes convolucionales**, **transformers** y **Hugging Face**. Las diapositivas son interactivas (gráficas en Python con Plotly): pasen el cursor, muevan los deslizadores y hagan clic en los botones. Los notebooks se abren en Google Colab sin instalar nada.
+Materiales de las sesiones sobre **introducción a la IA**, **Linux**, **redes neuronales**, **redes convolucionales**, **transformers** y **Hugging Face**. Las diapositivas son interactivas (gráficas en Python con Plotly). Los notebooks contienen ejercicios de Python en Google Colab.
 
 ::: {.callout-tip}
 ## Cómo usar los notebooks
@@ -27,21 +29,20 @@ Materiales de las sesiones sobre **introducción a la IA**, **Linux**, **redes n
 
 ::: {.tarjeta-sesion}
 ## 1. Introducción a la IA y al aprendizaje automático — Parte 1
-Bienvenida y programa de la escuela · IA, aprendizaje automático, aprendizaje profundo y ciencia de datos · historia · la IA en la vida diaria (asistentes, imágenes y video generados, demostraciones en vivo) · la IA en la ciencia (AlphaFold, proteínas, medicina, clima, física, matemáticas).
+Bienvenida y programa de la escuela · IA, aprendizaje automático, aprendizaje profundo y ciencia de datos · historia · la IA en la vida diaria (asistentes, imágenes y video) · la IA en la ciencia (AlphaFold, proteínas, medicina, clima, física, matemáticas).
 
 [Diapositivas](diapositivas/01_introduccion_ia.html){.btn .btn-primary .btn-sm}
 :::
 
 ::: {.tarjeta-sesion}
 ## 2. Introducción a la IA y al aprendizaje automático — Parte 2
-Aprendizaje supervisado, no supervisado, autosupervisado y semisupervisado · clasificación vs. regresión · generalización y sobreajuste · preprocesamiento e ingeniería de características · redes neuronales en tres diapositivas · ética: sesgos en contratación y medicina, equidad, leyes, medio ambiente, trabajo, deepfakes · interpretabilidad.
+Aprendizaje supervisado, no supervisado, autosupervisado y semisupervisado · clasificación vs. regresión · generalización y sobreajuste · preprocesamiento y feature engineering · redes neuronales · ética: sesgos en la medicinay algoritmos de selección, medio ambiente, trabajo, deepfakes · interpretabilidad.
 
 [Diapositivas](diapositivas/02_fundamentos_ml.html){.btn .btn-primary .btn-sm}
 :::
 
 ::: {.tarjeta-sesion}
-## 3. Linux, la terminal y git · Compilado vs. interpretado
-[con Joshua Lemus]{.fecha}
+## 3. Linux, la terminal y git{.fecha}
 
 Sistema operativo y Linux · comandos esenciales, tuberías, permisos · git · C contra Python.
 
@@ -52,7 +53,7 @@ Sistema operativo y Linux · comandos esenciales, tuberías, permisos · git · 
 
 ::: {.tarjeta-sesion}
 ## 4. Teoría de redes neuronales
-La neurona artificial y el perceptrón · XOR · redes multicapa · aproximación universal · pérdida, descenso de gradiente y retropropagación · sobreajuste · TensorFlow Playground · ImageNet y representaciones jerárquicas · redes de Hopfield (Nobel de Física 2024).
+La neurona artificial y el perceptrón · XOR · redes multicapa · aproximación universal · funciones pérdida, descenso de gradiente y retropropagación · sobreajuste · TensorFlow Playground · ImageNet y representaciones jerárquicas · redes de Hopfield (Nobel de Física 2024).
 
 [Diapositivas](diapositivas/04_redes_neuronales.html){.btn .btn-primary .btn-sm}
 :::
@@ -68,7 +69,7 @@ Convolución paso a paso · filtros · *pooling* · arquitecturas · qué aprend
 
 ::: {.tarjeta-sesion}
 ## 6. Transformers y modelos de lenguaje
-Modelos de lenguaje y tokens · vectores de palabras (rey − hombre + mujer, días y meses en círculo) · palabra enmascarada y siguiente token · atención y arquitectura transformer · interpretabilidad (características, circuitos, emociones) · RNN, Mamba y otras alternativas.
+Modelos de lenguaje y tokens · vectores de palabras · masking y next token · atención y arquitectura transformer · interpretabilidad (características, circuitos, emociones) · RNN, Mamba y otras alternativas.
 
 [Diapositivas](diapositivas/06_transformers_lenguaje.html){.btn .btn-primary .btn-sm}
 [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/06_transformers_lenguaje.ipynb)
@@ -86,4 +87,4 @@ Repaso de Python · tensores y *autograd* · `pipeline` · ajuste fino de BETO c
 
 ---
 
-**Organizan:** ICTP – Physics Without Frontiers, Universidad Nacional Autónoma de Honduras (UNAH) y Tecnológico de Monterrey. Programa completo y ponentes en [machine-learning-honduras.org](https://machine-learning-honduras.org/). Materiales de otras sesiones (Python, visualización, clasificación, agentes): [escuela-machine-learning-honduras-2026](https://github.com/dapivei/escuela-machine-learning-honduras-2026) (Daniela Pinto Veizaga).
+Programa completo y ponentes en [machine-learning-honduras.org](https://machine-learning-honduras.org/).
