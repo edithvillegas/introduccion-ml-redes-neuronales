@@ -8,7 +8,7 @@
 
 Materiales de las sesiones de **Edith Natalia Villegas García** (ICTP): introducción a la inteligencia artificial y al aprendizaje automático, Linux y la terminal, teoría de redes neuronales, redes convolucionales y autocodificadores, transformers y modelos de lenguaje, prácticas con PyTorch y HuggingFace.
 
-- **Diapositivas interactivas** hechas con [Quarto](https://quarto.org) + [reveal.js](https://revealjs.com), con gráficas interactivas en **Python** ([Plotly](https://plotly.com/python/)).
+- **Diapositivas interactivas** hechas con Quarto + reveal.js, con gráficas interactivas en Plotly.
 - **Notebooks de práctica** para Google Colab, con ejercicios y sus **soluciones**.
 
 **Diapositivas en línea:** https://edithvillegas.github.io/introduccion-ml-redes-neuronales/
@@ -17,8 +17,8 @@ Materiales de las sesiones de **Edith Natalia Villegas García** (ICTP): introdu
 
 | # | Sesión | Diapositivas | Notebook | Soluciones |
 |---|---|---|---|---|
-| 1 | Introducción a la IA y al aprendizaje automático (parte 1) | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/01_introduccion_ia.html) | — | — |
-| 2 | Introducción a la IA y al aprendizaje automático (parte 2) | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/02_fundamentos_ml.html) | — | — |
+| 1 | Introducción a la IA y al aprendizaje automático 1 | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/01_introduccion_ia.html) | — | — |
+| 2 | Introducción a la IA y al aprendizaje automático 2 | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/02_fundamentos_ml.html) | — | — |
 | 3 | Linux, la terminal y git | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/03_linux_terminal.html) | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/03_terminal_linux.ipynb) | [Colab](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/soluciones/03_terminal_linux_soluciones.ipynb) |
 | 4 | Teoría de redes neuronales | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/04_redes_neuronales.html) | — | — |
 | 5 | Redes convolucionales y autocodificadores | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/05_redes_convolucionales.html) | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/05_redes_convolucionales.ipynb) | [Colab](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/soluciones/05_redes_convolucionales_soluciones.ipynb) |
