@@ -2,9 +2,9 @@
 
 **ICTP – Physics Without Frontiers · Machine Learning: Theory and Applications**
 
-23 de noviembre al 4 de diciembre de 2026  
-UNAH, Tegucigalpa, Honduras  
-[machine-learning-honduras.org](https://machine-learning-honduras.org/)
+📅 23 de noviembre al 4 de diciembre de 2026  
+📍 UNAH, Tegucigalpa, Honduras  
+🔗 [machine-learning-honduras.org](https://machine-learning-honduras.org/)
 
 Materiales de las sesiones de **Edith Natalia Villegas García** (ICTP): introducción a la inteligencia artificial y al aprendizaje automático, Linux y la terminal, teoría de redes neuronales, redes convolucionales y autocodificadores, transformers y modelos de lenguaje, prácticas con PyTorch y HuggingFace.
 
