@@ -18,8 +18,6 @@ from programa import grafica_programa
 
 - Universidad Nacional Autónoma de Honduras (UNAH), Ciudad Universitaria, Tegucigalpa
 - 23 de noviembre – 4 de diciembre de 2026
-- 30 estudiantes de último año de física, matemáticas y computación
-- Ponentes de Honduras, Guatemala, México, Ecuador, Estados Unidos, Italia, Dinamarca, Francia, Portugal e India
 
 ::: {.caja .pequeno}
 Organizan: ICTP – *Physics Without Frontiers*, UNAH y Tecnológico de Monterrey.
@@ -60,7 +58,7 @@ Pasen el cursor sobre cada bloque para ver el tema y quién lo imparte. Todo el 
 ::: {.tarjeta}
 [Herramientas]{.titulo-tarjeta}
 
-- Linux, terminal y git *(con Joshua Lemus)*
+- Linux, terminal y git 
 - Python, pandas, visualización *(Daniela Pinto)*
 - Probabilidad *(Javier Aguilar)*
 - Optimización iterativa *(Carlos Soto)*
@@ -108,14 +106,14 @@ Y además: **aplicaciones** (medicina, demografía, políticas públicas, físic
 :::
 
 ::: {.notes}
-Dejar que respondan. Ejemplos de IA "invisible": el teclado del celular que sugiere palabras, el filtro de spam, Google Maps, las recomendaciones de TikTok/YouTube/Spotify, el desbloqueo con la cara.
+Dejar que respondan. Ejemplos de IA "invisible": el teclado del celular que sugiere palabras, el filtro de spam, Google Maps, las recomendaciones de TikTok/YouTube/Spotify, face ID. 
 :::
 
 # ¿Qué es la inteligencia artificial? {background-color="#053229" .seccion}
 
 Definiciones, un poco de historia y por qué ahora
 
-## Tres términos que se confunden {.compacta}
+## Términos que se confunden {.compacta}
 
 ::: {.definicion .fragment}
 **Inteligencia artificial (IA):** "la ciencia y la ingeniería de hacer máquinas inteligentes" — John McCarthy, quien acuñó el término en 1955 para la conferencia de Dartmouth (1956). Hoy: sistemas que realizan tareas que asociamos con la inteligencia humana (percibir, razonar, aprender, comunicarse, decidir).
@@ -422,16 +420,13 @@ Google combina su buscador con resúmenes generados por IA (*AI Overviews*, desd
 - **ChatGPT** (OpenAI, noviembre de 2022): llegó a 100 millones de usuarios en ~2 meses y a más de 800 millones **por semana** en 2025
 - **Claude** (Anthropic, 2023)
 - **Gemini** (Google, 2023) — los resúmenes con IA de la búsqueda de Google llegan a más de 2 500 millones de personas al mes (2026)
-- **Llama** (Meta), **Mistral** (Francia), **DeepSeek** y **Qwen** (China): modelos de pesos abiertos
+- **Llama** (Meta), **Mistral** (Francia), **DeepSeek** y **Qwen** (China): modelos abiertos
 - **Copilot** (Microsoft/GitHub), **Claude Code**, **Cursor**: asistentes para programar
 
 ::: {.fragment .caja}
 ¿Cómo funcionan? Predicen **el siguiente token** (pedazo de palabra), una y otra vez. Lo veremos en la sesión de **transformers y modelos de lenguaje**.
 :::
 
-::: {.fragment .caja-naranja .pequeno}
-**Transparencia:** estas diapositivas y notebooks se prepararon con ayuda de Claude… y fueron revisadas por una humana. Usen la IA como herramienta, **verifiquen siempre** y citen cuando la usen.
-:::
 :::
 ::: {.column width="45%"}
 ```{python}
@@ -592,14 +587,6 @@ En **dos años** el mismo meme pasó de pesadilla a casi realista… **con audio
 Videos en dominio público (generados por IA) tomados de Wikimedia Commons: *Will Smith Eating Spaghetti Original* (u/chaindrop, ModelScope, 2023) y *Will Smith eating spaghetti Google Veo 3* (Javi López, 2025).
 :::
 
-## Video con sonido: Sora 2 (OpenAI, 2025)
-
-{{< video https://www.youtube.com/embed/lEcg6AJ6DVY width="1100" height="619" >}}
-
-::: {.credito}
-OpenAI (2025). *This is Sora 2* [video]. YouTube. Necesita conexión a internet. Dato curioso: OpenAI anunció en marzo de 2026 que cerraría Sora; la competencia en video generativo cambia muy rápido.
-:::
-
 ## La IA generativa no solo hace texto e imágenes
 
 :::: {.columns}
@@ -664,7 +651,6 @@ Jumper, J. *et al.* (2021). Highly accurate protein structure prediction with Al
 ::: {.column width="55%"}
 - Los modelos de **difusión** que generan imágenes también pueden generar **proteínas** (RFdiffusion, laboratorio de David Baker)
 - 2025: proteínas diseñadas desde cero que **neutralizan toxinas de veneno de serpiente** y protegieron a ratones en experimentos de laboratorio
-- Relevante para Centroamérica: las mordeduras de serpiente (como la *barba amarilla*, *Bothrops asper*) son un problema de salud pública en zonas rurales
 :::
 ::: {.column width="45%"}
 ::: {.definicion}
@@ -708,7 +694,6 @@ Lång, K. *et al.* (2023). *Lancet Oncology* 24, 936–944. · Hernström, V. *e
 - **GraphCast** (Google DeepMind, 2023): pronóstico global a 10 días en menos de un minuto; supera al mejor sistema operativo en el 90 % de 1 380 objetivos de verificación
 - **GenCast** (2024): pronósticos probabilísticos (*ensambles*) a 15 días, mejores que el sistema europeo en el 97 % de los casos
 - 2025: el Centro Nacional de Huracanes de EE. UU. usó por primera vez un modelo de IA (DeepMind) en su trabajo operativo; fue de los mejores de la temporada en trayectoria e intensidad (p. ej. el huracán **Melissa**, categoría 5)
-- Honduras conoce bien el costo de los huracanes: **Mitch** (1998), **Eta** e **Iota** (2020)
 :::
 ::: {.column width="45%"}
 ::: {.definicion}
@@ -805,21 +790,19 @@ Moreno, E. A. *et al.* (2026). AI Agents Can Already Autonomously Perform Experi
 
 ## Resumen de la Parte 1
 
+::: {style="max-width: 78%;"}
 ::: {.incremental}
 - **IA** ⊃ **aprendizaje automático** ⊃ **aprendizaje profundo** ⊃ **IA generativa**; la **ciencia de datos** usa todas estas herramientas para responder preguntas con datos
 - El aprendizaje automático **aprende reglas a partir de ejemplos** (tarea, experiencia, desempeño)
 - La revolución actual viene de **datos + cómputo + algoritmos + ciencia abierta**
 - La IA ya está en la vida diaria (asistentes, búsqueda, imágenes, video) y en la ciencia (proteínas, clima, medicina, física, matemáticas)
 :::
-
-::: {.fragment .center .grande}
-Pausa — después seguimos con la **Parte 2**
 :::
 
-## {.center .qr-final}
+::: {.absolute bottom="0" right="0" width="200" style="text-align: center;"}
+![](img/qr_sitio.png){width="180" fig-alt="Código QR que lleva a edithvillegas.github.io"}
 
-![](img/qr_sitio.png){height="560" fig-align="center" fig-alt="Código QR que lleva a edithvillegas.github.io"}
-
-::: {.qr-url}
+::: {.qr-url style="font-size: 0.45em;"}
 [edithvillegas.github.io](https://edithvillegas.github.io)
+:::
 :::
