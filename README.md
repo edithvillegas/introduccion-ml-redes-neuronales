@@ -2,15 +2,13 @@
 
 **ICTP – Physics Without Frontiers · Machine Learning: Theory and Applications**
 
-23 de noviembre al 4 de diciembre de 2026 · 
-
-UNAH, Tegucigalpa, Honduras · 
-
+23 de noviembre al 4 de diciembre de 2026  
+UNAH, Tegucigalpa, Honduras  
 [machine-learning-honduras.org](https://machine-learning-honduras.org/)
 
-Materiales de las sesiones de **Edith Natalia Villegas García** (ICTP): introducción a la inteligencia artificial y al aprendizaje automático, Linux y la terminal, teoría de redes neuronales, redes convolucionales y autocodificadores, transformers y modelos de lenguaje, y una práctica con PyTorch y Hugging Face.
+Materiales de las sesiones de **Edith Natalia Villegas García** (ICTP): introducción a la inteligencia artificial y al aprendizaje automático, Linux y la terminal, teoría de redes neuronales, redes convolucionales y autocodificadores, transformers y modelos de lenguaje, prácticas con PyTorch y HuggingFace.
 
-- **Diapositivas interactivas** hechas con [Quarto](https://quarto.org) + [reveal.js](https://revealjs.com), con gráficas en **Python** ([Plotly](https://plotly.com/python/)) que se pueden explorar en vivo: deslizadores, botones, gráficas 3D y demos.
+- **Diapositivas interactivas** hechas con [Quarto](https://quarto.org) + [reveal.js](https://revealjs.com), con gráficas interactivas en **Python** ([Plotly](https://plotly.com/python/)).
 - **Notebooks de práctica** para Google Colab, con ejercicios y sus **soluciones**.
 
 **Diapositivas en línea:** https://edithvillegas.github.io/introduccion-ml-redes-neuronales/
@@ -72,6 +70,7 @@ Materiales de las sesiones de **Edith Natalia Villegas García** (ICTP): introdu
 ## Créditos
 
 **Materiales:** Edith Natalia Villegas García (ICTP).
-**Organizan la escuela:** Edith Natalia Villegas García (ICTP), Carlos Soto (OGS), Joshua Lemus (Universidad de Módena y Reggio Emilia)
-coordinación local: Lucio Villanueva y Melissa Cruz (UNAH).
+**Organizan la escuela:** 
+Edith Natalia Villegas García (ICTP),  Carlos Soto (OGS),  
+coordinación local: Lucio Villanueva y Melissa Cruz (UNAH).  
 Con el apoyo de ICTP – Physics Without Frontiers, la UNAH y el Tecnológico de Monterrey.
