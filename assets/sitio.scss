@@ -1,19 +1,38 @@
 /*-- scss:defaults --*/
-$primary: #0095b6;
-$body-color: #0b2545;
+// Paleta de la escuela (la misma de las diapositivas)
+$zafiro: #72B0AB;
+$artico: #BCDDDC;
+$encaje: #FFEDD1;
+$coral: #FE9179;
+$abeto: #355E58;
+$pavo-real: #053229;
+$gris: #5E7A75;
+
+$primary: $abeto;
+$secondary: $zafiro;
+$info: $zafiro;
+$body-bg: #FFFCF7;
+$body-color: $pavo-real;
+$headings-color: $pavo-real;
+$link-color: $abeto;
+$navbar-bg: $pavo-real;
+$footer-bg: $encaje;
+$footer-fg: $pavo-real;
 $font-family-sans-serif: "Source Sans 3", "Source Sans Pro", Helvetica, Arial, sans-serif;
-$link-color: #007a96;
 
 /*-- scss:rules --*/
 @import url("https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap");
 
 .tarjeta-sesion {
-  border: 1px solid #e3e2dd;
-  border-left: 6px solid #0095b6;
+  border: 1px solid $artico;
+  border-left: 6px solid $zafiro;
   border-radius: 10px;
   padding: 0.8rem 1rem;
   margin-bottom: 1rem;
   background: #fff;
 }
-.tarjeta-sesion h3 { margin-top: 0; font-size: 1.2rem; }
-.tarjeta-sesion .fecha { color: #52514e; font-size: 0.9rem; }
+.tarjeta-sesion h2 { margin-top: 0; font-size: 1.2rem; border-bottom: none; padding-bottom: 0; }
+.tarjeta-sesion .fecha { color: $gris; font-size: 0.9rem; }
+
+.callout-tip.callout { border-left-color: $zafiro !important; }
+.callout-note.callout { border-left-color: $abeto !important; }

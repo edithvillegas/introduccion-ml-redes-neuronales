@@ -2,7 +2,6 @@
 title: "Linux, la terminal y git"
 subtitle: "…y por qué C es más rápido que Python · Sesión práctica"
 author: "Edith Natalia Villegas García · Joshua Lemus"
-date: 2026-11-23
 description: "Sistema operativo y Linux, comandos básicos de la terminal, tuberías, permisos, git, y lenguajes compilados vs. interpretados."
 ---
 
@@ -25,7 +24,7 @@ from graficas import *
 ::: {.definicion}
 **Para practicar no necesitan instalar nada:**
 
-- Google Colab corre en una máquina virtual con **Linux** 🐧
+- Google Colab corre en una máquina virtual con **Linux**
 - Abran el notebook *03 · La terminal de Linux* desde la página del curso
 - En Windows pueden instalar **WSL** (Subsistema de Windows para Linux); en Mac, la app **Terminal** ya trae una shell
 :::
@@ -36,20 +35,20 @@ from graficas import *
 
 :::: {.columns}
 ::: {.column width="55%"}
-- 🖥️ **Las 500 supercomputadoras más rápidas del mundo usan Linux** (desde 2017)
-- ☁️ La nube, los servidores, los clústeres de las universidades… y Google Colab
-- 🔁 **Automatizar**: repetir una tarea en 10 000 archivos con una línea
-- 🔬 **Reproducibilidad**: los comandos quedan escritos; los clics no
-- 🧪 Muchas herramientas científicas **solo** tienen interfaz de línea de comandos
-- 📱 Android también usa el núcleo (*kernel*) de Linux
+- **Las 500 supercomputadoras más rápidas del mundo usan Linux** (desde 2017)
+- La nube, los servidores, los clústeres de las universidades… y Google Colab
+- **Automatizar**: repetir una tarea en 10 000 archivos con una línea
+- **Reproducibilidad**: los comandos quedan escritos; los clics no
+- Muchas herramientas científicas **solo** tienen interfaz de línea de comandos
+- Android también usa el núcleo (*kernel*) de Linux
 :::
 ::: {.column width="45%"}
 ```{python}
 fig = go.Figure(go.Pie(labels=["Linux", "Otros"], values=[500, 0.0001], hole=0.6, sort=False,
-                       marker=dict(colors=[TURQUESA, GRIS_CLARO]), textinfo="none",
+                       marker=dict(colors=[ZAFIRO, ARTICO]), textinfo="none",
                        hovertemplate="%{label}: %{value:.0f} de 500<extra></extra>"))
 fig.add_annotation(text="<b>500 / 500</b><br>supercomputadoras<br>del TOP500", showarrow=False,
-                   font=dict(size=26, color=MARINO))
+                   font=dict(size=26, color=PAVO_REAL))
 fig.update_layout(showlegend=False, margin=dict(l=0, r=0, t=0, b=0))
 mostrar(fig, 560, 480)
 ```
@@ -64,13 +63,13 @@ Fuente: TOP500.org (lista de noviembre de 2017 en adelante).
 :::: {.columns}
 ::: {.column width="45%"}
 ```{python}
-capas = [("Hardware (CPU, memoria, disco, GPU)", "#0d366b"), ("Núcleo / kernel (Linux)", "#1c5cab"),
-         ("Shell (bash, zsh)", "#3987e5"), ("Programas y aplicaciones", "#86b6ef"), ("Tú 🙂", "#cde2fb")]
+capas = [("Hardware (CPU, memoria, disco, GPU)", PAVO_REAL), ("Núcleo / kernel (Linux)", ABETO),
+         ("Shell (bash, zsh)", ZAFIRO), ("Programas y aplicaciones", ARTICO), ("Tú", ENCAJE)]
 fig = go.Figure()
 for i, (t, c) in enumerate(capas):
     fig.add_shape(type="rect", x0=-2 + i * 0.3, x1=2 - i * 0.3, y0=i, y1=i + 0.9, fillcolor=c, line=dict(width=0))
     fig.add_annotation(x=0, y=i + 0.45, text=f"<b>{t}</b>", showarrow=False,
-                       font=dict(size=21, color="white" if i < 3 else MARINO))
+                       font=dict(size=21, color=texto_sobre(c)))
 fig.update_layout(xaxis=dict(visible=False, range=[-2.1, 2.1]), yaxis=dict(visible=False, range=[-0.1, 5]),
                   plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=0, r=0, t=0, b=0))
 mostrar(fig, 640, 520)
@@ -118,10 +117,10 @@ ana@laptop:~/escuela$ ls -l -h datos/
 ::::
 
 ::: {.caja}
-💡 ¿No recuerdan qué hace un comando? `man ls` (manual) o `ls --help`. Usen **Tab** para autocompletar y **↑** para repetir comandos anteriores.
+¿No recuerdan qué hace un comando? `man ls` (manual) o `ls --help`. Usen **Tab** para autocompletar y **↑** para repetir comandos anteriores.
 :::
 
-## El sistema de archivos es un árbol 🌳
+## El sistema de archivos es un árbol
 
 ```{python}
 nodos = [
@@ -144,12 +143,12 @@ nodos = [
     ("proc", "/", "Información de procesos en ejecución"),
     ("mnt", "/", "Discos montados (USB, red)"),
 ]
-ids = [n[0] if n[0] != "/" else "/" for n in nodos]
+colores_nodos = [PAVO_REAL] + [CATEGORICOS[i % 8] for i in range(len(nodos) - 1)]
 fig = go.Figure(go.Sunburst(
     ids=[n[0] for n in nodos], labels=[n[0] for n in nodos], parents=[n[1] for n in nodos],
     hovertext=[n[2] for n in nodos], hoverinfo="label+text",
-    marker=dict(colors=["#0b2545"] + [CATEGORICOS[i % 8] for i in range(len(nodos) - 1)]),
-    insidetextfont=dict(size=18, color="white"), maxdepth=4))
+    marker=dict(colors=colores_nodos),
+    insidetextfont=dict(size=18, color=[texto_sobre(c) for c in colores_nodos]), maxdepth=4))
 fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
 mostrar(fig, 700, 640)
 ```
@@ -171,7 +170,7 @@ Rutas **absolutas** empiezan en `/` (`/home/ana/escuela/datos`); **relativas** p
 | `touch archivo.txt` | crear archivo vacío |
 | `cp origen destino` | copiar (`-r` para carpetas) |
 | `mv origen destino` | mover o renombrar |
-| `rm archivo` · `rm -r carpeta` | borrar ⚠️ ¡sin papelera! |
+| `rm archivo` · `rm -r carpeta` | borrar (¡sin papelera!) |
 :::
 ::: {.column width="50%"}
 | Comando | Para qué sirve |
@@ -237,7 +236,7 @@ scp datos.csv ana@cluster.universidad.edu:~/proyecto/
 sudo apt install git     # Ubuntu / Debian
 pip install numpy        # paquetes de Python
 ```
-`sudo` = ejecutar como administrador ⚠️
+`sudo` = ejecutar como administrador (¡con cuidado!)
 :::
 ::::
 
@@ -249,7 +248,7 @@ pip install numpy        # paquetes de Python
 JSLinux (Fabrice Bellard): una computadora virtual con Alpine Linux que corre en el navegador. Prueben `ls /`, `uname -a`, `echo hola > a.txt`, `cat a.txt`. [Abrir en otra pestaña](https://bellard.org/jslinux/vm.html?url=alpine-x86.cfg&mem=192).
 :::
 
-# git: control de versiones {background-color="#0b2545" .seccion}
+# git: control de versiones {background-color="#053229" .seccion}
 
 Nunca más `tesis_final_FINAL_v3_ahora_si.docx`
 
@@ -262,16 +261,16 @@ Nunca más `tesis_final_FINAL_v3_ahora_si.docx`
 - Permite trabajar en **equipo** sin pisarse (ramas)
 - **GitHub / GitLab** guardan copias en la nube y facilitan colaborar
 - Creado por Linus Torvalds en 2005 para desarrollar Linux
-- Todo el material de esta escuela está en GitHub 😉
+- Todo el material de esta escuela está en GitHub
 :::
 ::: {.column width="55%"}
 ```{python}
-zonas = [("Carpeta de trabajo", 0, AZUL), ("Área de preparación<br>(staging)", 1.6, AQUA),
-         ("Repositorio local<br>(.git)", 3.2, VIOLETA), ("Repositorio remoto<br>(GitHub)", 4.8, NARANJA)]
+zonas = [("Carpeta de trabajo", 0, ABETO), ("Área de preparación<br>(staging)", 1.6, ZAFIRO),
+         ("Repositorio local<br>(.git)", 3.2, PISTACHO), ("Repositorio remoto<br>(GitHub)", 4.8, CORAL)]
 fig = go.Figure()
 for t, x, c in zonas:
     fig.add_shape(type="rect", x0=x - 0.65, x1=x + 0.65, y0=-0.6, y1=0.6, fillcolor=c, line=dict(width=0))
-    fig.add_annotation(x=x, y=0, text=f"<b>{t}</b>", showarrow=False, font=dict(size=17, color="white"))
+    fig.add_annotation(x=x, y=0, text=f"<b>{t}</b>", showarrow=False, font=dict(size=17, color=texto_sobre(c)))
 flechas = [(0, 1.6, 1.0, "git add"), (1.6, 3.2, 1.0, "git commit"), (3.2, 4.8, 1.0, "git push"),
            (4.8, 0, -1.25, "git pull"), (4.8, 0, -1.85, "git clone (la primera vez)")]
 for x0, x1, y, t in flechas:
@@ -279,7 +278,7 @@ for x0, x1, y, t in flechas:
                        xref="x", yref="y", axref="x", ayref="y", showarrow=True, arrowhead=3, arrowwidth=3,
                        arrowcolor=GRIS, text="")
     fig.add_annotation(x=(x0 + x1) / 2, y=y + 0.22, text=f"<b>{t}</b>", showarrow=False,
-                       font=dict(size=18, color=MARINO, family="JetBrains Mono, monospace"))
+                       font=dict(size=18, color=PAVO_REAL, family="JetBrains Mono, monospace"))
 fig.update_layout(xaxis=dict(visible=False, range=[-0.8, 5.6]), yaxis=dict(visible=False, range=[-2.2, 1.5]),
                   plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=0, r=0, t=0, b=0))
 mostrar(fig, 790, 460)
@@ -323,10 +322,10 @@ echo "datos_grandes/" >> .gitignore
 ::::
 
 ::: {.caja-naranja .pequeno}
-⚠️ **Nunca** suban contraseñas, claves de API ni datos personales a un repositorio público. Lo que se sube a internet es muy difícil de borrar.
+**Nunca** suban contraseñas, claves de API ni datos personales a un repositorio público. Lo que se sube a internet es muy difícil de borrar.
 :::
 
-# Compilado vs. interpretado {background-color="#0b2545" .seccion}
+# Compilado vs. interpretado {background-color="#053229" .seccion}
 
 ¿Por qué hay lenguajes "rápidos" y lenguajes "cómodos"?
 
@@ -378,8 +377,8 @@ En medio: **compilación "justo a tiempo"** (JIT): Java, Julia, JavaScript moder
 :::: {.columns}
 ::: {.column width="58%"}
 ```{python}
-tiempos = [("Python puro (bucle for)", 9.95, NARANJA), ("NumPy (vectorizado)", 0.47, AQUA),
-           ("C sin optimizar (gcc -O0)", 0.36, AZUL), ("C optimizado (gcc -O2)", 0.09, AZUL)]
+tiempos = [("Python puro (bucle for)", 9.95, CORAL), ("NumPy (vectorizado)", 0.47, ZAFIRO),
+           ("C sin optimizar (gcc -O0)", 0.36, ABETO), ("C optimizado (gcc -O2)", 0.09, ABETO)]
 fig = go.Figure(go.Bar(
     y=[t[0] for t in tiempos][::-1], x=[t[1] for t in tiempos][::-1], orientation="h",
     marker=dict(color=[t[2] for t in tiempos][::-1]),
@@ -396,7 +395,7 @@ Medido en una laptop (Apple M2 Pro), Python 3.12. En el notebook lo medirán ust
 ::: {.column width="42%"}
 | | Compilado | Interpretado |
 |---|---|---|
-| Velocidad | ⚡ muy alta | 🐢 más lenta |
+| Velocidad | muy alta | más lenta |
 | Escribir y probar | más lento | muy rápido |
 | Errores | al compilar | al ejecutar |
 | Portabilidad | recompilar por sistema | mismo código |
@@ -407,7 +406,7 @@ Medido en una laptop (Apple M2 Pro), Python 3.12. En el notebook lo medirán ust
 :::
 ::::
 
-## ¡Manos a la obra! 💻
+## ¡Manos a la obra!
 
 :::: {.columns}
 ::: {.column width="55%"}
@@ -416,7 +415,7 @@ Medido en una laptop (Apple M2 Pro), Python 3.12. En el notebook lo medirán ust
 1. Abrir en Google Colab (enlace en la página del curso)
 2. *Archivo → Guardar una copia en Drive*
 3. Ejecutar las celdas en orden con `Shift + Enter`
-4. Resolver cada ✏️ **Ejercicio** donde dice `# TU CÓDIGO AQUÍ`; la celda siguiente responde ✅ o ❌
+4. Resolver cada **Ejercicio** donde dice `# TU CÓDIGO AQUÍ`; la celda siguiente responde ✅ o ❌
 
 Temas: navegar, crear y mover archivos · analizar un archivo de fincas de café con tuberías · un *script* de bash · git paso a paso · C vs. Python
 :::
@@ -430,3 +429,11 @@ Temas: navegar, crear y mover archivos · analizar un archivo de fincas de café
 :::
 :::
 ::::
+
+## {.center .qr-final}
+
+![](img/qr_sitio.png){height="560" fig-align="center" fig-alt="Código QR que lleva a edithvillegas.github.io"}
+
+::: {.qr-url}
+[edithvillegas.github.io](https://edithvillegas.github.io)
+:::

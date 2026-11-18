@@ -11,6 +11,7 @@ y se generan dos versiones:
     soluciones/<nombre>_soluciones.ipynb   (resuelto, para docentes)
 """
 
+import hashlib
 from pathlib import Path
 
 import nbformat as nbf
@@ -33,6 +34,22 @@ def revisar(condicion, mensaje_ok="¡Correcto!", pista="Revisa tu código e int�
     except Exception as e:
         ok, pista = False, f"{pista}  (error: {type(e).__name__}: {e})"
     print(("✅ " + mensaje_ok) if ok else ("❌ Aún no. " + pista))
+'''.strip()
+
+
+ESTILO_GRAFICAS = '''
+# Colores de la escuela para las gráficas (los mismos de las diapositivas)
+from matplotlib.colors import LinearSegmentedColormap
+PALETA = {"zafiro": "#72B0AB", "artico": "#BCDDDC", "encaje": "#FFEDD1", "chicle": "#FDC1B4",
+          "coral": "#FE9179", "salvia": "#CFB97E", "pistacho": "#B89D47", "abeto": "#355E58",
+          "pavo_real": "#053229", "gris": "#5E7A75"}
+SECUENCIAL = LinearSegmentedColormap.from_list("escuela", ["#FFEDD1", "#BCDDDC", "#72B0AB", "#355E58", "#053229"])
+DIVERGENTE = LinearSegmentedColormap.from_list("escuela_div", ["#355E58", "#72B0AB", "#FFEDD1", "#FE9179", "#A84A35"])
+plt.rcParams.update({
+    "axes.prop_cycle": plt.cycler(color=["#355E58", "#FE9179", "#72B0AB", "#B89D47", "#053229", "#CFB97E"]),
+    "text.color": "#053229", "axes.labelcolor": "#053229", "axes.titlecolor": "#053229",
+    "axes.edgecolor": "#5E7A75", "xtick.color": "#053229", "ytick.color": "#053229",
+})
 '''.strip()
 
 
@@ -64,6 +81,9 @@ def construir(nombre, celdas, gpu=False):
                 nb.cells.append(nbf.v4.new_code_cell(codigo.strip()))
             else:
                 raise ValueError(tipo)
+        # Identificadores de celda fijos: así regenerar los notebooks no cambia nada si las fuentes no cambian
+        for i, celda_nb in enumerate(nb.cells):
+            celda_nb.id = hashlib.sha1(f"{nombre}-{i}".encode()).hexdigest()[:8]
         salida = RAIZ / version / archivo
         salida.parent.mkdir(exist_ok=True)
         nbf.write(nb, salida)

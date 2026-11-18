@@ -1,12 +1,12 @@
 """Notebook 06 · Transformers y modelos de lenguaje."""
 
-from utilidades import FUNCION_REVISAR, construir
+from utilidades import ESTILO_GRAFICAS, FUNCION_REVISAR, construir
 
 celdas = [
     ("md", """
 # 06 · Transformers y modelos de lenguaje
 
-**Notebook de práctica** · Escuela de Machine Learning Honduras 2026 · Sesión del lunes 30 de noviembre
+**Notebook de práctica** · Escuela de Machine Learning Honduras 2026
 
 En este notebook vas a abrir modelos de lenguaje reales y mirar cómo funcionan por dentro:
 
@@ -15,7 +15,7 @@ En este notebook vas a abrir modelos de lenguaje reales y mirar cómo funcionan 
 3. **Palabra enmascarada** con BETO (un BERT en español)
 4. **Siguiente token** con Qwen2.5: probabilidades, temperatura y generación
 5. **Atención**: ¿a qué palabras mira cada palabra?
-6. 🏆 Reto: encontrar el **círculo** de los días de la semana dentro de un modelo
+6. Reto: encontrar el **círculo** de los días de la semana dentro de un modelo
 
 **Recomendado:** *Entorno de ejecución → Cambiar tipo de entorno → GPU T4* (también funciona sin GPU, un poco más lento). Los modelos se descargan la primera vez (~1.5 GB en total).
 """),
@@ -34,6 +34,8 @@ from transformers import AutoTokenizer, AutoModel, AutoModelForCausalLM, pipelin
 torch.manual_seed(0)
 dispositivo = "cuda" if torch.cuda.is_available() else "cpu"
 print("Usando:", dispositivo)
+
+{ESTILO_GRAFICAS}
 
 {FUNCION_REVISAR}
 
@@ -61,11 +63,11 @@ for nombre, tk in tokenizadores.items():
     print(f"{nombre:8s} ({len(ids):2d} tokens): {piezas}")
 """),
     ("md", """
-### ✏️ Ejercicio 1 · El "impuesto" del español
+### Ejercicio 1 · El "impuesto" del español
 
 Escribe la función `contar_tokens(tokenizador, texto)` que devuelva cuántos tokens produce un texto (**sin** tokens especiales). Luego compara la frase en español con su traducción al inglés para cada tokenizador.
 
-<details><summary>💡 Pista</summary>
+<details><summary>Pista</summary>
 
 `len(tokenizador(texto, add_special_tokens=False)["input_ids"])`
 </details>
@@ -111,13 +113,13 @@ print("Similitud coseno(cat, dog) =", round(float(glove.similarity("cat", "dog")
 print("Similitud coseno(cat, physics) =", round(float(glove.similarity("cat", "physics")), 3))
 """),
     ("md", """
-### ✏️ Ejercicio 2 · Analogías
+### Ejercicio 2 · Analogías
 
 "*a* es a *b* como *c* es a ___". La respuesta es la palabra cuyo vector está más cerca de $\\vec{b} - \\vec{a} + \\vec{c}$.
 
 Completa `analogia(a, b, c)` para que devuelva **la palabra más cercana** usando `glove.most_similar(positive=[...], negative=[...], topn=1)`.
 
-<details><summary>💡 Pista</summary>
+<details><summary>Pista</summary>
 
 `glove.most_similar(positive=[b, c], negative=[a], topn=1)[0][0]`
 </details>
@@ -138,7 +140,7 @@ print("france : paris :: honduras :", analogia("france", "paris", "honduras"))
 """),
     ("code", """
 revisar(lambda: analogia("man", "king", "woman") == "queen" and analogia("walk", "walked", "swim") == "swam",
-        "king − man + woman = queen 👑", "Revisa el orden de positive y negative.")
+        "king − man + woman = queen", "Revisa el orden de positive y negative.")
 """),
     ("md", """
 ### Los vectores también aprenden estereotipos
@@ -151,7 +153,7 @@ for a, b, c in [("man", "doctor", "woman"), ("woman", "nurse", "man"), ("man", "
     print(f"{a} : {b} :: {c} : {analogia(a, b, c)}")
 """),
     ("md", """
-**✏️ Ejercicio 3 (libre):** inventa tus propias analogías (en inglés). ¿Encuentras alguna que funcione muy bien? ¿Alguna que muestre un sesgo?
+**Ejercicio 3 (libre):** inventa tus propias analogías (en inglés). ¿Encuentras alguna que funcione muy bien? ¿Alguna que muestre un sesgo?
 """),
     ("ej", """
 # TU CÓDIGO AQUÍ
@@ -170,7 +172,7 @@ for r in rellenar("Tegucigalpa es la [MASK] de Honduras.", top_k=5):
     print(f"{r['token_str']:>12s}  {r['score']:.1%}")
 """),
     ("md", """
-### ✏️ Ejercicio 4 · Pon a prueba a BETO
+### Ejercicio 4 · Pon a prueba a BETO
 
 1. Escribe tres oraciones con `[MASK]` sobre Honduras, la física o tu vida diaria y mira las predicciones.
 2. Compara `"Él es muy [MASK]."` con `"Ella es muy [MASK]."`. ¿Qué diferencias ves?
@@ -220,7 +222,7 @@ for p, i in zip(top.values, top.indices):
     print(f"{tok_qwen.decode([int(i)])!r:>14}  {p:.1%}")
 """),
     ("md", """
-### ✏️ Ejercicio 5 · Softmax con temperatura
+### Ejercicio 5 · Softmax con temperatura
 
 $$
 p_i = \\frac{e^{z_i / T}}{\\sum_j e^{z_j / T}}
@@ -228,7 +230,7 @@ $$
 
 Completa `softmax_con_temperatura(logits, T)`. Para que sea numéricamente estable, resta el máximo antes de exponenciar: $e^{(z_i - \\max z)/T}$.
 
-<details><summary>💡 Pista</summary>
+<details><summary>Pista</summary>
 
 ```python
 z = (logits - logits.max()) / T
@@ -261,11 +263,11 @@ for eje, T in zip(ejes, [0.3, 1.0, 2.0]):
 plt.suptitle(f"«{texto} ___»"); plt.show()
 """),
     ("md", """
-### ✏️ Ejercicio 6 · Genera texto token por token
+### Ejercicio 6 · Genera texto token por token
 
 Escribe un bucle que, partiendo de `"Honduras es un país"`, agregue **15 tokens**, eligiendo cada vez el **más probable** (decodificación voraz o *greedy*).
 
-<details><summary>💡 Pista</summary>
+<details><summary>Pista</summary>
 
 ```python
 for _ in range(15):
@@ -320,18 +322,18 @@ print("Forma:", tuple(atencion.shape), "\\nTokens:", tokens)
 
 def dibujar_atencion(capa, cabeza):
     plt.figure(figsize=(6, 5))
-    plt.imshow(atencion[capa, cabeza], cmap="Blues")
+    plt.imshow(atencion[capa, cabeza], cmap=SECUENCIAL)
     plt.xticks(range(len(tokens)), tokens, rotation=70); plt.yticks(range(len(tokens)), tokens)
     plt.title(f"Capa {capa + 1}, cabeza {cabeza + 1}"); plt.colorbar(); plt.show()
 
 dibujar_atencion(0, 0)
 """),
     ("md", """
-### ✏️ Ejercicio 7 · ¿Quién estaba cansado?
+### Ejercicio 7 · ¿Quién estaba cansado?
 
 Encuentra la **capa** y la **cabeza** (índices desde 0) donde el token `"cansado"` presta **más atención** al token `"gato"`. Guarda los índices en `mejor_capa` y `mejor_cabeza` y dibuja esa cabeza.
 
-<details><summary>💡 Pista</summary>
+<details><summary>Pista</summary>
 
 ```python
 i, j = tokens.index("cansado"), tokens.index("gato")
@@ -357,7 +359,7 @@ revisar(lambda: (int(mejor_capa), int(mejor_cabeza)) == tuple(int(v) for v in np
         "¡Encontraste la cabeza que conecta «cansado» con «gato»!", "Busca el máximo de atencion[:, :, i, j].")
 """),
     ("md", """
-## 6. 🏆 Reto: los días de la semana forman un círculo
+## 6. Reto: los días de la semana forman un círculo
 
 Engels *et al.* (ICLR 2025) descubrieron que los modelos de lenguaje representan los días de la semana y los meses en **círculos**. ¡Vamos a comprobarlo con Qwen2.5!
 
@@ -382,13 +384,13 @@ def vector_palabra(plantilla, palabra, capa):
 print("Número de capas (+ embeddings):", qwen.config.num_hidden_layers + 1)
 """),
     ("md", """
-### ✏️ Ejercicio 8 · Encuentra el círculo
+### Ejercicio 8 · Encuentra el círculo
 
 1. Para cada día, calcula el **promedio** de `vector_palabra(p, dia, CAPA)` sobre todas las `PLANTILLAS`. Guarda el resultado en una matriz `medias` de forma (7, d).
 2. Proyecta `medias` a 2 dimensiones con `PCA(2)` de scikit-learn → `proyeccion` (forma 7 × 2).
 3. Dibuja los puntos con el nombre de cada día. ¿Forman un círculo en orden?
 
-<details><summary>💡 Pista</summary>
+<details><summary>Pista</summary>
 
 ```python
 medias = np.array([np.mean([vector_palabra(p, d, CAPA) for p in PLANTILLAS], axis=0) for d in DIAS])
@@ -405,7 +407,7 @@ proyeccion = None    # TU CÓDIGO AQUÍ
 
 if proyeccion is not None:
     plt.figure(figsize=(5, 5))
-    plt.plot(*np.vstack([proyeccion, proyeccion[:1]]).T, ":", color="gray")
+    plt.plot(*np.vstack([proyeccion, proyeccion[:1]]).T, ":", color=PALETA["gris"])
     plt.scatter(proyeccion[:, 0], proyeccion[:, 1], s=80)
     for (x, y), d in zip(proyeccion, DIAS):
         plt.annotate(d, (x, y), textcoords="offset points", xytext=(5, 5))
@@ -419,7 +421,7 @@ proyeccion = PCA(2).fit_transform(medias - medias.mean(0))
 
 if proyeccion is not None:
     plt.figure(figsize=(5, 5))
-    plt.plot(*np.vstack([proyeccion, proyeccion[:1]]).T, ":", color="gray")
+    plt.plot(*np.vstack([proyeccion, proyeccion[:1]]).T, ":", color=PALETA["gris"])
     plt.scatter(proyeccion[:, 0], proyeccion[:, 1], s=80)
     for (x, y), d in zip(proyeccion, DIAS):
         plt.annotate(d, (x, y), textcoords="offset points", xytext=(5, 5))
@@ -435,7 +437,7 @@ def es_ciclo(puntos):
     return all((pos[(k + 1) % n] - pos[k]) % n in (1, n - 1) for k in range(n))
 
 revisar(lambda: proyeccion.shape == (7, 2) and es_ciclo(proyeccion),
-        "¡Los días forman un ciclo en orden! El modelo aprendió que después del domingo viene el lunes. 🔄",
+        "¡Los días forman un ciclo en orden! El modelo aprendió que después del domingo viene el lunes.",
         "Revisa el promedio y la PCA (o prueba otra capa).")
 """),
     ("md", """

@@ -20,7 +20,7 @@ format:
     preview-links: auto
     code-copy: true
     code-line-numbers: false
-    highlight-style: github
+    highlight-style: ../assets/paleta.theme
     link-external-newwindow: true
     chalkboard:
       buttons: false
@@ -30,7 +30,6 @@ format:
       width: wide
       numbers: true
     footer: "Escuela de Machine Learning · Honduras 2026"
-    logo: ../assets/logo-escuela.svg
     fig-align: center
     include-in-header:
       - text: |

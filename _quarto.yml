@@ -19,7 +19,7 @@ website:
   repo-actions: [source, issue]
   page-navigation: false
   navbar:
-    background: "#0b2545"
+    background: "#053229"
     left:
       - text: "Inicio"
         href: index.qmd

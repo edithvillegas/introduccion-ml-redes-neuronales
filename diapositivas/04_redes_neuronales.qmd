@@ -2,7 +2,6 @@
 title: "Teoría de redes neuronales"
 subtitle: "De una neurona al aprendizaje profundo"
 author: "Edith Natalia Villegas García · ICTP"
-date: 2026-11-27
 description: "La neurona artificial, el perceptrón y XOR, redes multicapa, aproximación universal, funciones de pérdida, descenso de gradiente, retropropagación, sobreajuste, representaciones jerárquicas y redes de Hopfield."
 ---
 
@@ -21,7 +20,7 @@ sigmoide = lambda z: 1 / (1 + np.exp(-z))  # noqa: E731
 
 :::: {.columns}
 ::: {.column width="50%"}
-Esta semana vieron:
+En otras sesiones de la escuela:
 
 - **Regresión lineal** y múltiple (Carlos Soto)
 - **Clasificación**: regresión logística, k-vecinos, árboles… (Daniela Pinto)
@@ -40,7 +39,7 @@ Hoy juntamos todo:
 :::
 ::::
 
-# La neurona {background-color="#0b2545" .seccion}
+# La neurona {background-color="#053229" .seccion}
 
 Una idea de 1943
 
@@ -102,8 +101,8 @@ for ang in angulos:
     fig.add_trace(go.Heatmap(x=xx, y=xx, z=Z, colorscale=DIVERGENTE, zmin=0, zmax=1, visible=(ang == 30),
                              colorbar=dict(title="a", len=0.8), hovertemplate="x₁=%{x:.1f}, x₂=%{y:.1f}<br>a=%{z:.2f}<extra></extra>"))
     fig.add_trace(go.Scatter(x=[0, w[0]], y=[0, w[1]], mode="lines+markers", visible=(ang == 30), showlegend=False,
-                             line=dict(color=MARINO, width=5), marker=dict(size=[0, 16], symbol="arrow", angleref="previous",
-                                                                       color=MARINO), hoverinfo="skip"))
+                             line=dict(color=PAVO_REAL, width=5), marker=dict(size=[0, 16], symbol="arrow", angleref="previous",
+                                                                       color=PAVO_REAL), hoverinfo="skip"))
 fig.update_layout(sliders=deslizador(pasos_visibilidad(2, [f"{a}°" for a in angulos]), prefijo="dirección de w: ", activo=1),
                   xaxis=dict(title="x₁", range=[-4, 4]), yaxis=dict(title="x₂", range=[-4, 4], scaleanchor="x"),
                   title="a = σ(w₁x₁ + w₂x₂ + b): la neurona «se enciende» de un lado de una recta")
@@ -119,14 +118,14 @@ z = np.linspace(-5, 5, 400)
 from scipy.special import erf
 funciones = [
     ("Escalón (perceptrón, 1958)", np.where(z >= 0, 1.0, 0.0), GRIS),
-    ("Sigmoide", sigmoide(z), AZUL),
-    ("Tangente hiperbólica", np.tanh(z), AQUA),
-    ("ReLU = max(0, z)", np.maximum(0, z), NARANJA),
-    ("GELU (transformers)", 0.5 * z * (1 + erf(z / np.sqrt(2))), VIOLETA),
+    ("Sigmoide", sigmoide(z), ABETO),
+    ("Tangente hiperbólica", np.tanh(z), ZAFIRO),
+    ("ReLU = max(0, z)", np.maximum(0, z), CORAL),
+    ("GELU (transformers)", 0.5 * z * (1 + erf(z / np.sqrt(2))), PISTACHO),
 ]
 fig = go.Figure()
 for nombre, y, color in funciones:
-    fig.add_trace(go.Scatter(x=z, y=y, name=nombre, line=dict(color=color, width=4),
+    fig.add_trace(go.Scatter(x=z, y=y, name=nombre, line=dict(color=color, width=4, dash="dot" if color == GRIS else "solid"),
                              visible=True if nombre.startswith(("Sigmoide", "ReLU")) else "legendonly"))
 fig.update_layout(xaxis=dict(title="z"), yaxis=dict(title="σ(z)", range=[-1.3, 3]),
                   legend=dict(x=0.01, y=0.98, font=dict(size=18)),
@@ -151,7 +150,7 @@ $$
 \mathbf{w} \leftarrow \mathbf{w} + \eta\,(y - \hat{y})\,\mathbf{x}
 $$
 - Si los datos son **linealmente separables**, el algoritmo converge (teorema de convergencia del perceptrón)
-- La prensa de la época prometió máquinas que pronto caminarían, hablarían y serían conscientes de sí mismas… 🙃
+- La prensa de la época prometió máquinas que pronto caminarían, hablarían y serían conscientes de sí mismas…
 
 ![Figura original de Rosenblatt (1958): organización de un cerebro biológico y de un perceptrón](img/rosenblatt_1958_figura.png){height="190"}
 :::
@@ -170,13 +169,13 @@ rectas = {"Y (AND)": ([-0.2, 1.7], [1.7, -0.2]), "O (OR)": ([-0.2, 0.7], [0.7, -
 fig = go.Figure()
 for i, (nombre, y) in enumerate(tablas.items()):
     y = np.array(y)
-    for c, color in [(0, AZUL), (1, NARANJA)]:
+    for c, color in [(0, ABETO), (1, CORAL)]:
         fig.add_trace(go.Scatter(x=puntos[y == c, 0], y=puntos[y == c, 1], mode="markers", name=f"salida {c}",
                                  marker=dict(size=40, color=color, line=dict(color="white", width=3)),
                                  visible=(i == 0), showlegend=(i == 0)))
     r = rectas[nombre]
     fig.add_trace(go.Scatter(x=r[0] if r else [None], y=r[1] if r else [None], mode="lines", showlegend=False,
-                             line=dict(color=MARINO, width=4, dash="dash"), visible=(i == 0)))
+                             line=dict(color=PAVO_REAL, width=4, dash="dash"), visible=(i == 0)))
 titulos = [{"title.text": "AND: una recta separa las clases ✅"}, {"title.text": "OR: una recta separa las clases ✅"},
            {"title.text": "XOR: ¡ninguna recta puede separarlas! ❌"}]
 botones = []
@@ -195,7 +194,7 @@ mostrar(fig, 900, 640)
 Minsky y Papert (1969) mostraron que un perceptrón de una capa **no puede** aprender XOR. El entusiasmo se enfrió… hasta que se supo entrenar redes **con capas ocultas**.
 :::
 
-# Redes multicapa {background-color="#0b2545" .seccion}
+# Redes multicapa {background-color="#053229" .seccion}
 
 Apilar neuronas para representar funciones complicadas
 
@@ -233,10 +232,10 @@ for l in range(len(capas) - 1):
             (x0, y0), (x1, y1) = pos[(l, j)], pos[(l + 1, k)]
             w = rng.normal()
             fig.add_trace(go.Scatter(x=[x0, x1], y=[y0, y1], mode="lines", hoverinfo="skip", showlegend=False,
-                                     line=dict(color=NARANJA if w > 0 else AZUL, width=0.8 + 2 * min(abs(w), 1.5)), opacity=0.5))
+                                     line=dict(color=CORAL if w > 0 else ABETO, width=0.8 + 2 * min(abs(w), 1.5)), opacity=0.5))
 for l, n in enumerate(capas):
     fig.add_trace(go.Scatter(x=[pos[(l, j)][0] for j in range(n)], y=[pos[(l, j)][1] for j in range(n)], mode="markers",
-                             marker=dict(size=34, color="white", line=dict(color=MARINO, width=3)), showlegend=False,
+                             marker=dict(size=34, color="white", line=dict(color=PAVO_REAL, width=3)), showlegend=False,
                              hovertext=nombres_c[l], hoverinfo="text"))
     fig.add_annotation(x=l * 1.7, y=-3.0, text=nombres_c[l], showarrow=False, font=dict(size=19, color=GRIS))
 fig.update_layout(xaxis=dict(visible=False), yaxis=dict(visible=False, range=[-3.3, 2.6]),
@@ -256,15 +255,17 @@ yxor = np.array([0, 1, 1, 0])
 H = sigmoide(puntos @ W1.T + b1)
 fig = make_subplots(rows=1, cols=2, subplot_titles=["Espacio de entrada (x₁, x₂)", "Espacio oculto (h₁, h₂)"],
                     horizontal_spacing=0.15)
-for c, color in [(0, AZUL), (1, NARANJA)]:
+for c, color in [(0, ABETO), (1, CORAL)]:
     fig.add_trace(go.Scatter(x=puntos[yxor == c, 0], y=puntos[yxor == c, 1], mode="markers+text", name=f"XOR = {c}",
                              text=[f"({a},{b})" for a, b in puntos[yxor == c]], textposition="top center",
                              marker=dict(size=36, color=color, line=dict(color="white", width=3))), 1, 1)
     fig.add_trace(go.Scatter(x=H[yxor == c, 0], y=H[yxor == c, 1] + rng.normal(0, 0.012, (yxor == c).sum()),
                              mode="markers+text", showlegend=False,
-                             text=[f"({a},{b})" for a, b in puntos[yxor == c]], textposition="top center",
+                             text=[f"({a},{b})" for a, b in puntos[yxor == c]],
+                             # (0,1) y (1,0) caen en el mismo punto: una etiqueta arriba y otra abajo
+                             textposition=["top center", "bottom center"] if c == 1 else "top center",
                              marker=dict(size=36, color=color, line=dict(color="white", width=3))), 1, 2)
-fig.add_trace(go.Scatter(x=[-0.1, 1.1], y=[-0.05, 1.15], mode="lines", line=dict(color=MARINO, width=4, dash="dash"),
+fig.add_trace(go.Scatter(x=[-0.1, 1.1], y=[-0.05, 1.15], mode="lines", line=dict(color=PAVO_REAL, width=4, dash="dash"),
                          showlegend=False), 1, 2)
 fig.update_xaxes(range=[-0.3, 1.3], title_text="x₁", row=1, col=1)
 fig.update_yaxes(range=[-0.3, 1.4], title_text="x₂", row=1, col=1)
@@ -286,7 +287,7 @@ La capa oculta **cambia la representación** de los datos: en el espacio $(h_1, 
 - A la derecha: cada punto dibujado en las coordenadas de las **3 neuronas ocultas** después de entrenar
 
 ::: {.caja .pequeno}
-¡Gírenlo! En el espacio oculto, un **plano** separa las dos clases. La red **aprendió sola** una característica parecida al $r^2$ que diseñamos a mano el lunes.
+¡Gírenlo! En el espacio oculto, un **plano** separa las dos clases. La red **aprendió sola** una característica parecida al $r^2$ que diseñamos a mano en la introducción.
 :::
 :::
 ::: {.column width="60%"}
@@ -295,13 +296,13 @@ Xc, yc = make_circles(n_samples=500, noise=0.07, factor=0.4, random_state=3)
 red = MLPClassifier(hidden_layer_sizes=(3,), activation="tanh", solver="lbfgs", max_iter=3000, random_state=3).fit(Xc, yc)
 Hc = np.tanh(Xc @ red.coefs_[0] + red.intercepts_[0])
 fig = go.Figure()
-for c, (nombre, color) in enumerate([("clase 0 (círculo exterior)", AZUL), ("clase 1 (círculo interior)", NARANJA)]):
+for c, (nombre, color) in enumerate([("clase 0 (círculo exterior)", ABETO), ("clase 1 (círculo interior)", CORAL)]):
     fig.add_trace(go.Scatter3d(x=Hc[yc == c, 0], y=Hc[yc == c, 1], z=Hc[yc == c, 2], mode="markers", name=nombre,
                                marker=dict(size=4, color=color)))
 fig.update_layout(scene=dict(xaxis_title="h₁", yaxis_title="h₂", zaxis_title="h₃", camera=dict(eye=dict(x=1.5, y=1.5, z=0.9))),
-                  legend=dict(x=0, y=1), margin=dict(l=0, r=0, t=10, b=0),
-                  title=f"Exactitud: {red.score(Xc, yc):.0%}")
-mostrar(fig, 900, 660)
+                  legend=dict(x=0, y=0.97), margin=dict(l=0, r=0, t=60, b=0),
+                  title=dict(text=f"Exactitud: {red.score(Xc, yc):.0%}", y=0.97))
+mostrar(fig, 880, 660)
 ```
 :::
 ::::
@@ -321,11 +322,12 @@ for n in n_neuronas:
                 np.maximum(0, quiebres[None, :] - x[:, None])]
     coef = np.linalg.lstsq(Phi, objetivo, rcond=None)[0]
     aprox = Phi @ coef
-    fig.add_trace(go.Scatter(x=x, y=aprox, name=f"red con {n} neuronas ReLU", line=dict(color=NARANJA, width=4),
+    fig.add_trace(go.Scatter(x=x, y=aprox, name=f"red con {n} neuronas ReLU", line=dict(color=CORAL, width=4),
                              visible=(n == 4)))
     titulos.append({"title.text": f"{n} neurona{'s' if n > 1 else ''} ReLU · error cuadrático medio = {np.mean((aprox - objetivo) ** 2):.4f}"})
 fig.update_layout(sliders=deslizador(pasos_visibilidad(1, n_neuronas, fijas=1, extras=titulos), prefijo="neuronas ocultas: ", activo=2),
-                  title=titulos[2]["title.text"], xaxis=dict(title="x"), yaxis=dict(title="f(x)"), legend=dict(x=0.02, y=0.98))
+                  title=titulos[2]["title.text"], xaxis=dict(title="x"), yaxis=dict(title="f(x)"),
+                  legend=dict(x=0.02, y=0.03, yanchor="bottom"))
 mostrar(fig, 1350, 600)
 ```
 
@@ -333,7 +335,7 @@ mostrar(fig, 1350, 600)
 Una red con **una sola capa oculta** y suficientes neuronas puede aproximar cualquier función continua tan bien como queramos (Cybenko, 1989; Hornik, 1991). Pero el teorema no dice **cuántas** neuronas ni **cómo encontrar** los pesos: en la práctica, las redes **profundas** lo logran con muchos menos parámetros.
 :::
 
-# ¿Cómo aprende una red? {background-color="#0b2545" .seccion}
+# ¿Cómo aprende una red? {background-color="#053229" .seccion}
 
 Pérdida, gradientes y retropropagación
 
@@ -355,7 +357,7 @@ donde $\hat{p}_{ic}$ es la probabilidad que la red asigna a la clase correcta (s
 ::: {.column width="50%"}
 ```{python}
 p = np.linspace(0.01, 1, 200)
-fig = go.Figure(go.Scatter(x=p, y=-np.log(p), line=dict(color=NARANJA, width=5),
+fig = go.Figure(go.Scatter(x=p, y=-np.log(p), line=dict(color=CORAL, width=5),
                            hovertemplate="p = %{x:.2f}<br>pérdida = %{y:.2f}<extra></extra>"))
 fig.update_layout(title="Entropía cruzada: castiga mucho estar seguro y equivocarse",
                   xaxis=dict(title="probabilidad asignada a la clase correcta"), yaxis=dict(title="pérdida −log p"))
@@ -364,7 +366,7 @@ mostrar(fig, 760, 520)
 :::
 ::::
 
-[📅 Probabilidad y entropía con **Javier Aguilar** · martes 24 y miércoles 25]{.adelante}
+[Más en la sesión de probabilidad con **Javier Aguilar**]{.adelante}
 
 ## Paso 2: bajar la montaña con descenso de gradiente
 
@@ -377,9 +379,9 @@ g = np.linspace(-3.2, 3.2, 120)
 G0, G1 = np.meshgrid(g, g)
 Lmap = perdida(np.stack([G0, G1], -1))
 tasas = [0.02, 0.08, 0.2, 0.24, 0.26]
-desc = {0.02: "muy pequeña: avanza lentísimo 🐢", 0.08: "adecuada 🙂", 0.2: "grande: oscila", 0.24: "casi diverge 😬", 0.26: "demasiado grande: ¡diverge! 💥"}
+desc = {0.02: "muy pequeña: avanza lentísimo", 0.08: "adecuada", 0.2: "grande: oscila", 0.24: "casi diverge", 0.26: "demasiado grande: ¡diverge!"}
 fig = go.Figure()
-fig.add_trace(go.Contour(x=g, y=g, z=np.log1p(Lmap), colorscale=AZULES, showscale=False, ncontours=25,
+fig.add_trace(go.Contour(x=g, y=g, z=np.log1p(Lmap), colorscale=SECUENCIAL, showscale=False, ncontours=25,
                          hoverinfo="skip", line=dict(width=0.5)))
 titulos = []
 for eta in tasas:
@@ -389,11 +391,11 @@ for eta in tasas:
         w = w - eta * gradiente(w)
         camino.append(w.copy())
     camino = np.clip(np.array(camino), -3.5, 3.5)
-    fig.add_trace(go.Scatter(x=camino[:, 0], y=camino[:, 1], mode="lines+markers", line=dict(color=NARANJA, width=3),
-                             marker=dict(size=9, color=NARANJA, line=dict(color="white", width=1)), visible=(eta == 0.08),
+    fig.add_trace(go.Scatter(x=camino[:, 0], y=camino[:, 1], mode="lines+markers", line=dict(color=CORAL, width=3),
+                             marker=dict(size=9, color=CORAL, line=dict(color="white", width=1)), visible=(eta == 0.08),
                              showlegend=False, hovertemplate="paso %{pointNumber}<extra></extra>"))
     titulos.append({"title.text": f"Tasa de aprendizaje η = {eta}: {desc[eta]}"})
-fig.add_trace(go.Scatter(x=[0], y=[0], mode="markers", marker=dict(symbol="star", size=24, color=MARINO), showlegend=False,
+fig.add_trace(go.Scatter(x=[0], y=[0], mode="markers", marker=dict(symbol="star", size=24, color=PAVO_REAL), showlegend=False,
                          hovertext="mínimo", hoverinfo="text"))
 pasos = []
 for i, eta in enumerate(tasas):
@@ -405,7 +407,7 @@ mostrar(fig, 1000, 680)
 ```
 
 ::: {.pequeno}
-$\mathbf{w} \leftarrow \mathbf{w} - \eta\,\nabla_{\mathbf{w}} L$. La **tasa de aprendizaje** $\eta$ es el hiperparámetro más importante. [📅 Lo vieron con **Carlos Soto** · jueves 26]{.adelante}
+$\mathbf{w} \leftarrow \mathbf{w} - \eta\,\nabla_{\mathbf{w}} L$. La **tasa de aprendizaje** $\eta$ es el hiperparámetro más importante. [Más en la sesión de optimización con **Carlos Soto**]{.adelante}
 :::
 
 ## Paso 3: calcular el gradiente con retropropagación
@@ -445,7 +447,7 @@ L.backward()                       # hacia atrás
 print(w.grad, b.grad)   # ∂L/∂w, ∂L/∂b
 ```
 
-[📅 Lo programaremos el **martes 1 de diciembre**]{.adelante}
+[Lo programaremos en la **práctica con PyTorch**]{.adelante}
 :::
 ::::
 
@@ -483,16 +485,16 @@ for objetivo_ep in epocas_mostrar:
         red.partial_fit(Xm, ym, classes=[0, 1])
         ep += 1
     Z = red.predict_proba(np.c_[GX.ravel(), GY.ravel()])[:, 1].reshape(GX.shape)
-    fig.add_trace(go.Contour(x=gx, y=gy, z=Z, colorscale=DIVERGENTE, opacity=0.5, showscale=False,
+    fig.add_trace(go.Contour(x=gx, y=gy, z=Z, colorscale=DIVERGENTE, opacity=0.4, showscale=False,
                              contours=dict(start=0, end=1, size=0.1), visible=(objetivo_ep == 30), hoverinfo="skip"))
-for c, color in [(0, AZUL), (1, NARANJA)]:
+for c, color in [(0, ABETO), (1, CORAL)]:
     fig.add_trace(go.Scatter(x=Xm[ym == c, 0], y=Xm[ym == c, 1], mode="markers", showlegend=False,
                              marker=dict(color=color, size=7, line=dict(color="white", width=1))))
 pasos = [dict(method="update", label=str(e), args=[{"visible": [j == i for j in range(len(epocas_mostrar))] + [True, True]}])
          for i, e in enumerate(epocas_mostrar)]
 fig.update_layout(sliders=deslizador(pasos, prefijo="época: ", activo=3), title="Red 2 → 16 → 16 → 1 aprendiendo",
                   xaxis=dict(range=[-1.8, 2.8]), yaxis=dict(range=[-1.3, 1.8]))
-mostrar(fig, 860, 600)
+mostrar(fig, 820, 600)
 ```
 :::
 ::::
@@ -513,8 +515,8 @@ for e in range(400):
     pv.append(log_loss(yv, red.predict_proba(Xv)))
 mejor = int(np.argmin(pv))
 fig = go.Figure()
-fig.add_trace(go.Scatter(y=pe, name="pérdida en entrenamiento", line=dict(color=AZUL, width=4)))
-fig.add_trace(go.Scatter(y=pv, name="pérdida en validación", line=dict(color=NARANJA, width=4)))
+fig.add_trace(go.Scatter(y=pe, name="pérdida en entrenamiento", line=dict(color=ABETO, width=4)))
+fig.add_trace(go.Scatter(y=pv, name="pérdida en validación", line=dict(color=CORAL, width=4)))
 fig.add_vline(x=mejor, line=dict(color=GRIS, dash="dot", width=2))
 fig.add_annotation(x=mejor, y=max(pv) * 0.9, text="parada temprana", showarrow=False, xshift=70, font=dict(size=18))
 fig.update_layout(xaxis=dict(title="época"), yaxis=dict(title="entropía cruzada", type="log"),
@@ -543,7 +545,7 @@ La red empieza a **memorizar** los datos de entrenamiento: la pérdida de entren
 Retos: (1) la espiral con 0 capas ocultas: imposible. (2) Agregar capas y neuronas hasta resolverla. (3) Usar como entradas sin(X1) y sin(X2): ingeniería de características. (4) Subir el ruido y ver el sobreajuste. (5) Tasa de aprendizaje 3 o 10: diverge.
 :::
 
-# ¿Por qué "profundo"? {background-color="#0b2545" .seccion}
+# ¿Por qué "profundo"? {background-color="#053229" .seccion}
 
 Representaciones jerárquicas
 
@@ -554,10 +556,10 @@ imagenet = [(2010, 28.2, "NEC-UIUC"), (2011, 25.8, "XRCE"), (2012, 16.4, "AlexNe
             (2013, 11.7, "Clarifai / ZFNet"), (2014, 6.7, "GoogLeNet"), (2015, 3.57, "ResNet (152 capas)"),
             (2016, 2.99, "Trimps-Soushen"), (2017, 2.25, "SENet")]
 fig = go.Figure(go.Bar(x=[a for a, _, _ in imagenet], y=[e for _, e, _ in imagenet],
-                       marker=dict(color=[GRIS_CLARO, GRIS_CLARO] + [NARANJA] + [AZUL] * 5),
+                       marker=dict(color=[ARTICO, ARTICO] + [CORAL] + [ABETO] * 5),
                        text=[f"{e}%" for _, e, _ in imagenet], textposition="outside", textfont=dict(size=20),
                        customdata=[m for _, _, m in imagenet], hovertemplate="%{x}: %{customdata}<br>error top-5 = %{y}%<extra></extra>"))
-fig.add_hline(y=5.1, line=dict(color=MARINO, dash="dash", width=3))
+fig.add_hline(y=5.1, line=dict(color=PAVO_REAL, dash="dash", width=3), layer="below")
 fig.add_annotation(x=2010.2, y=5.1, text="humano (≈5.1 %)", showarrow=False, yshift=16, xanchor="left", font=dict(size=18))
 fig.update_layout(title="Error en ImageNet (1000 categorías, 1.2 millones de imágenes de entrenamiento)",
                   yaxis=dict(title="error top-5 (%)", range=[0, 32]), xaxis=dict(dtick=1, title=None), showlegend=False)
@@ -576,7 +578,7 @@ Russakovsky, O. *et al.* (2015). ImageNet Large Scale Visual Recognition Challen
 
 ```{python}
 etiquetas_capas = ["Bordes", "Texturas", "Patrones", "Partes", "Objetos"]
-display(HTML("<div style='display:flex;justify-content:space-around;font-size:0.6em;font-weight:700;color:#0095b6;margin-top:-0.4em'>"
+display(HTML("<div style='display:flex;justify-content:space-around;font-size:0.6em;font-weight:700;color:#355E58;margin-top:-0.4em'>"
              + "".join(f"<span>{e}</span>" for e in etiquetas_capas) + "</div>"))
 ```
 :::
@@ -586,7 +588,7 @@ display(HTML("<div style='display:flex;justify-content:space-around;font-size:0.
 - De izquierda a derecha, capas cada vez más **profundas**: la red construye una **jerarquía** de conceptos
 
 ::: {.caja .pequeno}
-Nadie le dijo a la red que usara bordes ni ojos de perro: lo **descubrió** porque le sirve para clasificar. Más el lunes, con **circuitos** dentro de las redes convolucionales.
+Nadie le dijo a la red que usara bordes ni ojos de perro: lo **descubrió** porque le sirve para clasificar. Más en la sesión de redes convolucionales, con **circuitos** dentro de las redes.
 :::
 :::
 ::::
@@ -638,10 +640,10 @@ energias = energias[:9]
 fig = make_subplots(rows=1, cols=2, column_widths=[0.5, 0.5], horizontal_spacing=0.12,
                     subplot_titles=["Estado de la red (8×8 neuronas)", "Energía"])
 for k, s in enumerate(instantaneas):
-    fig.add_trace(go.Heatmap(z=s.reshape(8, 8)[::-1], colorscale=[[0, "white"], [1, MARINO]], zmin=-1, zmax=1,
+    fig.add_trace(go.Heatmap(z=s.reshape(8, 8)[::-1], colorscale=[[0, "white"], [1, PAVO_REAL]], zmin=-1, zmax=1,
                              showscale=False, visible=(k == 0), xgap=2, ygap=2, hoverinfo="skip"), 1, 1)
     fig.add_trace(go.Scatter(x=list(range(k + 1)), y=energias[:k + 1], mode="lines+markers", visible=(k == 0),
-                             line=dict(color=NARANJA, width=4), marker=dict(size=10), showlegend=False), 1, 2)
+                             line=dict(color=CORAL, width=4), marker=dict(size=10), showlegend=False), 1, 2)
 etq = [str(16 * k) for k in range(len(instantaneas))]
 fig.update_layout(sliders=deslizador(pasos_visibilidad(2, etq), prefijo="actualizaciones de neuronas: "), margin=dict(t=50))
 fig.update_xaxes(visible=False, row=1, col=1)
@@ -660,16 +662,16 @@ Recuerdos guardados: las letras **H**, **N** y **D**. Mueve el deslizador: la re
 
 | Arquitectura | Para qué datos | Idea clave | En esta escuela |
 |---|---|---|---|
-| **Perceptrón multicapa** | tablas, vectores | capas densas | hoy |
-| **Red convolucional (CNN)** | imágenes, señales | filtros locales compartidos | lunes 30 |
-| **Autocodificador** | cualquier dato | comprimir y reconstruir | lunes 30 |
-| **Red recurrente (RNN, LSTM)** | secuencias | memoria que se actualiza paso a paso | lunes 30 |
-| **Transformer** | texto, y ya casi todo | atención | lunes 30 · martes 1 |
-| **Red de grafos (GNN)** | redes, moléculas, mallas | mensajes entre vecinos | 2 y 3 de dic. |
+| **Perceptrón multicapa** | tablas, vectores | capas densas | esta sesión |
+| **Red convolucional (CNN)** | imágenes, señales | filtros locales compartidos | redes convolucionales |
+| **Autocodificador** | cualquier dato | comprimir y reconstruir | redes convolucionales |
+| **Red recurrente (RNN, LSTM)** | secuencias | memoria que se actualiza paso a paso | transformers |
+| **Transformer** | texto, y ya casi todo | atención | transformers · práctica |
+| **Red de grafos (GNN)** | redes, moléculas, mallas | mensajes entre vecinos | aprendizaje en grafos |
 | **Modelos de difusión, GANs** | generar imágenes, audio, proteínas | aprender a quitar ruido | — |
 
 ::: {.caja .pequeno}
-**¿Y el cerebro?** ~86 mil millones de neuronas, ~10^14^ sinapsis, consume ~20 W. Las redes artificiales son una **inspiración muy simplificada**. [📅 Introducción a la neurociencia con **Joshua Lemus** · jueves 3]{.adelante}
+**¿Y el cerebro?** ~86 mil millones de neuronas, ~10^14^ sinapsis, consume ~20 W. Las redes artificiales son una **inspiración muy simplificada**. [Más en la sesión de neurociencia con **Joshua Lemus**]{.adelante}
 :::
 
 ## Para llevar a casa
@@ -684,5 +686,13 @@ Recuerdos guardados: las letras **H**, **N** y **D**. Mueve el deslizador: la re
 :::
 
 ::: {.fragment .center .grande}
-El lunes 30: **redes convolucionales**, **autocodificadores** y **transformers**. ¡Traigan su cuenta de Google para Colab! 💻
+Próximas sesiones: **redes convolucionales**, **autocodificadores** y **transformers**. ¡Traigan su cuenta de Google para Colab!
+:::
+
+## {.center .qr-final}
+
+![](img/qr_sitio.png){height="560" fig-align="center" fig-alt="Código QR que lleva a edithvillegas.github.io"}
+
+::: {.qr-url}
+[edithvillegas.github.io](https://edithvillegas.github.io)
 :::

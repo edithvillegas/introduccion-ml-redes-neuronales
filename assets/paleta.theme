@@ -1,0 +1,188 @@
+{
+  "text-styles": {
+    "Alert": {
+      "bold": true,
+      "selected-text-color": "#A84A35",
+      "text-color": "#A84A35"
+    },
+    "Annotation": {
+      "selected-text-color": "#4F6A65",
+      "text-color": "#4F6A65"
+    },
+    "Attribute": {
+      "selected-text-color": "#A84A35",
+      "text-color": "#A84A35"
+    },
+    "BaseN": {
+      "selected-text-color": "#426663",
+      "text-color": "#426663"
+    },
+    "BuiltIn": {
+      "selected-text-color": "#A84A35",
+      "text-color": "#A84A35"
+    },
+    "Char": {
+      "selected-text-color": "#6e5e2b",
+      "text-color": "#6e5e2b"
+    },
+    "Comment": {
+      "selected-text-color": "#4F6A65",
+      "text-color": "#4F6A65",
+      "italic": true
+    },
+    "CommentVar": {
+      "selected-text-color": "#4F6A65",
+      "text-color": "#4F6A65"
+    },
+    "Constant": {
+      "selected-text-color": "#426663",
+      "text-color": "#426663"
+    },
+    "ControlFlow": {
+      "selected-text-color": "#A84A35",
+      "text-color": "#A84A35"
+    },
+    "DataType": {
+      "selected-text-color": "#A84A35",
+      "text-color": "#A84A35"
+    },
+    "DecVal": {
+      "selected-text-color": "#426663",
+      "text-color": "#426663"
+    },
+    "Documentation": {
+      "selected-text-color": "#4F6A65",
+      "text-color": "#4F6A65"
+    },
+    "Error": {
+      "selected-text-color": "#A84A35",
+      "text-color": "#A84A35",
+      "underline": true
+    },
+    "Extension": {
+      "bold": true,
+      "selected-text-color": "#A84A35",
+      "text-color": "#A84A35"
+    },
+    "Float": {
+      "selected-text-color": "#426663",
+      "text-color": "#426663"
+    },
+    "Function": {
+      "selected-text-color": "#355E58",
+      "text-color": "#355E58"
+    },
+    "Import": {
+      "selected-text-color": "#6e5e2b",
+      "text-color": "#6e5e2b"
+    },
+    "Information": {
+      "selected-text-color": "#4F6A65",
+      "text-color": "#4F6A65"
+    },
+    "Keyword": {
+      "selected-text-color": "#A84A35",
+      "text-color": "#A84A35"
+    },
+    "Normal": {
+      "selected-text-color": "#053229",
+      "text-color": "#053229"
+    },
+    "Operator": {
+      "selected-text-color": "#053229",
+      "text-color": "#053229"
+    },
+    "Others": {
+      "selected-text-color": "#355E58",
+      "text-color": "#355E58"
+    },
+    "Preprocessor": {
+      "selected-text-color": "#A84A35",
+      "text-color": "#A84A35"
+    },
+    "RegionMarker": {
+      "selected-text-color": "#4F6A65",
+      "text-color": "#4F6A65"
+    },
+    "SpecialChar": {
+      "selected-text-color": "#426663",
+      "text-color": "#426663"
+    },
+    "SpecialString": {
+      "selected-text-color": "#6e5e2b",
+      "text-color": "#6e5e2b"
+    },
+    "String": {
+      "selected-text-color": "#6e5e2b",
+      "text-color": "#6e5e2b"
+    },
+    "Variable": {
+      "selected-text-color": "#A84A35",
+      "text-color": "#A84A35"
+    },
+    "VerbatimString": {
+      "selected-text-color": "#6e5e2b",
+      "text-color": "#6e5e2b"
+    },
+    "Warning": {
+      "selected-text-color": "#A84A35",
+      "text-color": "#A84A35"
+    }
+  },
+  "custom-styles": {
+    "INI Files": {
+      "Section": {
+        "selected-text-color": "#355E58",
+        "text-color": "#355E58"
+      }
+    },
+    "Python": {
+      "Builtin Function": {
+        "selected-text-color": "#355E58",
+        "text-color": "#355E58"
+      },
+      "Import": {
+        "selected-text-color": "#A84A35",
+        "text-color": "#A84A35"
+      },
+      "Special Variable": {
+        "selected-text-color": "#426663",
+        "text-color": "#426663"
+      }
+    },
+    "Rust": {
+      "Attribute": {
+        "selected-text-color": "#053229",
+        "text-color": "#053229"
+      },
+      "Macro": {
+        "selected-text-color": "#426663",
+        "text-color": "#426663"
+      },
+      "Self": {
+        "selected-text-color": "#426663",
+        "text-color": "#426663"
+      },
+      "Trait": {
+        "selected-text-color": "#053229",
+        "text-color": "#053229"
+      }
+    },
+    "XML": {
+      "Element": {
+        "selected-text-color": "#355E58",
+        "text-color": "#355E58"
+      }
+    }
+  },
+  "editor-colors": {
+    "BackgroundColor": "#FFF7EA",
+    "LineNumbers": "#5E7A75",
+    "TextSelection": "#BCDDDC"
+  },
+  "metadata": {
+    "name": "Paleta escuela",
+    "revision": 1,
+    "license": "MIT (derived from GitHub Light)"
+  }
+}

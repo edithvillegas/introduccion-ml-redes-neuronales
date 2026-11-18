@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from utilidades import FUNCION_REVISAR, construir
+from utilidades import ESTILO_GRAFICAS, FUNCION_REVISAR, construir
 
 # El código del mini-GPT es el mismo que el de scripts/minigpt.py
 _fuente = (Path(__file__).resolve().parents[1] / "minigpt.py").read_text(encoding="utf-8")
@@ -12,7 +12,7 @@ celdas = [
     ("md", """
 # 07 · Python, PyTorch y Hugging Face
 
-**Notebook de práctica** · Escuela de Machine Learning Honduras 2026 · Sesión del martes 1 de diciembre
+**Notebook de práctica** · Escuela de Machine Learning Honduras 2026
 
 Hoy vas a **usar**, **ajustar** y **crear** modelos de aprendizaje profundo:
 
@@ -39,6 +39,8 @@ torch.manual_seed(0)
 dispositivo = "cuda" if torch.cuda.is_available() else "cpu"
 print("Usando:", dispositivo)
 
+{ESTILO_GRAFICAS}
+
 {FUNCION_REVISAR}
 
 print("¡Todo listo!")
@@ -55,7 +57,7 @@ departamentos = ["Copán", "Lempira", "Olancho"]       # lista
 largos = {d: len(d) for d in departamentos}         # comprensión de diccionario
 ```
 
-### ✏️ Ejercicio 1 · Contar vocales
+### Ejercicio 1 · Contar vocales
 
 Escribe `contar_vocales(texto)` que cuente las vocales (con y sin tilde: `aeiouáéíóú`), sin importar mayúsculas.
 """),
@@ -76,7 +78,7 @@ revisar(lambda: contar_vocales("Murciélago") == 5 and contar_vocales("HONDURAS"
         "¡Murciélago tiene las 5 vocales!", "¿Consideras mayúsculas y tildes?")
 """),
     ("md", """
-### ✏️ Ejercicio 2 · Comprensión de diccionarios
+### Ejercicio 2 · Comprensión de diccionarios
 
 Crea el diccionario `largos` que asocie cada departamento de la lista con su número de letras, **solo** para los departamentos con más de 6 letras.
 """),
@@ -95,7 +97,7 @@ revisar(lambda: largos == {d: len(d) for d in departamentos if len(d) > 6}, "¡P
     ("md", """
 ## 2. PyTorch: tensores y derivadas automáticas
 
-Un **tensor** es como un arreglo de NumPy, pero puede vivir en la **GPU** y **recordar las operaciones** para calcular derivadas automáticamente (*autograd*): ¡es la retropropagación que vimos el viernes!
+Un **tensor** es como un arreglo de NumPy, pero puede vivir en la **GPU** y **recordar las operaciones** para calcular derivadas automáticamente (*autograd*): ¡es la retropropagación que vimos en la sesión de redes neuronales!
 """),
     ("code", """
 x = torch.tensor([[1., 2.], [3., 4.]])
@@ -109,7 +111,7 @@ f.backward()                 # calcula df/dw
 print("df/dw en w = 1:", w.grad.item(), "   (a mano: 6·(3w − 6) = −18)")
 """),
     ("md", """
-### ✏️ Ejercicio 3 · Tu primera derivada automática
+### Ejercicio 3 · Tu primera derivada automática
 
 Usa autograd para calcular la derivada de $g(w) = w^3 + 2w$ en $w = 2$. Guarda el resultado (un número) en `derivada`.
 """),
@@ -124,10 +126,10 @@ derivada = w.grad.item()
 derivada
 """),
     ("code", """
-revisar(lambda: abs(derivada - 14) < 1e-6, "g'(2) = 3·2² + 2 = 14 ✔", "Crea w con requires_grad=True, calcula g y llama g.backward().")
+revisar(lambda: abs(derivada - 14) < 1e-6, "g'(2) = 3·2² + 2 = 14", "Crea w con requires_grad=True, calcula g y llama g.backward().")
 """),
     ("md", """
-### ✏️ Ejercicio 4 · Descenso de gradiente con autograd
+### Ejercicio 4 · Descenso de gradiente con autograd
 
 Generamos datos con $y = 2x + 1 + \\text{ruido}$. Completa el bucle para encontrar `w` y `b` minimizando el error cuadrático medio. En cada paso:
 
@@ -189,7 +191,7 @@ clasificador("El Olimpia ganó el clásico 2 a 1 en el Estadio Nacional.",
              candidate_labels=["deportes", "política", "ciencia", "economía"])
 """),
     ("md", """
-### ✏️ Ejercicio 5 · Clasifica titulares sin entrenar nada
+### Ejercicio 5 · Clasifica titulares sin entrenar nada
 
 La clasificación *zero-shot* usa **etiquetas que tú inventas**. Escribe 3 titulares de noticias (inventados o reales) y clasifícalos con tus propias etiquetas. Guarda los resultados en la lista `resultados`.
 """),
@@ -264,7 +266,7 @@ print("logits:", logits.numpy().round(2))
 print("etiquetas:", modelo_sent.config.id2label)
 """),
     ("md", """
-### ✏️ Ejercicio 6 · De logits a probabilidades
+### Ejercicio 6 · De logits a probabilidades
 
 Convierte `logits` en probabilidades con `torch.softmax` y guarda la **probabilidad de la clase más probable** en `prob_max`. Debe coincidir con el `score` que dio el `pipeline`.
 """),
@@ -304,7 +306,7 @@ for e in entreno_ds.select(range(3)):
     print("positiva" if e["label"] else "negativa", "←", e["text"][:100])
 """),
     ("md", """
-### ✏️ Ejercicio 7 · Tokenizar el conjunto de datos
+### Ejercicio 7 · Tokenizar el conjunto de datos
 
 Completa `tokenizar(lote)` para que devuelva el resultado de `tokenizador_beto(lote["text"], truncation=True, max_length=128)`. La aplicamos a todo el conjunto con `.map(..., batched=True)`.
 """),
@@ -360,7 +362,7 @@ revisar(resultado["eval_exactitud"] > (0.85 if dispositivo == "cuda" else 0.7),
         "¡Tu clasificador funciona!", "La exactitud es baja: ¿entrenaste con GPU?")
 """),
     ("md", """
-Pruébalo con tus propias reseñas. ¿Entiende el español de Honduras? 🇭🇳
+Pruébalo con tus propias reseñas. ¿Entiende el español de Honduras?
 """),
     ("code", """
 mi_clasificador = pipeline("text-classification", model=beto_clasif, tokenizer=tokenizador_beto, device=dispositivo)
@@ -406,7 +408,7 @@ modelo = MiniGPT(len(vocab), d=128, n_capas=4, n_cabezas=4, contexto=CONTEXTO).t
 print(f"{sum(p.numel() for p in modelo.parameters()):,} parámetros")
 """),
     ("md", """
-### ✏️ Ejercicio 8 · Generar texto
+### Ejercicio 8 · Generar texto
 
 Completa la función `generar`. En cada paso:
 
@@ -474,7 +476,7 @@ for T in [0.5, 0.8, 1.2]:
     print(decodificar(generar(modelo, inicio, 300, temperatura=T)[0]), "\\n")
 """),
     ("md", """
-### 🏆 Reto
+### Reto
 
 - Entrena más pasos o usa un modelo más grande (`d=256`, `n_capas=6`). ¿Mejora el texto? ¿Cuánto tarda?
 - Entrena con **otro texto**: poemas de Rubén Darío, *Cien años de soledad* no (¡derechos de autor!), letras de canciones tradicionales, tus propios apuntes…

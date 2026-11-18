@@ -38,7 +38,7 @@ celdas = [
     ("md", """
 # 03 · La terminal de Linux, git y C vs. Python
 
-**Notebook de práctica** · Escuela de Machine Learning Honduras 2026 · Sesión del lunes 23 de noviembre
+**Notebook de práctica** · Escuela de Machine Learning Honduras 2026
 
 Google Colab corre en una **máquina virtual con Linux**. En este notebook usaremos esa máquina para practicar la terminal sin instalar nada.
 
@@ -48,18 +48,18 @@ Google Colab corre en una **máquina virtual con Linux**. En este notebook usare
 2. ¿Dónde estoy? Explorar el sistema
 3. Crear, copiar, mover y borrar archivos
 4. Ver y analizar archivos de texto
-5. Tuberías y redirección: analizar fincas de café ☕
+5. Tuberías y redirección: analizar fincas de café
 6. Bucles y *scripts* de bash
 7. git paso a paso
 8. Compilado vs. interpretado: C contra Python
-9. 🏆 Retos finales
+9. Retos finales
 
 **Cómo usar este notebook**
 
 - Ejecuta las celdas en orden con `Shift + Enter`.
 - Las celdas que empiezan con `%%bash` se ejecutan **en la terminal** (bash), no en Python.
-- En cada **✏️ Ejercicio** escribe tu solución donde dice `# TU CÓDIGO AQUÍ`; la celda siguiente revisa tu respuesta y responde ✅ o ❌.
-- ⚠️ Detalle de Colab: cada celda `%%bash` abre una terminal **nueva**, así que un `cd` no "dura" de una celda a otra. Por eso, en cada celda partimos desde la carpeta de trabajo.
+- En cada **Ejercicio** escribe tu solución donde dice `# TU CÓDIGO AQUÍ`; la celda siguiente revisa tu respuesta y responde ✅ o ❌.
+- **Detalle de Colab:** cada celda `%%bash` abre una terminal **nueva**, así que un `cd` no "dura" de una celda a otra. Por eso, en cada celda partimos desde la carpeta de trabajo.
 """),
     ("md", "## 1. Preparar el espacio de trabajo\n\nEsta celda (de Python) crea una carpeta de trabajo y define la función `revisar`."),
     ("code", f"""
@@ -113,7 +113,7 @@ date
     ("code", """
 %%bash
 # ¿Qué distribución de Linux usa Colab? (en Mac este archivo no existe)
-cat /etc/os-release 2>/dev/null | head -n 4 || echo "No es Linux 🙂"
+cat /etc/os-release 2>/dev/null | head -n 4 || echo "No es Linux"
 echo "---- la raíz del sistema de archivos ----"
 ls /
 """),
@@ -125,11 +125,11 @@ free -h 2>/dev/null || echo "(free no existe en este sistema)"
 df -h . | tail -n 1
 """),
     ("md", """
-### ✏️ Ejercicio 1 · Moverse por el árbol
+### Ejercicio 1 · Moverse por el árbol
 
 Usa `ls` para listar el contenido de la carpeta **`/etc`** (configuración del sistema) y luego cuenta cuántos elementos tiene usando una tubería con `wc -l`.
 
-<details><summary>💡 Pista</summary>
+<details><summary>Pista</summary>
 
 `ls /etc | wc -l`
 </details>
@@ -154,7 +154,7 @@ ls /etc | wc -l
 | `echo "texto" >> archivo` | **agrega** texto al final |
 | `cp origen destino` | copia (`cp -r` para carpetas) |
 | `mv origen destino` | mueve o renombra |
-| `rm archivo` | borra ⚠️ **no hay papelera** |
+| `rm archivo` | borra (**no hay papelera**) |
 """),
     ("code", """
 %%bash
@@ -169,7 +169,7 @@ ls -l prueba
 rm -r prueba   # limpiamos
 """),
     ("md", """
-### ✏️ Ejercicio 2 · La estructura de un proyecto
+### Ejercicio 2 · La estructura de un proyecto
 
 Con **un solo comando** `mkdir -p`, crea esta estructura de carpetas:
 
@@ -182,7 +182,7 @@ proyecto/
 
 Luego crea el archivo `proyecto/LEEME.txt` con el texto exacto `Proyecto de la escuela` y copia `fincas.csv` dentro de `proyecto/datos/`.
 
-<details><summary>💡 Pista</summary>
+<details><summary>Pista</summary>
 
 `mkdir -p proyecto/datos proyecto/resultados proyecto/scripts` (o `mkdir -p proyecto/{datos,resultados,scripts}`), `echo "..." > proyecto/LEEME.txt`, `cp fincas.csv proyecto/datos/`
 </details>
@@ -239,12 +239,12 @@ echo "Solo los nombres de los departamentos (columna 2), sin el encabezado:"
 cut -d, -f2 fincas.csv | tail -n +2 | head -n 8
 """),
     ("md", """
-### ✏️ Ejercicio 3 · Contar y filtrar
+### Ejercicio 3 · Contar y filtrar
 
 1. Guarda en `proyecto/resultados/n_fincas.txt` el **número de fincas** (líneas sin contar el encabezado).
 2. Guarda en `proyecto/resultados/copan.csv` todas las líneas de fincas del departamento de **Copán**.
 
-<details><summary>💡 Pista</summary>
+<details><summary>Pista</summary>
 
 `tail -n +2 fincas.csv | wc -l > ...` y `grep ",Copán," fincas.csv > ...` (las comas evitan coincidencias con nombres de fincas).
 </details>
@@ -270,7 +270,7 @@ revisar(lambda: len([l for l in open("proyecto/resultados/copan.csv") if l.strip
         "copan.csv tiene todas las fincas de Copán.", "Revisa el filtro con grep.")
 """),
     ("md", """
-## 5. Tuberías y redirección ☕
+## 5. Tuberías y redirección
 
 La **tubería** `|` conecta la salida de un comando con la entrada del siguiente. Es la idea más poderosa de la terminal: programas pequeños que se combinan.
 
@@ -286,15 +286,15 @@ echo "Fincas por variedad:"
 cut -d, -f4 fincas.csv | tail -n +2 | sort | uniq -c | sort -nr
 """),
     ("md", """
-### ✏️ Ejercicio 4 · ¿Qué departamento tiene más fincas?
+### Ejercicio 4 · ¿Qué departamento tiene más fincas?
 
 Guarda en `proyecto/resultados/por_departamento.txt` el número de fincas **por departamento**, ordenado de **mayor a menor**.
 
-### ✏️ Ejercicio 5 · La finca más alta
+### Ejercicio 5 · La finca más alta
 
 Guarda en `proyecto/resultados/mas_alta.txt` **solo el nombre** de la finca con mayor altitud.
 
-<details><summary>💡 Pista para el 5</summary>
+<details><summary>Pista para el 5</summary>
 
 Ordena numéricamente por la columna 3 con `sort -t, -k3 -nr`, quédate con la primera línea con `head -n 1` y extrae la columna 1 con `cut -d, -f1`. No olvides quitar el encabezado.
 </details>
@@ -353,11 +353,11 @@ ls -l proyecto/scripts/saludo.sh
 ./proyecto/scripts/saludo.sh Honduras
 """),
     ("md", """
-### ✏️ Ejercicio 6 · Tu propio *script*
+### Ejercicio 6 · Tu propio *script*
 
 Crea el *script* `proyecto/scripts/resumen.sh` que reciba un **departamento** como argumento e imprima **solo el número** de fincas de ese departamento. Hazlo ejecutable con `chmod +x` y pruébalo con `./proyecto/scripts/resumen.sh Lempira`.
 
-<details><summary>💡 Pista</summary>
+<details><summary>Pista</summary>
 
 Dentro del script: `grep -c ",$1," "$(dirname "$0")/../datos/fincas.csv"`. `dirname "$0"` es la carpeta donde vive el script, así funciona desde cualquier lugar.
 </details>
@@ -387,11 +387,11 @@ revisar(lambda: all(bash(f"./proyecto/scripts/resumen.sh '{d}'") == str((fincas.
         "Prueba tu script con varios departamentos; ¿es ejecutable? ¿usa $1?")
 """),
     ("md", """
-### ✏️ Ejercicio 7 · Un archivo por departamento
+### Ejercicio 7 · Un archivo por departamento
 
 Con un bucle `for`, crea en `proyecto/resultados/` un archivo **`<Departamento>.csv`** para cada departamento, con las fincas de ese departamento (usa `grep`). Ojo con los nombres con espacios: usa comillas.
 
-<details><summary>💡 Pista</summary>
+<details><summary>Pista</summary>
 
 ```bash
 cut -d, -f2 proyecto/datos/fincas.csv | tail -n +2 | sort -u | while read -r d; do
@@ -455,7 +455,7 @@ echo "Autora: (tu nombre aquí)" >> LEEME.txt
 git diff          # ¿qué cambió desde el último commit?
 """),
     ("md", """
-### ✏️ Ejercicio 8 · Guardar un cambio
+### Ejercicio 8 · Guardar un cambio
 
 Guarda (con `git add` y `git commit`) el cambio que acabamos de hacer en `LEEME.txt`, con el mensaje `Agrega autora`. Después muestra la historia con `git log --oneline`.
 """),
@@ -475,13 +475,13 @@ revisar(lambda: "Agrega autora" in bash("cd proyecto && git log --format=%s") an
         "Cambio guardado y el repositorio está limpio.", "¿Hiciste git add y git commit con el mensaje correcto?")
 """),
     ("md", """
-### ✏️ Ejercicio 9 · Ramas
+### Ejercicio 9 · Ramas
 
 1. Crea una rama llamada `experimento` y cámbiate a ella.
 2. Agrega una finca nueva al final de `datos/fincas.csv` (invéntala, con el mismo formato) y haz *commit* con el mensaje `Agrega finca nueva`.
 3. Regresa a `main` y fusiona (`merge`) la rama `experimento`.
 
-<details><summary>💡 Pista</summary>
+<details><summary>Pista</summary>
 
 `git switch -c experimento`, `echo "Mi Finca,Olancho,1400,Catuaí,100" >> datos/fincas.csv`, `git commit -am "Agrega finca nueva"`, `git switch main`, `git merge experimento`
 </details>
@@ -507,7 +507,7 @@ revisar(lambda: bash("cd proyecto && git branch --show-current") == "main"
         "La rama experimento se fusionó en main.", "¿Estás en main? ¿Hiciste el merge?")
 """),
     ("md", """
-> 🌐 **Para subir a GitHub** necesitarías una cuenta y un *token* de acceso; los comandos serían `git remote add origin https://github.com/USUARIO/REPO.git` y `git push -u origin main`. **Nunca** pegues tu *token* en un notebook que vayas a compartir.
+> **Para subir a GitHub** necesitarías una cuenta y un *token* de acceso; los comandos serían `git remote add origin https://github.com/USUARIO/REPO.git` y `git push -u origin main`. **Nunca** pegues tu *token* en un notebook que vayas a compartir.
 
 También puedes **clonar** cualquier repositorio público. Por ejemplo, el de esta escuela:
 """),
@@ -565,7 +565,7 @@ time ./pi
 echo "---- NumPy (Python + núcleo en C) ----"
 time python3 pi_numpy.py
 """),
-    ("md", "Ahora Python puro. ⏳ Tarda varios segundos: mientras tanto, piensa por qué."),
+    ("md", "Ahora Python puro. Tarda varios segundos: mientras tanto, piensa por qué."),
     ("code", """
 %%bash
 echo "---- Python puro ----"
@@ -574,7 +574,7 @@ time python3 pi.py
     ("md", """
 **¿Por qué tanta diferencia?** En cada vuelta del bucle, Python tiene que averiguar de qué tipo es cada variable, crear objetos nuevos para cada número y revisar errores. El compilador de C sabe de antemano que todo son números `double` y genera instrucciones de máquina directas (y con `-O2` además las optimiza). NumPy hace el bucle en C, sobre arreglos completos.
 
-### ✏️ Ejercicio 10 · Optimizaciones del compilador
+### Ejercicio 10 · Optimizaciones del compilador
 
 Compila `pi.c` **sin optimizaciones** (`-O0`) en un ejecutable llamado `pi_lento`, mide su tiempo con `time` y compáralo con el de `-O2`.
 """),
@@ -592,13 +592,13 @@ revisar(lambda: os.access("pi_lento", os.X_OK) and "3.14159" in bash("./pi_lento
         "pi_lento existe y funciona. ¿Cuántas veces más rápido es -O2?", "Compila con gcc -O0 pi.c -o pi_lento")
 """),
     ("md", """
-## 9. 🏆 Retos finales
+## 9. Retos finales
 
-### ✏️ Reto 1 · Hola, Honduras en C
+### Reto 1 · Hola, Honduras en C
 
 Escribe un programa en C, `hola.c`, que imprima exactamente `Hola, Honduras`. Compílalo en un ejecutable llamado `hola` y ejecútalo.
 
-<details><summary>💡 Pista</summary>
+<details><summary>Pista</summary>
 
 Usa `%%writefile hola.c` en una celda y `gcc hola.c -o hola && ./hola` en otra.
 </details>
@@ -625,11 +625,11 @@ gcc hola.c -o hola && ./hola
 revisar(lambda: bash("./hola") == "Hola, Honduras", "¡Tu primer programa compilado!", "¿Compilaste hola.c en ./hola?")
 """),
     ("md", """
-### ✏️ Reto 2 · Producción total por departamento
+### Reto 2 · Producción total por departamento
 
 Con una sola línea de bash (pista: `awk`), calcula la **producción total** (`produccion_qq`, columna 5) de cada departamento y guárdala en `proyecto/resultados/produccion.txt`, ordenada de mayor a menor. Formato de cada línea: `Departamento,total`.
 
-<details><summary>💡 Pista</summary>
+<details><summary>Pista</summary>
 
 ```bash
 tail -n +2 datos/fincas.csv | awk -F, '{s[$2] += $5} END {for (d in s) print d "," s[d]}' | sort -t, -k2 -nr

@@ -1,12 +1,12 @@
 """Notebook 05 · Redes convolucionales y autocodificadores."""
 
-from utilidades import FUNCION_REVISAR, construir
+from utilidades import ESTILO_GRAFICAS, FUNCION_REVISAR, construir
 
 celdas = [
     ("md", """
 # 05 · Redes convolucionales y autocodificadores
 
-**Notebook de práctica** · Escuela de Machine Learning Honduras 2026 · Sesión del lunes 30 de noviembre
+**Notebook de práctica** · Escuela de Machine Learning Honduras 2026
 
 En este notebook vas a:
 
@@ -16,11 +16,11 @@ En este notebook vas a:
 4. Mirar **qué aprendió**: filtros y mapas de características
 5. Analizar los **errores** con una matriz de confusión
 6. Entrenar un **autocodificador** que quita ruido
-7. 🏆 Reto: superar el 90 % de exactitud
+7. Reto: superar el 90 % de exactitud
 
 **Antes de empezar:** en Colab, *Entorno de ejecución → Cambiar tipo de entorno de ejecución → GPU (T4)*. Funciona también sin GPU, pero más lento (y con menos datos).
 
-En cada **✏️ Ejercicio** escribe tu código donde dice `# TU CÓDIGO AQUÍ`; la celda siguiente revisa tu respuesta (✅ / ❌). Si te atoras, abre la **💡 Pista**.
+En cada **Ejercicio** escribe tu código donde dice `# TU CÓDIGO AQUÍ`; la celda siguiente revisa tu respuesta (✅ / ❌). Si te atoras, abre la **Pista**.
 """),
     ("code", f"""
 import numpy as np
@@ -35,6 +35,8 @@ np.random.seed(0)
 dispositivo = "cuda" if torch.cuda.is_available() else "cpu"
 print("Usando:", dispositivo)
 plt.rcParams["figure.figsize"] = (6, 4)
+
+{ESTILO_GRAFICAS}
 
 {FUNCION_REVISAR}
 
@@ -51,7 +53,7 @@ $$
 
 (Técnicamente esto es una *correlación cruzada*; en aprendizaje profundo se le llama convolución.)
 
-Primero descargamos una foto de una guacamaya roja, el ave nacional de Honduras 🦜.
+Primero descargamos una foto de una guacamaya roja, el ave nacional de Honduras.
 """),
     ("code", """
 import io, urllib.request
@@ -73,11 +75,11 @@ plt.show()
 print("Tamaño:", foto.shape)
 """),
     ("md", """
-### ✏️ Ejercicio 1 · Programa la convolución
+### Ejercicio 1 · Programa la convolución
 
 Completa la función `convolucion2d(imagen, filtro)` (sin relleno y con paso 1: la salida mide `(H − k + 1) × (W − k + 1)`).
 
-<details><summary>💡 Pista</summary>
+<details><summary>Pista</summary>
 
 Dentro de los dos bucles: `salida[i, j] = np.sum(imagen[i:i+k, j:j+k] * filtro)`
 </details>
@@ -123,11 +125,11 @@ for eje, (nombre, k) in zip(ejes, filtros.items()):
 plt.show()
 """),
     ("md", """
-### ✏️ Ejercicio 2 · Diseña tu propio filtro
+### Ejercicio 2 · Diseña tu propio filtro
 
 Inventa un filtro 3×3 que detecte **bordes diagonales** (de arriba-izquierda a abajo-derecha) y muéstralo aplicado a la foto. No hay una única respuesta correcta: ¡experimenta!
 
-<details><summary>💡 Pista</summary>
+<details><summary>Pista</summary>
 
 Prueba con `np.array([[2, 1, 0], [1, 0, -1], [0, -1, -2]])`: positivo arriba a la izquierda, negativo abajo a la derecha.
 </details>
@@ -210,7 +212,7 @@ exactitud_mlp = evaluar(mlp)
     ("md", """
 ## 4. Tu red convolucional
 
-### ✏️ Ejercicio 3 · Construye la red
+### Ejercicio 3 · Construye la red
 
 Completa la clase con esta arquitectura:
 
@@ -223,7 +225,7 @@ Completa la clase con esta arquitectura:
 | aplanar | `x.flatten(1)` | 1568 |
 | `fc` | `nn.Linear(32 * 7 * 7, 10)` | 10 |
 
-<details><summary>💡 Pista</summary>
+<details><summary>Pista</summary>
 
 ```python
 def forward(self, x):
@@ -280,9 +282,10 @@ Los **filtros** de la primera capa son matrices 3×3 de pesos. Los **mapas de ca
     ("code", """
 filtros_aprendidos = cnn.conv1.weight.detach().cpu()[:, 0]
 fig, ejes = plt.subplots(2, 8, figsize=(12, 3.2))
+lim = filtros_aprendidos.abs().max()
 for k, eje in enumerate(ejes.ravel()):
-    eje.imshow(filtros_aprendidos[k], cmap="RdBu_r"); eje.axis("off")
-fig.suptitle("Los 16 filtros de la primera capa (rojo = peso positivo, azul = negativo)")
+    eje.imshow(filtros_aprendidos[k], cmap=DIVERGENTE, vmin=-lim, vmax=lim); eje.axis("off")
+fig.suptitle("Los 16 filtros de la primera capa (coral = peso positivo, verde oscuro = negativo)")
 plt.show()
 
 img, etiqueta = prueba[0]
@@ -293,7 +296,7 @@ ejes[0, 0].imshow(img[0], cmap="gray_r"); ejes[0, 0].set_title(CLASES[etiqueta])
 ejes[1, 0].axis("off")
 for k in range(16):
     eje = ejes.ravel()[k + 1 + (k >= 8)]
-    eje.imshow(mapas[k], cmap="viridis")
+    eje.imshow(mapas[k], cmap=SECUENCIAL)
 for eje in ejes.ravel():
     eje.axis("off")
 fig.suptitle("Mapas de características de la primera capa")
@@ -305,15 +308,15 @@ from sklearn.metrics import ConfusionMatrixDisplay
 _, preds = evaluar(cnn, devolver_predicciones=True)
 fig, eje = plt.subplots(figsize=(8, 7))
 ConfusionMatrixDisplay.from_predictions(prueba.targets, preds, display_labels=CLASES, xticks_rotation=60,
-                                        ax=eje, colorbar=False, cmap="Blues")
+                                        ax=eje, colorbar=False, cmap=SECUENCIAL)
 plt.show()
 """),
     ("md", """
-### ✏️ Ejercicio 4 · La confusión más común
+### Ejercicio 4 · La confusión más común
 
 Usa la matriz de confusión para encontrar el **par de clases** (real, predicha) **distintas** que la red confunde más veces. Guarda los nombres en `clase_real` y `clase_predicha`.
 
-<details><summary>💡 Pista</summary>
+<details><summary>Pista</summary>
 
 ```python
 from sklearn.metrics import confusion_matrix
@@ -348,7 +351,7 @@ Un **autocodificador** comprime la imagen en un código pequeño (**codificador*
 
 El decodificador usa `nn.ConvTranspose2d`, que hace lo contrario de una convolución con paso 2: **duplica** el tamaño.
 
-### ✏️ Ejercicio 5 · Completa el decodificador
+### Ejercicio 5 · Completa el decodificador
 
 El codificador va de 1×28×28 → 16×14×14 → 32×7×7. Escribe un decodificador **simétrico**:
 
@@ -414,7 +417,7 @@ for k in range(8):
 plt.show()
 """),
     ("md", """
-## 8. 🏆 Reto final: supera el 90 %
+## 8. Reto final: supera el 90 %
 
 Modifica la red convolucional para superar **90 %** de exactitud en el conjunto de prueba. Ideas:
 
@@ -454,7 +457,7 @@ entrenar(mejor, epocas=5 if dispositivo == "cuda" else 2)
 exactitud_reto = evaluar(mejor)
 """),
     ("code", """
-revisar(exactitud_reto > 0.90, f"¡{exactitud_reto:.2%}! Superaste el reto 🎉",
+revisar(exactitud_reto > 0.90, f"¡{exactitud_reto:.2%}! Superaste el reto.",
         f"Llevas {exactitud_reto:.2%}. ¡Sigue intentando! (sin GPU entrenamos con menos datos, así que es más difícil)")
 """),
     ("md", """

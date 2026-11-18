@@ -15,48 +15,78 @@ from plotly.subplots import make_subplots
 
 DATOS = Path(__file__).resolve().parent / "datos"
 
-# Paleta categórica (orden fijo, validada para daltonismo) ---------------------
-AZUL = "#2a78d6"
-NARANJA = "#eb6834"
-AQUA = "#1baf7a"
-AMARILLO = "#eda100"
-MAGENTA = "#e87ba4"
-VERDE = "#008300"
-VIOLETA = "#6250d6"
-ROJO = "#e34948"
-CATEGORICOS = [AZUL, NARANJA, AQUA, AMARILLO, MAGENTA, VERDE, VIOLETA, ROJO]
+# Paleta de la escuela (la misma de las diapositivas, el sitio y los notebooks) ---
+ZAFIRO = "#72B0AB"      # Sapphire
+ARTICO = "#BCDDDC"      # Arctic
+ENCAJE = "#FFEDD1"      # Lace
+CHICLE = "#FDC1B4"      # Bubblegum
+CORAL = "#FE9179"       # Ballet Slipper
+SALVIA = "#CFB97E"      # Sage
+PISTACHO = "#B89D47"    # Pistachio
+ABETO = "#355E58"       # Spruce
+PAVO_REAL = "#053229"   # Peacock
 
-MARINO = "#0b2545"
-TURQUESA = "#0095b6"
-GRIS = "#52514e"
-GRIS_CLARO = "#e3e2dd"
-FONDO = "#fcfcfb"
+# Tonos derivados de la paleta, solo para que el texto y las líneas se lean bien
+CORAL_OSCURO = "#A84A35"   # texto «coral» con buen contraste sobre fondo claro
+GRIS = "#5E7A75"           # texto y líneas secundarias (abeto apagado)
+FONDO = "#FFFCF7"          # fondo de las diapositivas (encaje muy claro)
+REJILLA = "#E2EFEE"        # cuadrícula de los ejes (ártico muy claro)
 
-# Escala secuencial (un solo tono, claro → oscuro) y divergente
-AZULES = [[0, "#f4f8fd"], [0.15, "#cde2fb"], [0.35, "#86b6ef"], [0.55, "#3987e5"],
-          [0.75, "#1c5cab"], [1, "#0d366b"]]
-DIVERGENTE = [[0, "#1c5cab"], [0.25, "#86b6ef"], [0.5, "#f2f1ee"], [0.75, "#f4a582"], [1, "#b4441c"]]
+# Orden fijo de colores categóricos: primero los que más contrastan entre sí
+CATEGORICOS = [ABETO, CORAL, ZAFIRO, PISTACHO, PAVO_REAL, SALVIA, CHICLE, ARTICO]
+
+# Escala secuencial (claro → oscuro) y divergente (abeto ↔ coral)
+SECUENCIAL = [[0, ENCAJE], [0.2, ARTICO], [0.45, ZAFIRO], [0.75, ABETO], [1, PAVO_REAL]]
+DIVERGENTE = [[0, ABETO], [0.25, ZAFIRO], [0.5, ENCAJE], [0.75, CORAL], [1, CORAL_OSCURO]]
 GRISES = [[0, "#000000"], [1, "#ffffff"]]
 
-FUENTE = "Source Sans 3, Source Sans Pro, Helvetica, Arial, sans-serif"
+# Con comillas: «Source Sans 3» sin comillas no es un nombre de fuente válido en CSS
+FUENTE = '"Source Sans 3", "Source Sans Pro", Helvetica, Arial, sans-serif'
+
+
+def _rgb(color):
+    color = color.lstrip("#")
+    return [int(color[i:i + 2], 16) for i in (0, 2, 4)]
+
+
+def mezclar(color, blanco=0.5):
+    """Aclara un color mezclándolo con blanco (blanco=0: igual; blanco=1: blanco)."""
+    return "#" + "".join(f"{round(c + (255 - c) * blanco):02x}" for c in _rgb(color))
+
+
+def oscurecer(color, negro=0.35):
+    """Oscurece un color mezclándolo con negro (útil para texto del mismo tono que una línea)."""
+    return "#" + "".join(f"{round(c * (1 - negro)):02x}" for c in _rgb(color))
+
+
+def texto_sobre(color):
+    """Color de texto legible sobre un relleno: blanco sobre colores oscuros, pavo real sobre claros."""
+    lineal = [(c / 255) / 12.92 if c / 255 <= 0.03928 else ((c / 255 + 0.055) / 1.055) ** 2.4 for c in _rgb(color)]
+    luminancia = 0.2126 * lineal[0] + 0.7152 * lineal[1] + 0.0722 * lineal[2]
+    return "white" if luminancia < 0.18 else PAVO_REAL
+
 
 pio.templates["escuela"] = go.layout.Template(
     layout=dict(
-        font=dict(family=FUENTE, size=20, color=MARINO),
-        title=dict(font=dict(size=24, color=MARINO), x=0.0, xanchor="left"),
+        font=dict(family=FUENTE, size=20, color=PAVO_REAL),
+        title=dict(font=dict(size=24, color=PAVO_REAL), x=0.0, xanchor="left"),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor=FONDO,
         colorway=CATEGORICOS,
-        xaxis=dict(gridcolor="#ebeae6", zerolinecolor="#cfcec9", linecolor="#cfcec9",
-                   ticks="outside", tickcolor="#cfcec9", title=dict(standoff=10)),
-        yaxis=dict(gridcolor="#ebeae6", zerolinecolor="#cfcec9", linecolor="#cfcec9",
-                   ticks="outside", tickcolor="#cfcec9", title=dict(standoff=10)),
-        legend=dict(bgcolor="rgba(255,255,255,0.7)", bordercolor=GRIS_CLARO, borderwidth=1),
-        hoverlabel=dict(font=dict(family=FUENTE, size=18), bgcolor="white", bordercolor=GRIS_CLARO),
+        xaxis=dict(gridcolor=REJILLA, zerolinecolor=ARTICO, linecolor=ARTICO,
+                   ticks="outside", tickcolor=ARTICO, title=dict(standoff=10)),
+        yaxis=dict(gridcolor=REJILLA, zerolinecolor=ARTICO, linecolor=ARTICO,
+                   ticks="outside", tickcolor=ARTICO, title=dict(standoff=10)),
+        legend=dict(bgcolor="rgba(255,252,247,0.85)", bordercolor=ARTICO, borderwidth=1),
+        # Plotly usa el color del borde como color del texto si no se indica otro: por eso
+        # el texto se fija explícitamente en oscuro (antes salía gris muy claro).
+        hoverlabel=dict(font=dict(family=FUENTE, size=18, color=PAVO_REAL), bgcolor="white",
+                        bordercolor=ZAFIRO, align="left"),
         margin=dict(l=70, r=30, t=60, b=60),
-        sliders=[dict(currentvalue=dict(font=dict(size=20, color=MARINO)),
-                      font=dict(size=16, color=GRIS), bgcolor=GRIS_CLARO,
-                      activebgcolor=TURQUESA, bordercolor=GRIS_CLARO)],
+        sliderdefaults=dict(currentvalue=dict(font=dict(size=20, color=PAVO_REAL)),
+                            font=dict(size=16, color=ABETO), bgcolor=ARTICO,
+                            activebgcolor=ABETO, bordercolor=ZAFIRO),
+        updatemenudefaults=dict(font=dict(color=PAVO_REAL), bordercolor=ZAFIRO),
     )
 )
 pio.templates.default = "plotly_white+escuela"
@@ -136,7 +166,7 @@ def frontera_decision(predecir, x_rango, y_rango, n=150):
 
 def tokens_coloreados(piezas, colores=None):
     """HTML con cada token en una cajita de color (para mostrar la tokenización)."""
-    colores = colores or ["#cde2fb", "#fde0d1", "#c9eedd", "#fbe7b0", "#f6d3e1", "#dcd7f7"]
+    colores = colores or [ARTICO, CHICLE, ENCAJE, mezclar(SALVIA, 0.45), mezclar(ZAFIRO, 0.45), mezclar(CORAL, 0.4)]
     spans = []
     for i, p in enumerate(piezas):
         texto = p.replace(" ", "␣").replace("<", "&lt;").replace(">", "&gt;")

@@ -1,26 +1,26 @@
 # Inteligencia artificial y redes neuronales · Escuela de Machine Learning Honduras 2026
 
 **ICTP – Physics Without Frontiers · Machine Learning: Theory and Applications**
-📅 23 de noviembre al 4 de diciembre de 2026 · 📍 UNAH, Tegucigalpa, Honduras · 🌐 [machine-learning-honduras.org](https://machine-learning-honduras.org/)
+23 de noviembre al 4 de diciembre de 2026 · UNAH, Tegucigalpa, Honduras · [machine-learning-honduras.org](https://machine-learning-honduras.org/)
 
 Materiales de las sesiones de **Edith Natalia Villegas García** (ICTP): introducción a la inteligencia artificial y al aprendizaje automático, Linux y la terminal, teoría de redes neuronales, redes convolucionales y autocodificadores, transformers y modelos de lenguaje, y una práctica con PyTorch y Hugging Face.
 
 - **Diapositivas interactivas** hechas con [Quarto](https://quarto.org) + [reveal.js](https://revealjs.com), con gráficas en **Python** ([Plotly](https://plotly.com/python/)) que se pueden explorar en vivo: deslizadores, botones, gráficas 3D y demos incrustadas.
 - **Notebooks de práctica** para Google Colab, con ejercicios que se revisan solos (✅ / ❌) y sus **soluciones**.
 
-📺 **Diapositivas en línea:** https://edithvillegas.github.io/introduccion-ml-redes-neuronales/
+**Diapositivas en línea:** https://edithvillegas.github.io/introduccion-ml-redes-neuronales/
 
 ## Contenido
 
-| # | Sesión | Fecha | Diapositivas | Notebook | Soluciones |
-|---|---|---|---|---|---|
-| 1 | Introducción a la IA y al aprendizaje automático (parte 1) | lun 23 nov, 10:00 | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/01_introduccion_ia.html) | — | — |
-| 2 | Introducción a la IA y al aprendizaje automático (parte 2) | lun 23 nov, 11:30 | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/02_fundamentos_ml.html) | — | — |
-| 3 | Linux, la terminal y git · compilado vs. interpretado | lun 23 nov, 13:30 | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/03_linux_terminal.html) | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/03_terminal_linux.ipynb) | [Colab](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/soluciones/03_terminal_linux_soluciones.ipynb) |
-| 4 | Teoría de redes neuronales | vie 27 nov, 11:30 | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/04_redes_neuronales.html) | — | — |
-| 5 | Redes convolucionales y autocodificadores | lun 30 nov, 13:30 | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/05_redes_convolucionales.html) | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/05_redes_convolucionales.ipynb) | [Colab](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/soluciones/05_redes_convolucionales_soluciones.ipynb) |
-| 6 | Transformers y modelos de lenguaje | lun 30 nov, 14:50 | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/06_transformers_lenguaje.html) | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/06_transformers_lenguaje.ipynb) | [Colab](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/soluciones/06_transformers_lenguaje_soluciones.ipynb) |
-| 7 | Práctica: Python, PyTorch y Hugging Face | mar 1 dic, 14:50 | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/07_practica_huggingface.html) | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/07_huggingface.ipynb) | [Colab](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/soluciones/07_huggingface_soluciones.ipynb) |
+| # | Sesión | Diapositivas | Notebook | Soluciones |
+|---|---|---|---|---|
+| 1 | Introducción a la IA y al aprendizaje automático (parte 1) | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/01_introduccion_ia.html) | — | — |
+| 2 | Introducción a la IA y al aprendizaje automático (parte 2) | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/02_fundamentos_ml.html) | — | — |
+| 3 | Linux, la terminal y git · compilado vs. interpretado | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/03_linux_terminal.html) | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/03_terminal_linux.ipynb) | [Colab](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/soluciones/03_terminal_linux_soluciones.ipynb) |
+| 4 | Teoría de redes neuronales | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/04_redes_neuronales.html) | — | — |
+| 5 | Redes convolucionales y autocodificadores | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/05_redes_convolucionales.html) | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/05_redes_convolucionales.ipynb) | [Colab](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/soluciones/05_redes_convolucionales_soluciones.ipynb) |
+| 6 | Transformers y modelos de lenguaje | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/06_transformers_lenguaje.html) | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/06_transformers_lenguaje.ipynb) | [Colab](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/soluciones/06_transformers_lenguaje_soluciones.ipynb) |
+| 7 | Práctica: Python, PyTorch y Hugging Face | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/07_practica_huggingface.html) | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/07_huggingface.ipynb) | [Colab](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/soluciones/07_huggingface_soluciones.ipynb) |
 
 ### Qué se ve en cada sesión
 
@@ -37,7 +37,7 @@ Materiales de las sesiones de **Edith Natalia Villegas García** (ICTP): introdu
 1. Hagan clic en **Abrir en Colab** en la sesión correspondiente.
 2. En Colab: **Archivo → Guardar una copia en Drive** para guardar sus cambios.
 3. Para las sesiones 5–7: **Entorno de ejecución → Cambiar tipo de entorno de ejecución → GPU T4**.
-4. Ejecuten las celdas en orden con `Shift + Enter`. En cada **✏️ Ejercicio** escriban su código donde dice `# TU CÓDIGO AQUÍ`; la celda siguiente revisa la respuesta (✅ / ❌). Si se atoran, abran la **💡 Pista**.
+4. Ejecuten las celdas en orden con `Shift + Enter`. En cada **Ejercicio** escriban su código donde dice `# TU CÓDIGO AQUÍ`; la celda siguiente revisa la respuesta (✅ / ❌). Si se atoran, abran la **Pista**.
 
 ## Estructura del repositorio
 
@@ -58,7 +58,7 @@ Materiales de las sesiones de **Edith Natalia Villegas García** (ICTP): introdu
 │   ├── precalcular_*.py       # regeneran diapositivas/datos/ (necesitan torch, transformers…)
 │   ├── minigpt.py             # el mini-GPT del notebook 07
 │   └── configurar_repo.py     # pone su usuario/repositorio de GitHub en los enlaces
-├── assets/                    # tema visual (SCSS) y logo
+├── assets/                    # tema visual (SCSS) y colores del código (paleta.theme)
 ├── requirements.txt           # para construir las diapositivas
 ├── requirements-datos.txt     # para regenerar datos y probar notebooks
 └── .github/workflows/publicar.yml   # publica el sitio en GitHub Pages

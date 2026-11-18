@@ -1,19 +1,28 @@
 /*-- scss:defaults --*/
 
-// Paleta: azul marino + turquesa (bandera de Honduras) + naranja de acento
-$azul-marino: #0b2545;
-$turquesa: #0095b6;
-$turquesa-claro: #d9f3f8;
-$naranja: #eb6834;
-$naranja-claro: #fde9df;
-$gris: #52514e;
-$gris-claro: #f2f1ee;
-$fondo: #fcfcfb;
+// Paleta de la escuela (Sapphire, Arctic, Lace, Bubblegum, Ballet Slipper, Sage, Pistachio, Spruce, Peacock)
+$zafiro: #72B0AB;
+$artico: #BCDDDC;
+$encaje: #FFEDD1;
+$chicle: #FDC1B4;
+$coral: #FE9179;
+$salvia: #CFB97E;
+$pistacho: #B89D47;
+$abeto: #355E58;
+$pavo-real: #053229;
+
+// Tonos derivados (solo para legibilidad del texto y fondos grandes)
+$coral-oscuro: #A84A35;   // texto coral con buen contraste
+$gris: #5E7A75;           // texto secundario
+$fondo: #FFFCF7;          // encaje muy claro
+$artico-claro: mix($artico, white, 55%);
+$chicle-claro: mix($chicle, white, 50%);
+$borde: $artico;
 
 $body-bg: $fondo;
-$body-color: $azul-marino;
-$link-color: $turquesa;
-$selection-bg: $turquesa-claro;
+$body-color: $pavo-real;
+$link-color: $abeto;
+$selection-bg: $artico;
 
 $font-family-sans-serif: "Source Sans 3", "Source Sans Pro", Helvetica, Arial, sans-serif;
 $font-family-monospace: "JetBrains Mono", "Fira Code", Menlo, monospace;
@@ -22,15 +31,24 @@ $presentation-h1-font-size: 2.2em;
 $presentation-h2-font-size: 1.45em;
 $presentation-h3-font-size: 1.1em;
 $presentation-heading-font: $font-family-sans-serif;
-$presentation-heading-color: $azul-marino;
+$presentation-heading-color: $pavo-real;
 $presentation-heading-font-weight: 700;
 $presentation-heading-text-transform: none;
 $presentation-line-height: 1.35;
 $code-block-font-size: 0.6em;
-$code-color: #b4441c;
+$code-color: $coral-oscuro;
+$code-block-bg: mix($encaje, white, 45%);
 $presentation-title-slide-text-align: left;
 
 /*-- scss:rules --*/
+
+// Sass quita las comillas al pasar la fuente a las variables CSS de reveal.js, y
+// «Source Sans 3» sin comillas no es un nombre válido en CSS (las diapositivas salían
+// con la fuente por defecto del navegador). Se repite aquí con comillas.
+:root {
+  --r-main-font: "Source Sans 3", "Source Sans Pro", Helvetica, Arial, sans-serif;
+  --r-heading-font: "Source Sans 3", "Source Sans Pro", Helvetica, Arial, sans-serif;
+}
 
 .reveal {
   .slides section {
@@ -50,47 +68,47 @@ $presentation-title-slide-text-align: left;
   }
 
   h2 {
-    border-bottom: 4px solid $turquesa;
+    border-bottom: 4px solid $zafiro;
     padding-bottom: 0.15em;
     margin-bottom: 0.4em;
     display: inline-block;
   }
 
-  strong { color: $azul-marino; font-weight: 700; }
+  strong { color: $pavo-real; font-weight: 700; }
   em { color: $gris; }
 
   // Diapositiva de título
   .quarto-title-block .title { font-size: 2.4em; line-height: 1.1; }
-  .quarto-title-block .subtitle { color: $turquesa; font-size: 1.3em; }
+  .quarto-title-block .subtitle { color: $abeto; font-size: 1.3em; }
   .quarto-title-authors, .date { color: $gris; }
 
-  // Separadores de sección (usar {background-color="#0b2545"} y clase .seccion)
+  // Separadores de sección (usar {background-color="#053229"} y clase .seccion)
   section.seccion h1, section.seccion h2 {
     color: white;
     border: none;
     font-size: 2.6em;
   }
-  section.seccion p { color: #cfe9f0; font-size: 1.2em; }
+  section.seccion p { color: $artico; font-size: 1.2em; }
 
   section.compacta { font-size: 0.88em; }
 
   // Cajas
   .caja {
-    background: $gris-claro;
-    border-left: 8px solid $turquesa;
+    background: $encaje;
+    border-left: 8px solid $zafiro;
     padding: 0.5em 0.8em;
     border-radius: 6px;
     margin: 0.4em 0;
   }
   .caja-naranja {
-    background: $naranja-claro;
-    border-left: 8px solid $naranja;
+    background: $chicle-claro;
+    border-left: 8px solid $coral;
     padding: 0.5em 0.8em;
     border-radius: 6px;
     margin: 0.4em 0;
   }
   .definicion {
-    background: $turquesa-claro;
+    background: $artico-claro;
     border-radius: 10px;
     padding: 0.6em 0.9em;
     margin: 0.4em 0;
@@ -100,29 +118,29 @@ $presentation-title-slide-text-align: left;
   // "Lo veremos más adelante con…"
   .adelante {
     display: inline-block;
-    background: $azul-marino;
+    background: $abeto;
     color: white;
     border-radius: 999px;
     padding: 0.12em 0.7em;
     font-size: 0.68em;
     font-weight: 600;
     margin-top: 0.3em;
-    strong { color: #8fe3f5; }
+    strong { color: $chicle; }
   }
 
   .pregunta {
     font-size: 1.5em;
     font-weight: 700;
-    color: $turquesa;
+    color: $abeto;
   }
 
   .grande { font-size: 1.6em; line-height: 1.2; }
-  .enorme { font-size: 3em; font-weight: 700; color: $turquesa; line-height: 1; }
+  .enorme { font-size: 3em; font-weight: 700; color: $abeto; line-height: 1; }
   .pequeno { font-size: 0.7em; }
   .muy-pequeno { font-size: 0.55em; }
   .gris { color: $gris; }
-  .naranja { color: $naranja; font-weight: 700; }
-  .turquesa { color: $turquesa; font-weight: 700; }
+  .naranja { color: $coral-oscuro; font-weight: 700; }
+  .turquesa { color: $abeto; font-weight: 700; }
   .centrado { text-align: center !important; }
 
   // Créditos de imágenes y referencias
@@ -141,7 +159,7 @@ $presentation-title-slide-text-align: left;
 
   // Imágenes
   img.redondeada { border-radius: 12px; }
-  img.sombra { box-shadow: 0 6px 18px rgba(11, 37, 69, 0.18); }
+  img.sombra { box-shadow: 0 6px 18px rgba(5, 50, 41, 0.18); }
   .galeria img { border-radius: 10px; width: 100%; height: auto; }
   .galeria figcaption, .fotos-nobel figcaption, .figura figcaption, figure figcaption {
     font-size: 0.55em !important;
@@ -155,12 +173,12 @@ $presentation-title-slide-text-align: left;
   // Tarjetas en columnas
   .tarjeta {
     background: white;
-    border: 2px solid #e3e2dd;
+    border: 2px solid $borde;
     border-radius: 14px;
     padding: 0.5em 0.7em;
     height: 100%;
     font-size: 0.8em;
-    h3 { margin-top: 0; color: $turquesa; }
+    h3 { margin-top: 0; color: $abeto; }
   }
 
   // Títulos dentro de columnas y tarjetas (no usar ### porque Pandoc crea secciones = diapositivas extra)
@@ -168,14 +186,14 @@ $presentation-title-slide-text-align: left;
     display: block;
     font-weight: 700;
     font-size: 1.12em;
-    color: $turquesa;
+    color: $abeto;
     margin: 0.15em 0 0.35em 0;
     line-height: 1.2;
   }
 
   // Tablas
   table { font-size: 0.75em; }
-  table th { background: $azul-marino; color: white; }
+  table th { background: $abeto; color: white; }
   table td, table th { padding: 0.25em 0.6em !important; }
 
   // Código
@@ -185,7 +203,7 @@ $presentation-title-slide-text-align: left;
   // iframes incrustados
   iframe.demo {
     width: 100%;
-    border: 2px solid #e3e2dd;
+    border: 2px solid $borde;
     border-radius: 12px;
     background: white;
   }
@@ -194,8 +212,20 @@ $presentation-title-slide-text-align: left;
   .plotly-graph-div { margin: 0 auto; }
 
   // Fragmentos resaltados
-  .fragment.highlight-current-blue.current-fragment { color: $turquesa; }
+  .fragment.highlight-current-blue.current-fragment { color: $abeto; }
 
-  .slide-logo { max-height: 46px !important; bottom: 14px !important; right: 90px !important; }
   .footer { color: $gris; font-size: 0.42em !important; }
+}
+
+// Diapositiva final con el código QR al sitio personal
+.reveal .slides section.qr-final {
+  text-align: center;
+  img { height: 560px; margin: 0 auto; }
+  .quarto-figure, p { margin: 0; }
+  .qr-url {
+    margin-top: 0.4em;
+    font-size: 1.5em;
+    font-weight: 700;
+    a { color: $abeto; text-decoration: none; }
+  }
 }

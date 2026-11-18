@@ -2,7 +2,6 @@
 title: "Redes neuronales convolucionales y autocodificadores"
 subtitle: "Cómo «ve» una red neuronal"
 author: "Edith Natalia Villegas García · ICTP"
-date: 2026-11-30
 description: "Convolución, filtros, agrupamiento (pooling), arquitecturas clásicas, qué aprenden las redes convolucionales (interpretabilidad), ejemplos adversarios y autocodificadores."
 ---
 
@@ -26,11 +25,11 @@ ae = cargar("autocodificador.json")
 3. *Pooling* y arquitectura de una red convolucional
 4. ¿Qué **aprenden** las redes convolucionales? (interpretabilidad)
 5. **Autocodificadores**: comprimir y reconstruir
-6. 💻 Práctica en Colab
+6. Práctica en Colab
 :::
 ::: {.column width="50%"}
 ::: {.definicion}
-**Recuerden del viernes:** una red neuronal es una composición de capas $\sigma(W\mathbf{x} + \mathbf{b})$ que se entrena con descenso de gradiente y retropropagación.
+**Recuerden de la sesión de redes neuronales:** una red neuronal es una composición de capas $\sigma(W\mathbf{x} + \mathbf{b})$ que se entrena con descenso de gradiente y retropropagación.
 
 Hoy: ¿qué forma deben tener las capas cuando los datos son **imágenes**?
 :::
@@ -93,7 +92,7 @@ salida = correlate2d(img_peq, K, mode="valid")
 n_out = salida.shape[0]
 fig = make_subplots(rows=1, cols=3, column_widths=[0.42, 0.18, 0.4], horizontal_spacing=0.06,
                     subplot_titles=["Imagen (7×7): un «1»", "Filtro 3×3", "Mapa de características (5×5)"])
-fig.add_trace(go.Heatmap(z=img_peq, colorscale=[[0, "white"], [1, "#86b6ef"]], showscale=False, text=img_peq.astype(int),
+fig.add_trace(go.Heatmap(z=img_peq, colorscale=[[0, "white"], [1, ZAFIRO]], showscale=False, text=img_peq.astype(int),
                          texttemplate="%{text}", textfont=dict(size=20), xgap=2, ygap=2, hoverinfo="skip"), 1, 1)
 fig.add_trace(go.Heatmap(z=K, colorscale=DIVERGENTE, zmid=0, showscale=False, text=K.astype(int), texttemplate="%{text}",
                          textfont=dict(size=22), xgap=2, ygap=2, hoverinfo="skip"), 1, 2)
@@ -108,9 +107,9 @@ for idx in range(n_out * n_out):
     ventana = img_peq[i:i + 3, j:j + 3]
     cuenta = " + ".join(f"{int(a)}·{int(b)}" for a, b in zip(ventana.ravel(), K.ravel()) if a != 0 and b != 0) or "0"
     forma = [dict(type="rect", xref="x", yref="y", x0=j - 0.5, x1=j + 2.5, y0=i - 0.5, y1=i + 2.5,
-                  line=dict(color=NARANJA, width=5)),
+                  line=dict(color=CORAL_OSCURO, width=5)),
              dict(type="rect", xref="x3", yref="y3", x0=j - 0.5, x1=j + 0.5, y0=i - 0.5, y1=i + 0.5,
-                  line=dict(color=NARANJA, width=5))]
+                  line=dict(color=CORAL_OSCURO, width=5))]
     vis = [True, True] + [k == idx for k in range(n_out * n_out)]
     pasos.append(dict(method="update", label=str(idx + 1),
                       args=[{"visible": vis}, {"shapes": forma, "title.text": f"Suma de productos = {cuenta} = {int(salida[i, j])}"}]))
@@ -165,19 +164,19 @@ Antes del aprendizaje profundo, estos filtros se **diseñaban a mano**. Una red 
 :::: {.columns}
 ::: {.column width="33%"}
 ::: {.tarjeta}
-[🔍 Conexiones locales]{.titulo-tarjeta}
+[Conexiones locales]{.titulo-tarjeta}
 Cada neurona mira solo una **ventana pequeña** (p. ej. 3×3) de la capa anterior: su *campo receptivo*.
 :::
 :::
 ::: {.column width="33%"}
 ::: {.tarjeta}
-[🔁 Pesos compartidos]{.titulo-tarjeta}
+[Pesos compartidos]{.titulo-tarjeta}
 El **mismo filtro** se aplica en todas las posiciones → si el objeto se mueve, la respuesta se mueve con él (*equivarianza a traslaciones*).
 :::
 :::
 ::: {.column width="33%"}
 ::: {.tarjeta}
-[🧱 Muchos filtros]{.titulo-tarjeta}
+[Muchos filtros]{.titulo-tarjeta}
 Cada capa aprende **decenas o cientos** de filtros; cada uno produce un **mapa de características** (un "canal").
 :::
 :::
@@ -202,7 +201,7 @@ Tamaño de salida: $\;\dfrac{N - K + 2P}{S} + 1$, con $N$ el tamaño de entrada,
 M = rng.integers(0, 10, (4, 4))
 P = M.reshape(2, 2, 2, 2).max(axis=(1, 3))
 colores_bloque = np.array([[0, 0, 1, 1], [0, 0, 1, 1], [2, 2, 3, 3], [2, 2, 3, 3]])
-pal = [[0, "#cde2fb"], [0.33, "#fde0d1"], [0.66, "#c9eedd"], [1, "#fbe7b0"]]
+pal = [[0, ARTICO], [0.33, CHICLE], [0.66, ENCAJE], [1, mezclar(SALVIA, 0.35)]]
 fig = make_subplots(rows=1, cols=2, column_widths=[0.6, 0.4], horizontal_spacing=0.15,
                     subplot_titles=["Mapa 4×4", "Max pooling 2×2 → 2×2"])
 fig.add_trace(go.Heatmap(z=colores_bloque, colorscale=pal, showscale=False, text=M, texttemplate="%{text}",
@@ -225,16 +224,16 @@ mostrar(fig, 820, 460)
 ## Arquitectura de una red convolucional
 
 ```{python}
-bloques = [("Imagen<br>28×28×1", 0, 2.6, 2.6, "#cde2fb"), ("Conv 5×5<br>+ ReLU<br>24×24×8", 1.7, 2.3, 2.3, "#86b6ef"),
-           ("Max pool<br>12×12×8", 3.3, 1.6, 1.6, "#5598e7"), ("Conv 5×5<br>+ ReLU<br>8×8×16", 4.7, 1.3, 1.3, "#2a78d6"),
-           ("Max pool<br>4×4×16", 6.0, 0.9, 0.9, "#1c5cab"), ("Aplanar<br>256", 7.2, 0.35, 2.4, "#eda100"),
-           ("Densa<br>10 clases<br>(softmax)", 8.5, 0.35, 1.2, "#eb6834")]
+bloques = [("Imagen<br>28×28×1", 0, 2.6, 2.6, ARTICO), ("Conv 5×5<br>+ ReLU<br>24×24×8", 1.7, 2.3, 2.3, mezclar(ZAFIRO, 0.35)),
+           ("Max pool<br>12×12×8", 3.3, 1.6, 1.6, ZAFIRO), ("Conv 5×5<br>+ ReLU<br>8×8×16", 4.7, 1.3, 1.3, ABETO),
+           ("Max pool<br>4×4×16", 6.0, 0.9, 0.9, PAVO_REAL), ("Aplanar<br>256", 7.2, 0.35, 2.4, PISTACHO),
+           ("Densa<br>10 clases<br>(softmax)", 8.5, 0.35, 1.2, CORAL)]
 fig = go.Figure()
 for nombre, x, w, h, color in bloques:
     for k in range(3 if "Conv" in nombre or "pool" in nombre else 1):
         fig.add_shape(type="rect", x0=x + k * 0.08, x1=x + w * 0.45 + k * 0.08, y0=-h / 2 + k * 0.08, y1=h / 2 + k * 0.08,
                       fillcolor=color, line=dict(color="white", width=2))
-    fig.add_annotation(x=x + w * 0.22, y=-1.75, text=f"<b>{nombre}</b>", showarrow=False, font=dict(size=16, color=MARINO))
+    fig.add_annotation(x=x + w * 0.22, y=-1.75, text=f"<b>{nombre}</b>", showarrow=False, font=dict(size=16, color=PAVO_REAL))
 fig.add_annotation(x=1.6, y=1.75, text="extraer características →", showarrow=False, font=dict(size=20, color=GRIS))
 fig.add_annotation(x=7.9, y=1.75, text="clasificar", showarrow=False, font=dict(size=20, color=GRIS))
 fig.update_layout(xaxis=dict(visible=False, range=[-0.3, 9.4]), yaxis=dict(visible=False, range=[-2.3, 2.1]),
@@ -258,7 +257,7 @@ for d, m in enumerate(mapas):
     vis = d == 0
     fig.add_trace(go.Heatmap(z=m["imagen"], colorscale=GRISES, showscale=False, visible=vis, hoverinfo="skip"), 1, 1)
     for k in range(8):
-        fig.add_trace(go.Heatmap(z=np.array(m["capa1"][k]), colorscale=AZULES, showscale=False, visible=vis, hoverinfo="skip"), 2, k + 2)
+        fig.add_trace(go.Heatmap(z=np.array(m["capa1"][k]), colorscale=SECUENCIAL, showscale=False, visible=vis, hoverinfo="skip"), 2, k + 2)
 for k in range(8):
     lim = np.abs(filtros1[k]).max()
     fig.add_trace(go.Heatmap(z=filtros1[k], colorscale=DIVERGENTE, zmid=0, zmin=-lim, zmax=lim, showscale=False,
@@ -280,7 +279,7 @@ mostrar(fig, 1500, 470)
 
 :::: {.columns .pequeno}
 ::: {.column width="50%"}
-**Arriba:** los 8 filtros de 5×5 que la red **aprendió sola** (rojo positivo, azul negativo): detectores de bordes y trazos en distintas orientaciones.
+**Arriba:** los 8 filtros de 5×5 que la red **aprendió sola** (coral: positivo; verde oscuro: negativo): detectores de bordes y trazos en distintas orientaciones.
 :::
 ::: {.column width="50%"}
 ```{python}
@@ -299,7 +298,7 @@ display(HTML(f"""<table style="font-size:0.95em"><tr><th>Modelo</th><th>Parámet
 ```{python}
 C = np.array(cnn["confusion"])
 Cn = C / C.sum(1, keepdims=True)
-fig = go.Figure(go.Heatmap(z=Cn, x=[str(i) for i in range(10)], y=[str(i) for i in range(10)], colorscale=AZULES,
+fig = go.Figure(go.Heatmap(z=Cn, x=[str(i) for i in range(10)], y=[str(i) for i in range(10)], colorscale=SECUENCIAL,
                            zmin=0, zmax=0.05, colorbar=dict(title="fracción", tickformat=".0%"),
                            text=C, hovertemplate="real %{y} → predicho %{x}: %{text} imágenes<extra></extra>", xgap=1, ygap=1))
 fig.update_layout(xaxis=dict(title="predicción", side="bottom"), yaxis=dict(title="dígito real", autorange="reversed"),
@@ -342,14 +341,14 @@ arqs = [(1998, "LeNet-5", 6e4, "dígitos de cheques bancarios"), (2012, "AlexNet
         (2019, "EfficientNet-B7", 6.6e7, "escalar ancho/profundidad/resolución"), (2020, "Vision Transformer", 8.6e7, "atención en vez de convolución"),
         (2022, "ConvNeXt", 8.9e7, "convoluciones modernizadas")]
 fig = go.Figure(go.Scatter(x=[a[0] for a in arqs], y=[a[2] for a in arqs], mode="markers+text", text=[a[1] for a in arqs],
-                           textposition=["top center", "top center", "top center", "bottom center", "top center", "bottom center",
-                                         "top center", "bottom center", "top center"],
+                           textposition=["top center", "top center", "top center", "bottom center", "middle right", "bottom center",
+                                         "bottom center", "top center", "middle right"],
                            textfont=dict(size=17), customdata=[a[3] for a in arqs],
-                           marker=dict(size=18, color=[VIOLETA if "Transformer" in a[1] else AZUL for a in arqs],
+                           marker=dict(size=18, color=[PISTACHO if "Transformer" in a[1] else ABETO for a in arqs],
                                        line=dict(color="white", width=2)),
                            hovertemplate="<b>%{text}</b> (%{x})<br>%{customdata}<br>%{y:.2s} parámetros<extra></extra>"))
 fig.update_layout(yaxis=dict(type="log", title="parámetros", exponentformat="SI", range=[4.3, 8.6]),
-                  xaxis=dict(title=None, range=[1995, 2024]), showlegend=False)
+                  xaxis=dict(title=None, range=[1995, 2025.5]), showlegend=False)
 mostrar(fig, 1400, 520)
 ```
 
@@ -357,7 +356,7 @@ mostrar(fig, 1400, 520)
 Aplicaciones: diagnóstico por imagen (U-Net), autos autónomos, clasificación de galaxias, "imágenes" de chorros de partículas en el LHC, detección de enfermedades en hojas de café (p. ej. el conjunto de datos RoCoLe, Ecuador, 2019), conteo de animales en fotos de cámaras trampa…
 :::
 
-# ¿Qué aprenden las redes convolucionales? {background-color="#0b2545" .seccion}
+# ¿Qué aprenden las redes convolucionales? {background-color="#053229" .seccion}
 
 Interpretabilidad: abrir la caja negra
 
@@ -417,7 +416,7 @@ Olah, C. *et al.* (2020). Zoom In: An Introduction to Circuits. *Distill*. doi:1
 :::
 ::: {.column width="50%"}
 - En CLIP (OpenAI), un modelo de imágenes y texto, hay neuronas **multimodales**: una neurona de "Spider-Man" responde a fotos, dibujos **y a la palabra escrita** "spider" (Goh *et al.*, 2021)
-- ¡Parecido a las "neuronas de concepto" medidas en el lóbulo temporal medial humano, como la famosa neurona de "Jennifer Aniston" (Quiroga *et al.*, 2005)! [📅 Neurociencia con **Joshua Lemus** · 3 de diciembre]{.adelante}
+- ¡Parecido a las "neuronas de concepto" medidas en el lóbulo temporal medial humano, como la famosa neurona de "Jennifer Aniston" (Quiroga *et al.*, 2005)! [Más en la sesión de neurociencia con **Joshua Lemus**]{.adelante}
 :::
 ::::
 
@@ -446,7 +445,7 @@ def barras(pred, color):
 ![](img/adversario_original.png){width="330"}
 
 ```{python}
-barras(adv["pred_original"], AZUL)
+barras(adv["pred_original"], ABETO)
 ```
 :::
 ::: {.column width="33%"}
@@ -464,7 +463,7 @@ Cada píxel cambia como máximo **2/255**: invisible para nosotros.
 ![](img/adversario_modificada.png){width="330"}
 
 ```{python}
-barras(adv["pred_adversaria"], NARANJA)
+barras(adv["pred_adversaria"], CORAL)
 ```
 :::
 ::::
@@ -477,7 +476,7 @@ Cálculo propio con una ResNet-18 preentrenada en ImageNet y el método del grad
 Foto: Charles J. Sharp, *Scarlet macaw (Ara macao cyanopterus), Copán*, Wikimedia Commons, CC BY-SA 4.0 (recortada y modificada).
 :::
 
-# Autocodificadores {background-color="#0b2545" .seccion}
+# Autocodificadores {background-color="#053229" .seccion}
 
 Aprender a comprimir… y a reconstruir
 
@@ -487,9 +486,9 @@ Aprender a comprimir… y a reconstruir
 ::: {.column width="55%"}
 ```{python}
 fig = go.Figure()
-formas = [(0, 3.0, "#cde2fb", "entrada x<br>(28×28 = 784)"), (1.3, 2.0, "#86b6ef", "codificador"),
-          (2.6, 0.6, "#eb6834", "código z<br>(¡2 números!)"), (3.9, 2.0, "#86b6ef", "decodificador"),
-          (5.2, 3.0, "#cde2fb", "reconstrucción x̂")]
+formas = [(0, 3.0, ARTICO, "entrada x<br>(28×28 = 784)"), (1.3, 2.0, ZAFIRO, "codificador"),
+          (2.6, 0.6, CORAL, "código z<br>(¡2 números!)"), (3.9, 2.0, ZAFIRO, "decodificador"),
+          (5.2, 3.0, ARTICO, "reconstrucción x̂")]
 for x, h, color, t in formas:
     fig.add_shape(type="rect", x0=x - 0.4, x1=x + 0.4, y0=-h / 2, y1=h / 2, fillcolor=color, line=dict(color="white", width=2))
     fig.add_annotation(x=x, y=-h / 2 - 0.35, text=f"<b>{t}</b>", showarrow=False, font=dict(size=17), yanchor="top")
@@ -512,7 +511,7 @@ $$
   - **Quitar ruido** (*denoising*)
   - **Detectar anomalías**: lo que no se reconstruye bien es raro (¡búsqueda de física nueva en el LHC!)
   - **Generar** datos nuevos (autocodificadores variacionales, Kingma y Welling, 2013)
-  - **Interpretabilidad**: los *autocodificadores dispersos* (*sparse autoencoders*) se usan para leer el "pensamiento" de los modelos de lenguaje → ¡lo veremos a las 14:50!
+  - **Interpretabilidad**: los *autocodificadores dispersos* (*sparse autoencoders*) se usan para leer el "pensamiento" de los modelos de lenguaje → ¡lo veremos en la sesión de transformers!
 :::
 ::::
 
@@ -531,14 +530,14 @@ for idx in range(n * n):
 fig = make_subplots(rows=1, cols=2, column_widths=[0.52, 0.48], horizontal_spacing=0.06,
                     subplot_titles=["Cada imagen de prueba, comprimida a 2 números (z₁, z₂)",
                                     "Lo que «imagina» el decodificador en cada punto"])
-colores10 = CATEGORICOS + [GRIS, MARINO]
+colores10 = [ABETO, CORAL, ZAFIRO, PISTACHO, PAVO_REAL, CORAL_OSCURO, SALVIA, GRIS, CHICLE, ARTICO]
 for d in range(10):
     m = etq == d
     fig.add_trace(go.Scatter(x=z[m, 0], y=z[m, 1], mode="text", text=[str(d)] * m.sum(), name=str(d),
                              textfont=dict(size=12, color=colores10[d]), hovertemplate=f"dígito {d}<extra></extra>"), 1, 1)
 fig.add_trace(go.Heatmap(z=mosaico[::-1], colorscale=GRISES, zmin=0, zmax=255, showscale=False, hoverinfo="skip"), 1, 2)
 lo0, hi0, lo1, hi1 = g0[0], g0[-1], g1[0], g1[-1]
-fig.add_shape(type="rect", x0=lo0, x1=hi0, y0=lo1, y1=hi1, line=dict(color=MARINO, width=2, dash="dot"), row=1, col=1)
+fig.add_shape(type="rect", x0=lo0, x1=hi0, y0=lo1, y1=hi1, line=dict(color=PAVO_REAL, width=2, dash="dot"), row=1, col=1)
 fig.update_xaxes(title_text="z₁", row=1, col=1)
 fig.update_yaxes(title_text="z₂", row=1, col=1)
 fig.update_xaxes(visible=False, row=1, col=2)
@@ -575,7 +574,7 @@ mostrar(fig, 1450, 430)
 Con solo 2 números la reconstrucción es borrosa: hay un **compromiso** entre compresión y fidelidad. En la práctica se usan códigos de decenas o cientos de dimensiones. Los generadores de imágenes como Stable Diffusion o Z-Image trabajan en el **espacio latente** de un autocodificador.
 :::
 
-## 💻 Práctica: notebook 05 {.compacta}
+## Práctica: notebook 05 {.compacta}
 
 :::: {.columns}
 ::: {.column width="55%"}
@@ -586,7 +585,7 @@ Con solo 2 números la reconstrucción es borrosa: hay un **compromiso** entre c
 3. Construir y entrenar una **red convolucional** en PyTorch
 4. Visualizar **filtros** y **mapas de características**
 5. Entrenar un **autocodificador** que quita ruido
-6. 🏆 Reto: superar el 90 % de exactitud
+6. Reto: superar el 90 % de exactitud
 
 ::: {.caja .pequeno}
 En Colab: *Entorno de ejecución → Cambiar tipo de entorno de ejecución → GPU T4*
@@ -602,3 +601,11 @@ En Colab: *Entorno de ejecución → Cambiar tipo de entorno de ejecución → G
 :::
 :::
 ::::
+
+## {.center .qr-final}
+
+![](img/qr_sitio.png){height="560" fig-align="center" fig-alt="Código QR que lleva a edithvillegas.github.io"}
+
+::: {.qr-url}
+[edithvillegas.github.io](https://edithvillegas.github.io)
+:::

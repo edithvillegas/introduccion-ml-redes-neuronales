@@ -2,20 +2,21 @@
 
 import plotly.graph_objects as go
 
-from graficas import CATEGORICOS, GRIS, mostrar
+from graficas import (ABETO, ARTICO, CHICLE, CORAL, GRIS, PAVO_REAL, PISTACHO, SALVIA, ZAFIRO, mostrar,
+                      texto_sobre)
 
 DIAS = ["Lun 23 nov", "Mar 24 nov", "Mié 25 nov", "Jue 26 nov", "Vie 27 nov",
         "Lun 30 nov", "Mar 1 dic", "Mié 2 dic", "Jue 3 dic", "Vie 4 dic"]
 
 AREAS = {
-    "Escuela": CATEGORICOS[3],
-    "Programación y herramientas": CATEGORICOS[0],
-    "Matemáticas y optimización": CATEGORICOS[6],
-    "Aprendizaje supervisado": CATEGORICOS[1],
-    "Aprendizaje no supervisado": CATEGORICOS[2],
-    "Redes neuronales e IA": CATEGORICOS[7],
-    "Aplicaciones y charlas invitadas": CATEGORICOS[4],
-    "Ética y sociedad": CATEGORICOS[5],
+    "Escuela": SALVIA,
+    "Programación y herramientas": ABETO,
+    "Matemáticas y optimización": PISTACHO,
+    "Aprendizaje supervisado": CORAL,
+    "Aprendizaje no supervisado": ZAFIRO,
+    "Redes neuronales e IA": PAVO_REAL,
+    "Aplicaciones y charlas invitadas": CHICLE,
+    "Ética y sociedad": ARTICO,
 }
 
 # (día, inicio, fin, título corto, título completo, ponente, área)
@@ -81,7 +82,7 @@ def grafica_programa(resaltar=None, ancho=1450, alto=690):
             y=[horas(s[2]) - horas(s[1]) for s in ses],
             name=area, marker=dict(color=color, opacity=opac, line=dict(color="white", width=2)),
             text=[s[3] for s in ses], textposition="inside", insidetextanchor="middle", textangle=0,
-            textfont=dict(size=13, color="white"),
+            textfont=dict(size=13, color=texto_sobre(color)),
             customdata=[[s[4], s[5], s[1], s[2]] for s in ses],
             hovertemplate="<b>%{customdata[0]}</b><br>%{customdata[1]}<br>%{x}, %{customdata[2]}–%{customdata[3]}<extra></extra>",
             width=0.92,

@@ -2,7 +2,6 @@
 title: "Práctica: Python, PyTorch y Hugging Face"
 subtitle: "Usa, ajusta y crea tus propios modelos"
 author: "Edith Natalia Villegas García · ICTP"
-date: 2026-12-01
 description: "Repaso de Python, tensores y autograd en PyTorch, pipelines de Hugging Face, ajuste fino de BETO y un mini-GPT entrenado con el Quijote."
 ---
 
@@ -73,7 +72,7 @@ pares = [n for n in range(10) if n % 2 == 0]
 :::
 ::::
 
-[📅 Lo vieron a fondo con **Daniela Pinto** · 23 y 24 de noviembre]{.adelante}
+[Python a fondo: sesiones con **Daniela Pinto**]{.adelante}
 
 ## PyTorch: NumPy + GPU + derivadas automáticas
 
@@ -128,13 +127,13 @@ for x, y in datos:
 :::
 ::: {.column width="45%"}
 ::: {.caja}
-**Modelos latinoamericanos en el Hub** 🌎
+**Modelos latinoamericanos en el Hub**
 
 - **BETO** — BERT en español (Universidad de Chile)
 - **RoBERTuito** y **pysentimiento** — modelos para redes sociales en español: sentimiento, emociones, discurso de odio (Universidad de Buenos Aires)
 - **MarIA** — modelos en español (Barcelona Supercomputing Center)
 
-¿Y un modelo con español de Honduras? ¡Podría salir de esta escuela! 😉
+¿Y un modelo con español de Honduras? ¡Podría salir de esta escuela!
 :::
 :::
 ::::
@@ -159,7 +158,7 @@ clasificador("El equipo ganó el partido 3 a 1.",
 
 vision = pipeline("image-classification",
                   model="google/vit-base-patch16-224")
-vision("guacamaya.jpg")   # macaw: 0.99 🦜
+vision("guacamaya.jpg")   # macaw: 0.99
 ```
 :::
 ::: {.column width="45%"}
@@ -182,14 +181,15 @@ Resultados reales de estos modelos (ejecutados al preparar el curso).
 ## ¿Qué hace `pipeline` por dentro?
 
 ```{python}
-pasos = [("Texto", "«¡Me encantó la clase!»", "#e3e2dd", MARINO), ("Tokenizador", "AutoTokenizer → ids [101, 1325, …]", AZUL, "white"),
-         ("Modelo", "AutoModelFor… → logits [−2.1, …, 3.4]", NARANJA, "white"), ("Posprocesamiento", "softmax → «5 estrellas»: 89 %", AQUA, "white")]
+pasos = [("Texto", "«¡Me encantó la clase!»", ENCAJE), ("Tokenizador", "AutoTokenizer →<br>ids [101, 1325, …]", ABETO),
+         ("Modelo", "AutoModelFor… →<br>logits [−2.1, …, 3.4]", CORAL), ("Posprocesamiento", "softmax →<br>«5 estrellas»: 89 %", ZAFIRO)]
 fig = go.Figure()
-for i, (t, d, c, ct) in enumerate(pasos):
+for i, (t, d, c) in enumerate(pasos):
+    ct = texto_sobre(c)
     x = i * 1.0
     fig.add_shape(type="rect", x0=x, x1=x + 0.8, y0=0, y1=1, fillcolor=c, line=dict(width=0))
     fig.add_annotation(x=x + 0.4, y=0.72, text=f"<b>{t}</b>", showarrow=False, font=dict(size=21, color=ct))
-    fig.add_annotation(x=x + 0.4, y=0.35, text=d, showarrow=False, font=dict(size=15, color=ct), width=260)
+    fig.add_annotation(x=x + 0.4, y=0.35, text=d, showarrow=False, font=dict(size=17, color=ct))
     if i < 3:
         fig.add_annotation(x=x + 0.98, y=0.5, ax=x + 0.82, ay=0.5, xref="x", yref="y", axref="x", ayref="y",
                            showarrow=True, arrowhead=3, arrowwidth=3, arrowcolor=GRIS, text="")
@@ -206,7 +206,7 @@ modelo = AutoModelForSequenceClassification.from_pretrained(nombre)
 
 entrada = tokenizador("¡Me encantó la clase!", return_tensors="pt")
 logits = modelo(**entrada).logits
-probs = logits.softmax(dim=-1)          # ¡la misma softmax del lunes!
+probs = logits.softmax(dim=-1)          # ¡la misma softmax de antes!
 ```
 
 ## Crear tu propio modelo, opción 1: ajuste fino
@@ -252,8 +252,8 @@ fig = make_subplots(rows=1, cols=2, column_widths=[0.42, 0.58], horizontal_spaci
                     specs=[[{"type": "xy"}, {"type": "xy"}]],
                     subplot_titles=["Pérdida (entropía cruzada por carácter)", "Texto generado a partir de «En un lugar de la Mancha»"])
 titulos_sub = [a.to_plotly_json() for a in fig.layout.annotations]
-fig.add_trace(go.Scatter(x=curva[:, 0], y=curva[:, 1], name="entrenamiento", line=dict(color=AZUL, width=3)), 1, 1)
-fig.add_trace(go.Scatter(x=curva[:, 0], y=curva[:, 2], name="validación", line=dict(color=NARANJA, width=3)), 1, 1)
+fig.add_trace(go.Scatter(x=curva[:, 0], y=curva[:, 1], name="entrenamiento", line=dict(color=ABETO, width=3)), 1, 1)
+fig.add_trace(go.Scatter(x=curva[:, 0], y=curva[:, 2], name="validación", line=dict(color=CORAL, width=3)), 1, 1)
 def texto_muestra(p):
     t = html.escape(mg["muestras"][str(p)]).replace("\n", " ⏎ ")
     lineas, linea = [], ""
@@ -269,7 +269,7 @@ for p in pasos_m:
     anot = [dict(x=0.6, y=0.95, xref="paper", yref="paper", text=f"<b>después de {p} pasos</b>", showarrow=False,
                  font=dict(size=18, color=GRIS), xanchor="left"),
             dict(x=0.6, y=0.84, xref="paper", yref="paper", text=texto_muestra(p), showarrow=False, align="left",
-                 xanchor="left", yanchor="top", font=dict(size=17, family="JetBrains Mono, monospace", color=MARINO))]
+                 xanchor="left", yanchor="top", font=dict(size=17, family="JetBrains Mono, monospace", color=PAVO_REAL))]
     forma = [dict(type="line", xref="x", yref="paper", x0=p, x1=p, y0=0, y1=1, line=dict(color=GRIS, dash="dot", width=2))]
     pasos.append(dict(method="relayout", label=str(p), args=[{"annotations": titulos_sub + anot, "shapes": forma}]))
 fig.update_layout(annotations=pasos[0]["args"][0]["annotations"],
@@ -312,7 +312,7 @@ entrenador.push_to_hub("mi-clasificador-resenas")
 :::
 ::: {.column width="50%"}
 ::: {.caja-naranja}
-🔐 **Seguridad:** su *token* de Hugging Face es como una contraseña. Nunca lo escriban en un notebook compartido ni lo suban a GitHub.
+**Seguridad:** su *token* de Hugging Face es como una contraseña. Nunca lo escriban en un notebook compartido ni lo suban a GitHub.
 :::
 
 ::: {.definicion}
@@ -325,7 +325,7 @@ entrenador.push_to_hub("mi-clasificador-resenas")
 :::
 ::::
 
-## ¡A programar! 💻 {.compacta}
+## ¡A programar! {.compacta}
 
 :::: {.columns}
 ::: {.column width="55%"}
@@ -338,7 +338,7 @@ entrenador.push_to_hub("mi-clasificador-resenas")
 | 3. Pipelines | 10 min |
 | 4. Ajuste fino de BETO | 15 min |
 | 5. Mini-GPT del Quijote | 15 min |
-| 6. 🏆 Retos y Gradio | el resto |
+| 6. Retos y Gradio | el resto |
 :::
 ::: {.column width="45%"}
 ::: {.definicion}
@@ -353,5 +353,13 @@ entrenador.push_to_hub("mi-clasificador-resenas")
 ::::
 
 ::: {.fragment .center .grande}
-¡Gracias por estas sesiones! Mañana: **Aprendizaje en grafos** y **Agentes de IA** 🚀
+¡Gracias por estas sesiones! Más adelante en la escuela: **aprendizaje en grafos** y **agentes de IA**
+:::
+
+## {.center .qr-final}
+
+![](img/qr_sitio.png){height="560" fig-align="center" fig-alt="Código QR que lleva a edithvillegas.github.io"}
+
+::: {.qr-url}
+[edithvillegas.github.io](https://edithvillegas.github.io)
 :::

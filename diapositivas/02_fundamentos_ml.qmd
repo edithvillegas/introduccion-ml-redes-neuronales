@@ -2,7 +2,6 @@
 title: "Introducción a la inteligencia artificial y al aprendizaje automático"
 subtitle: "Parte 2 · Fundamentos del aprendizaje automático (y sus límites)"
 author: "Edith Natalia Villegas García · ICTP"
-date: 2026-11-23
 description: "Tipos de aprendizaje, clasificación y regresión, preprocesamiento, ingeniería de características, un adelanto de redes neuronales, ética e interpretabilidad."
 ---
 
@@ -32,7 +31,7 @@ Todo problema de aprendizaje automático tiene los mismos ingredientes:
 5. Un método de **optimización** que ajusta $\theta$ para reducir $L$
 :::
 
-[📅 Optimización con **Carlos Soto** · jueves 26]{.adelante}
+[Más adelante: optimización con **Carlos Soto**]{.adelante}
 :::
 ::: {.column width="45%"}
 ::: {.definicion .fragment}
@@ -52,9 +51,9 @@ digitos = load_digits()
 img = digitos.images[0]
 fig = make_subplots(rows=1, cols=2, column_widths=[0.42, 0.58], horizontal_spacing=0.08,
                     subplot_titles=["Lo que vemos: un «0» escrito a mano", "Lo que ve la computadora: 8×8 = 64 números"])
-fig.add_trace(go.Heatmap(z=img[::-1], colorscale=[[0, "white"], [1, MARINO]], showscale=False,
+fig.add_trace(go.Heatmap(z=img[::-1], colorscale=[[0, "white"], [1, PAVO_REAL]], showscale=False,
                          hovertemplate="intensidad %{z:.0f}<extra></extra>"), 1, 1)
-fig.add_trace(go.Heatmap(z=img[::-1], colorscale=[[0, "white"], [1, "#86b6ef"]], showscale=False,
+fig.add_trace(go.Heatmap(z=img[::-1], colorscale=[[0, "white"], [1, ZAFIRO]], showscale=False,
                          text=img[::-1].astype(int), texttemplate="%{text}", textfont=dict(size=18),
                          hovertemplate="fila %{y}, columna %{x}: %{z:.0f}<extra></extra>"), 1, 2)
 ejes_imagen(fig, 1, 2)
@@ -63,13 +62,13 @@ mostrar(fig, 1350, 560)
 
 :::: {.columns .pequeno}
 ::: {.column width="33%"}
-🖼️ **Imágenes:** matrices de píxeles (×3 colores)
+**Imágenes:** matrices de píxeles (×3 colores)
 :::
 ::: {.column width="33%"}
-📝 **Texto:** secuencias de *tokens* → vectores
+**Texto:** secuencias de *tokens* → vectores
 :::
 ::: {.column width="33%"}
-📊 **Tablas, audio, series de tiempo, grafos, moléculas…**
+**Tablas, audio, series de tiempo, grafos, moléculas…**
 :::
 ::::
 
@@ -114,7 +113,7 @@ Las etiquetas **salen de los propios datos** (tapar una palabra y adivinarla).
 Y además: **aprendizaje por refuerzo** — un *agente* aprende por prueba y error a partir de **recompensas** (AlphaGo, robots, y el ajuste fino de los chatbots con retroalimentación humana).
 :::
 
-# Aprendizaje supervisado {background-color="#0b2545" .seccion}
+# Aprendizaje supervisado {background-color="#053229" .seccion}
 
 Clasificación y regresión
 
@@ -132,14 +131,14 @@ fig = make_subplots(rows=1, cols=2, horizontal_spacing=0.1,
                                     "<b>Regresión</b>: predecir un <b>número</b>"])
 fig.add_trace(go.Contour(x=gx, y=gy, z=gz, colorscale=DIVERGENTE, opacity=0.45, showscale=False,
                          contours=dict(start=0, end=1, size=0.1), hoverinfo="skip"), 1, 1)
-for c, (nombre, color) in enumerate([("clase 0: benigno", AZUL), ("clase 1: maligno", NARANJA)]):
+for c, (nombre, color) in enumerate([("clase 0: benigno", ABETO), ("clase 1: maligno", CORAL)]):
     fig.add_trace(go.Scatter(x=X[y == c, 0], y=X[y == c, 1], mode="markers", name=nombre,
                              marker=dict(color=color, size=11, line=dict(color="white", width=1.5))), 1, 1)
-fig.add_trace(go.Scatter(x=xr, y=yr, mode="markers", name="datos", marker=dict(color=AQUA, size=11,
+fig.add_trace(go.Scatter(x=xr, y=yr, mode="markers", name="datos", marker=dict(color=ZAFIRO, size=11,
                          line=dict(color="white", width=1.5)), showlegend=False), 1, 2)
 xs = np.linspace(0, 10, 50)
 fig.add_trace(go.Scatter(x=xs, y=reg.predict(xs[:, None]), mode="lines", name="modelo",
-                         line=dict(color=MARINO, width=3), showlegend=False), 1, 2)
+                         line=dict(color=PAVO_REAL, width=3), showlegend=False), 1, 2)
 fig.update_xaxes(title_text="característica 1 (p. ej. tamaño del tumor)", row=1, col=1)
 fig.update_yaxes(title_text="característica 2 (p. ej. textura)", row=1, col=1)
 fig.update_xaxes(title_text="área de la casa (×10 m²)", row=1, col=2)
@@ -148,7 +147,7 @@ fig.update_layout(legend=dict(x=0.01, y=0.99, font=dict(size=15)))
 mostrar(fig, 1450, 620)
 ```
 
-## ¿Clasificación o regresión? 🤔
+## ¿Clasificación o regresión?
 
 | Problema | Respuesta |
 |---|---|
@@ -173,9 +172,9 @@ xs = np.linspace(0, 1, 300)
 grados = [0, 1, 3, 5, 9, 15]
 fig = go.Figure()
 fig.add_trace(go.Scatter(x=xe, y=ye, mode="markers", name="entrenamiento",
-                         marker=dict(color=AZUL, size=13, line=dict(color="white", width=1.5))))
+                         marker=dict(color=ABETO, size=13, line=dict(color="white", width=1.5))))
 fig.add_trace(go.Scatter(x=xp, y=yp, mode="markers", name="datos nuevos (prueba)",
-                         marker=dict(color=GRIS_CLARO, size=7)))
+                         marker=dict(color=ARTICO, size=7)))
 titulos = []
 for g in grados:
     V = np.vander(xe, g + 1)
@@ -184,8 +183,8 @@ for g in grados:
     err_e = np.mean((pred(xe) - ye) ** 2)
     err_p = np.mean((pred(xp) - yp) ** 2)
     fig.add_trace(go.Scatter(x=xs, y=pred(xs), mode="lines", name=f"polinomio de grado {g}",
-                             line=dict(color=NARANJA, width=4), visible=(g == 3)))
-    diag = "subajuste 😴" if g <= 1 else ("¡bien! 🙂" if g <= 5 else "sobreajuste 🤯")
+                             line=dict(color=CORAL, width=4), visible=(g == 3)))
+    diag = "subajuste" if g <= 1 else ("¡bien!" if g <= 5 else "sobreajuste")
     titulos.append({"title.text": f"Grado {g}: error entrenamiento = {err_e:.3f} · error prueba = {err_p:.2f} → {diag}"})
 fig.data[0].visible = True
 fig.update_layout(title=titulos[2]["title.text"], yaxis=dict(range=[-2, 2], title="y"), xaxis=dict(title="x"),
@@ -194,7 +193,7 @@ fig.update_layout(title=titulos[2]["title.text"], yaxis=dict(range=[-2, 2], titl
 mostrar(fig, 1400, 640)
 ```
 
-[📅 Regresión lineal y múltiple con **Carlos Soto** · miércoles 25]{.adelante}
+[Más adelante: regresión lineal y múltiple con **Carlos Soto**]{.adelante}
 
 ## Clasificación: k vecinos más cercanos
 
@@ -207,7 +206,7 @@ for i, k in enumerate(ks):
     gx, gy, gz = frontera_decision(lambda P: knn.predict_proba(P)[:, 1], (-2, 3), (-1.6, 2.1), n=120)
     fig.add_trace(go.Contour(x=gx, y=gy, z=gz, colorscale=DIVERGENTE, opacity=0.5, showscale=False,
                              contours=dict(start=0, end=1, size=0.1), hoverinfo="skip", visible=(k == 7)))
-for c, color in enumerate([AZUL, NARANJA]):
+for c, color in enumerate([ABETO, CORAL]):
     fig.add_trace(go.Scatter(x=Xm[ym == c, 0], y=Xm[ym == c, 1], mode="markers", name=f"clase {c}",
                              marker=dict(color=color, size=10, line=dict(color="white", width=1.5))))
 n_k = len(ks)
@@ -220,7 +219,7 @@ fig.update_layout(sliders=deslizador(pasos, prefijo="k = ", activo=2), xaxis=dic
 mostrar(fig, 1250, 660)
 ```
 
-[📅 Clasificación (regresión logística, k-NN, árboles, SVM) con **Daniela Pinto** · martes 24]{.adelante}
+[Más adelante: clasificación (regresión logística, k-NN, árboles, SVM) con **Daniela Pinto**]{.adelante}
 
 ## Generalizar: la meta real
 
@@ -240,13 +239,13 @@ comp = np.linspace(0, 10, 100)
 err_ent = 1.2 * np.exp(-0.45 * comp) + 0.05
 err_pru = 1.2 * np.exp(-0.45 * comp) + 0.012 * comp ** 2 + 0.12
 fig = go.Figure()
-fig.add_trace(go.Scatter(x=comp, y=err_ent, name="error de entrenamiento", line=dict(color=AZUL, width=4)))
-fig.add_trace(go.Scatter(x=comp, y=err_pru, name="error en datos nuevos", line=dict(color=NARANJA, width=4)))
+fig.add_trace(go.Scatter(x=comp, y=err_ent, name="error de entrenamiento", line=dict(color=ABETO, width=4)))
+fig.add_trace(go.Scatter(x=comp, y=err_pru, name="error en datos nuevos", line=dict(color=CORAL, width=4)))
 opt = comp[np.argmin(err_pru)]
 fig.add_vline(x=opt, line=dict(color=GRIS, dash="dot", width=2))
 fig.add_annotation(x=1.2, y=1.15, text="subajuste", showarrow=False, font=dict(size=20, color=GRIS))
 fig.add_annotation(x=8.8, y=1.15, text="sobreajuste", showarrow=False, font=dict(size=20, color=GRIS))
-fig.add_annotation(x=opt, y=0.05, text="punto óptimo", showarrow=False, yshift=-12, font=dict(size=18, color=MARINO))
+fig.add_annotation(x=opt, y=0.05, text="punto óptimo", showarrow=False, yshift=-12, font=dict(size=18, color=PAVO_REAL))
 fig.update_layout(xaxis=dict(title="complejidad del modelo", showticklabels=False),
                   yaxis=dict(title="error", showticklabels=False, range=[0, 1.3]), legend=dict(x=0.3, y=0.98))
 mostrar(fig, 700, 520)
@@ -254,7 +253,7 @@ mostrar(fig, 700, 520)
 :::
 ::::
 
-# Aprendizaje no supervisado {background-color="#0b2545" .seccion}
+# Aprendizaje no supervisado {background-color="#053229" .seccion}
 
 Encontrar estructura sin etiquetas
 
@@ -263,7 +262,7 @@ Encontrar estructura sin etiquetas
 ```{python}
 Xb, _ = make_blobs(n_samples=300, centers=[(-3, -2), (0, 3), (3.5, -1.5)], cluster_std=1.1, random_state=5)
 cent = np.array([[-4.0, 4.0], [-3.5, 3.0], [-2.5, 4.5]])
-colores_k = [AZUL, NARANJA, AQUA]
+colores_k = [ABETO, CORAL, ZAFIRO]
 estados = []
 for it in range(7):
     asign = np.argmin(((Xb[:, None, :] - cent[None]) ** 2).sum(-1), axis=1)
@@ -276,7 +275,7 @@ for it, (c, a) in enumerate(estados):
                                  marker=dict(color=colores_k[j], size=9, opacity=0.75), visible=(it == 0),
                                  showlegend=False))
     fig.add_trace(go.Scatter(x=c[:, 0], y=c[:, 1], mode="markers", name="centroides",
-                             marker=dict(color=colores_k, size=26, symbol="x", line=dict(color=MARINO, width=3)),
+                             marker=dict(color=colores_k, size=26, symbol="x", line=dict(color=PAVO_REAL, width=3)),
                              visible=(it == 0), showlegend=False))
 etq = ["inicio"] + [str(i) for i in range(1, 7)]
 fig.update_layout(sliders=deslizador(pasos_visibilidad(4, etq), prefijo="iteración: "),
@@ -285,7 +284,7 @@ fig.update_layout(sliders=deslizador(pasos_visibilidad(4, etq), prefijo="iteraci
 mostrar(fig, 1250, 660)
 ```
 
-[📅 Agrupamiento con **Alex Rodriguez** · martes 24, jueves 26 y martes 1]{.adelante}
+[Más adelante: agrupamiento con **Alex Rodriguez**]{.adelante}
 
 ## Reducción de dimensionalidad: PCA
 
@@ -300,22 +299,22 @@ Z = X3c @ Vt[:2].T
 fig = make_subplots(rows=1, cols=2, specs=[[{"type": "scene"}, {"type": "xy"}]], column_widths=[0.55, 0.45],
                     subplot_titles=["Datos en 3 dimensiones (¡gírenlos!)", "Proyección en las 2 componentes principales"])
 fig.add_trace(go.Scatter3d(x=X3[:, 0], y=X3[:, 1], z=X3[:, 2], mode="markers",
-                           marker=dict(size=4, color=color3, colorscale=AZULES), hoverinfo="skip", showlegend=False), 1, 1)
-for k, color in enumerate([NARANJA, AQUA]):
+                           marker=dict(size=4, color=color3, colorscale=SECUENCIAL), hoverinfo="skip", showlegend=False), 1, 1)
+for k, color in enumerate([CORAL, ZAFIRO]):
     v = Vt[k] * S[k] / np.sqrt(len(X3)) * 2.5
     fig.add_trace(go.Scatter3d(x=[0, v[0]], y=[0, v[1]], z=[0, v[2]], mode="lines",
                                line=dict(color=color, width=10), name=f"componente {k + 1}"), 1, 1)
-fig.add_trace(go.Scatter(x=Z[:, 0], y=Z[:, 1], mode="markers", marker=dict(size=7, color=color3, colorscale=AZULES),
+fig.add_trace(go.Scatter(x=Z[:, 0], y=Z[:, 1], mode="markers", marker=dict(size=7, color=color3, colorscale=SECUENCIAL),
                          showlegend=False, hoverinfo="skip"), 1, 2)
 fig.update_xaxes(title_text="componente principal 1", row=1, col=2)
 fig.update_yaxes(title_text="componente principal 2", row=1, col=2, scaleanchor="x2")
 fig.update_layout(scene=dict(xaxis_title="x₁", yaxis_title="x₂", zaxis_title="x₃", aspectmode="data"),
-                  legend=dict(x=0.0, y=0.0), showlegend=True)
+                  legend=dict(orientation="h", x=0.0, y=-0.06), showlegend=True, margin=dict(b=70))
 mostrar(fig, 1450, 640)
 ```
 
 ::: {.pequeno}
-PCA encuentra las direcciones de **máxima varianza**. Otros métodos no lineales: t-SNE, UMAP. [📅 PCA con **Carlos Soto** · miércoles 25]{.adelante}
+PCA encuentra las direcciones de **máxima varianza**. Otros métodos no lineales: t-SNE, UMAP. [Más adelante: PCA con **Carlos Soto**]{.adelante}
 :::
 
 ## Aprendizaje autosupervisado: las etiquetas salen de los datos {.compacta}
@@ -332,7 +331,7 @@ Tapamos una parte de los datos y le pedimos al modelo que la **adivine**:
 No hace falta que un humano etiquete: ¡internet entero sirve como datos de entrenamiento! Así se entrenan **BERT, GPT, Claude, Gemini…**
 :::
 
-[📅 Transformers y modelos de lenguaje · lunes 30]{.adelante}
+[Más adelante: transformers y modelos de lenguaje]{.adelante}
 :::
 ::: {.column width="60%"}
 ```{python}
@@ -341,7 +340,7 @@ ejemplos = mlm["ejemplos"][:3]
 fig = go.Figure()
 for i, e in enumerate(ejemplos):
     fig.add_trace(go.Bar(x=e["probs"][::-1], y=e["tokens"][::-1], orientation="h", visible=(i == 0),
-                         marker=dict(color=AZUL), text=[f"{p:.0%}" for p in e["probs"][::-1]],
+                         marker=dict(color=ABETO), text=[f"{p:.0%}" for p in e["probs"][::-1]],
                          textposition="outside", hovertemplate="%{y}: %{x:.1%}<extra></extra>"))
 botones = [dict(label=e["frase"].replace("[MASK]", "____"), method="update",
                 args=[{"visible": [j == i for j in range(len(ejemplos))]}]) for i, e in enumerate(ejemplos)]
@@ -372,11 +371,11 @@ for modelo, nombre in [(solo, "solo"), (semi, "semi")]:
     fig.add_trace(go.Contour(x=gx, y=gy, z=gz, colorscale=DIVERGENTE, opacity=0.4, showscale=False,
                              contours=dict(start=0, end=1, size=0.5), hoverinfo="skip", visible=(nombre == "solo")))
 fig.add_trace(go.Scatter(x=Xs[:, 0], y=Xs[:, 1], mode="markers", name="sin etiqueta",
-                         marker=dict(color="#b8b7b2", size=8)))
-for c, color in enumerate([AZUL, NARANJA]):
+                         marker=dict(color=mezclar(GRIS, 0.3), size=8)))
+for c, color in enumerate([ABETO, CORAL]):
     idx = etiquetados[ys[etiquetados] == c]
     fig.add_trace(go.Scatter(x=Xs[idx, 0], y=Xs[idx, 1], mode="markers", name=f"etiquetado: clase {c}",
-                             marker=dict(color=color, size=22, symbol="star", line=dict(color=MARINO, width=1.5))))
+                             marker=dict(color=color, size=22, symbol="star", line=dict(color=PAVO_REAL, width=1.5))))
 acc_solo = (solo.predict(Xs) == ys).mean()
 acc_semi = (semi.predict(Xs) == ys).mean()
 botones = [dict(label=f"Solo 6 puntos etiquetados (exactitud {acc_solo:.0%})", method="update",
@@ -393,7 +392,7 @@ mostrar(fig, 1350, 650)
 Propagación de etiquetas (*label spreading*, Zhou *et al.*, 2004): las etiquetas "fluyen" hacia los vecinos a través de los datos sin etiquetar.
 :::
 
-# Del dato al modelo {background-color="#0b2545" .seccion}
+# Del dato al modelo {background-color="#053229" .seccion}
 
 Preprocesamiento e ingeniería de características
 
@@ -406,10 +405,10 @@ fig = go.Figure()
 for i, e in enumerate(etapas):
     x = i % 4
     yv = 1 - i // 4
-    color = NARANJA if i in (2, 4) else AZUL
+    color = CORAL if i in (2, 4) else ABETO
     fig.add_shape(type="rect", x0=x - 0.42, x1=x + 0.42, y0=yv - 0.3, y1=yv + 0.3, fillcolor=color,
                   line=dict(width=0), layer="below")
-    fig.add_annotation(x=x, y=yv, text=f"<b>{i + 1}. {e}</b>", showarrow=False, font=dict(size=21, color="white"))
+    fig.add_annotation(x=x, y=yv, text=f"<b>{i + 1}. {e}</b>", showarrow=False, font=dict(size=21, color=texto_sobre(color)))
     if i < len(etapas) - 1 and i != 3:
         fig.add_annotation(x=x + 0.56, y=yv, ax=x + 0.44, ay=yv, xref="x", yref="y", axref="x", ayref="y",
                            showarrow=True, arrowhead=3, arrowwidth=3, arrowcolor=GRIS, text="")
@@ -462,7 +461,7 @@ X_pru = escalador.transform(X_pru)
 ::::
 
 ::: {.caja-naranja .pequeno .fragment}
-⚠️ **Fuga de datos** (*data leakage*): si usan información del conjunto de prueba al preparar los datos (o una variable que "delata" la respuesta), el modelo parece excelente… y falla en la vida real.
+**Fuga de datos** (*data leakage*): si usan información del conjunto de prueba al preparar los datos (o una variable que "delata" la respuesta), el modelo parece excelente… y falla en la vida real.
 :::
 
 ## ¿Por qué escalar? Un ejemplo con k vecinos
@@ -483,7 +482,7 @@ for modelo, transformar in [(sin, lambda P: P), (con, esc.transform)]:
     gx, gy, gz = frontera_decision(lambda P: modelo.predict(transformar(P)).astype(float), (18, 70), (5_000, 80_000), n=120)
     fig.add_trace(go.Contour(x=gx, y=gy, z=gz, colorscale=DIVERGENTE, opacity=0.4, showscale=False,
                              contours=dict(start=0, end=1, size=0.5), hoverinfo="skip", visible=(modelo is sin)))
-for c, (nombre, color) in enumerate([("no compra", AZUL), ("compra", NARANJA)]):
+for c, (nombre, color) in enumerate([("no compra", ABETO), ("compra", CORAL)]):
     fig.add_trace(go.Scatter(x=edad[yb == c], y=ingreso[yb == c], mode="markers", name=nombre,
                              marker=dict(color=color, size=9, line=dict(color="white", width=1))))
 botones = [dict(label=f"Sin escalar (exactitud {acc_sin:.0%})", method="update",
@@ -510,11 +509,11 @@ Crear **nuevas variables** a partir de las existentes, usando lo que sabemos del
 - Fecha → día de la semana, mes, ¿es feriado?
 - Peso y estatura → índice de masa corporal $\text{IMC} = m/h^2$
 - Coordenadas → distancia al centro de la ciudad
-- Hora del día → $(\sin \frac{2\pi h}{24},\ \cos \frac{2\pi h}{24})$ para que las 23:00 queden cerca de las 00:00 🕛
+- Hora del día → $(\sin \frac{2\pi h}{24},\ \cos \frac{2\pi h}{24})$ para que las 23:00 queden cerca de las 00:00
 - Texto → número de palabras, presencia de "GRATIS"
 
 ::: {.caja .fragment}
-👉 En el ejemplo de la derecha, añadir $r^2 = x_1^2 + x_2^2$ convierte un problema **imposible para una recta** en uno que **un plano** separa perfectamente.
+En el ejemplo de la derecha, añadir $r^2 = x_1^2 + x_2^2$ convierte un problema **imposible para una recta** en uno que **un plano** separa perfectamente.
 :::
 :::
 ::: {.column width="55%"}
@@ -523,7 +522,7 @@ Xc, yc = make_circles(n_samples=400, noise=0.08, factor=0.45, random_state=4)
 r2 = (Xc ** 2).sum(1)
 fig = make_subplots(rows=1, cols=2, specs=[[{"type": "xy"}, {"type": "scene"}]], column_widths=[0.42, 0.58],
                     subplot_titles=["Original: (x₁, x₂)", "Con la nueva característica r²"])
-for c, color in enumerate([AZUL, NARANJA]):
+for c, color in enumerate([ABETO, CORAL]):
     fig.add_trace(go.Scatter(x=Xc[yc == c, 0], y=Xc[yc == c, 1], mode="markers", showlegend=False,
                              marker=dict(color=color, size=6)), 1, 1)
     fig.add_trace(go.Scatter3d(x=Xc[yc == c, 0], y=Xc[yc == c, 1], z=r2[yc == c], mode="markers",
@@ -531,12 +530,12 @@ for c, color in enumerate([AZUL, NARANJA]):
 pp = np.linspace(-1.2, 1.2, 10)
 PX, PY = np.meshgrid(pp, pp)
 fig.add_trace(go.Surface(x=PX, y=PY, z=np.full_like(PX, 0.5), showscale=False, opacity=0.35,
-                         colorscale=[[0, AQUA], [1, AQUA]], hoverinfo="skip"), 1, 2)
+                         colorscale=[[0, ZAFIRO], [1, ZAFIRO]], hoverinfo="skip"), 1, 2)
 fig.update_yaxes(scaleanchor="x", row=1, col=1)
 fig.update_layout(scene=dict(xaxis_title="x₁", yaxis_title="x₂", zaxis_title="r²",
                              camera=dict(eye=dict(x=1.6, y=1.4, z=0.6))),
-                  legend=dict(x=0.45, y=0.0), margin=dict(l=10, r=10, t=50, b=10))
-mostrar(fig, 860, 560)
+                  legend=dict(orientation="h", x=0.5, y=-0.04, xanchor="left"), margin=dict(l=10, r=10, t=50, b=40))
+mostrar(fig, 820, 560)
 ```
 :::
 ::::
@@ -562,9 +561,9 @@ Brilla con **muchos datos** no estructurados.
 Esta idea —**aprender las representaciones**— es el corazón de las redes neuronales. Veamos un adelanto en tres diapositivas.
 :::
 
-# Redes neuronales en tres diapositivas {background-color="#0b2545" .seccion}
+# Redes neuronales en tres diapositivas {background-color="#053229" .seccion}
 
-Un adelanto de lo que veremos el viernes 27 y el lunes 30
+Un adelanto de lo que veremos en las próximas sesiones
 
 ## 1. Inspiradas (vagamente) en el cerebro {.compacta}
 
@@ -598,26 +597,26 @@ for l in range(len(capas) - 1):
             (x0, y0), (x1, y1) = pos[(l, j)], pos[(l + 1, k)]
             w = rng.normal()
             fig.add_trace(go.Scatter(x=[x0, x1], y=[y0, y1], mode="lines", hoverinfo="skip", showlegend=False,
-                                     line=dict(color=NARANJA if w > 0 else AZUL, width=1 + 2.5 * min(abs(w), 1.5)),
+                                     line=dict(color=CORAL if w > 0 else ABETO, width=1 + 2.5 * min(abs(w), 1.5)),
                                      opacity=0.55))
 nombres_c = ["entrada", "capa oculta 1", "capa oculta 2", "salida"]
 for l, n_l in enumerate(capas):
     xs_ = [pos[(l, j)][0] for j in range(n_l)]
     ys_ = [pos[(l, j)][1] for j in range(n_l)]
     fig.add_trace(go.Scatter(x=xs_, y=ys_, mode="markers", showlegend=False, hovertext=nombres_c[l], hoverinfo="text",
-                             marker=dict(size=38, color="white", line=dict(color=MARINO, width=3))))
+                             marker=dict(size=38, color="white", line=dict(color=PAVO_REAL, width=3))))
     fig.add_annotation(x=l * 1.6, y=-2.6, text=nombres_c[l], showarrow=False, font=dict(size=18, color=GRIS))
 fig.update_layout(xaxis=dict(visible=False), yaxis=dict(visible=False, range=[-2.9, 2.3]),
                   plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=0, r=0, t=10, b=0))
 mostrar(fig, 760, 560)
 ```
 ::: {.credito}
-Naranja: pesos positivos; azul: pesos negativos; grosor: magnitud.
+Coral: pesos positivos; verde oscuro: pesos negativos; grosor: magnitud.
 :::
 :::
 ::::
 
-[📅 Teoría de redes neuronales · viernes 27 (11:30)]{.adelante}
+[Más adelante: teoría de redes neuronales]{.adelante}
 
 ## 2. Redes convolucionales: filtros que "ven"
 
@@ -653,7 +652,7 @@ mostrar(fig, 1000, 680)
 ```
 
 ::: {.pequeno}
-*Foto: Charles J. Sharp, guacamaya roja en Copán, CC BY-SA 4.0.* Un **filtro** (matriz pequeña) recorre la imagen y detecta un patrón. Una red convolucional **aprende** sus filtros: primero bordes, luego texturas, partes y objetos. [📅 Redes convolucionales · lunes 30 (13:30)]{.adelante}
+*Foto: Charles J. Sharp, guacamaya roja en Copán, CC BY-SA 4.0.* Un **filtro** (matriz pequeña) recorre la imagen y detecta un patrón. Una red convolucional **aprende** sus filtros: primero bordes, luego texturas, partes y objetos. [Más adelante: redes convolucionales]{.adelante}
 :::
 
 ## 3. Transformers: predecir la siguiente palabra {.compacta}
@@ -665,7 +664,7 @@ mostrar(fig, 1000, 680)
 - El **transformer** (2017) usa un mecanismo de **atención**: cada palabra "mira" a las demás para entender el contexto
 - ChatGPT, Claude y Gemini son transformers gigantes entrenados con billones de tokens
 
-[📅 Transformers y modelos de lenguaje · lunes 30 (14:50)]{.adelante}
+[Más adelante: transformers y modelos de lenguaje]{.adelante}
 :::
 ::: {.column width="60%"}
 ```{python}
@@ -677,7 +676,7 @@ fig = go.Figure()
 for T in temps:
     p = np.exp((logits - logits.max()) / T)
     p = p / p.sum()
-    fig.add_trace(go.Bar(x=[t.replace(" ", "␣") for t in ej["tokens"]], y=p, marker=dict(color=AZUL),
+    fig.add_trace(go.Bar(x=[t.replace(" ", "␣") for t in ej["tokens"]], y=p, marker=dict(color=ABETO),
                          visible=(T == 1.0), hovertemplate="«%{x}»: %{y:.1%}<extra></extra>"))
 fig.update_layout(sliders=deslizador(pasos_visibilidad(1, temps), prefijo="temperatura: ", activo=2),
                   title=f"«{ej['frase']} ___»", yaxis=dict(title="probabilidad", tickformat=".0%"),
@@ -690,7 +689,7 @@ Probabilidades reales del modelo Qwen2.5-0.5B (Alibaba). Temperatura baja: más 
 :::
 ::::
 
-# Ética: el lado humano del aprendizaje automático {background-color="#0b2545" .seccion}
+# Ética: el lado humano del aprendizaje automático {background-color="#053229" .seccion}
 
 "La tecnología no es buena ni mala; tampoco es neutral." — Melvin Kranzberg (1986)
 
@@ -713,7 +712,7 @@ Sus efectos dependen del contexto social en el que se usa — y de quienes la co
 :::
 ::::
 
-[📅 Ética de la IA con **Matteo Marsili** · lunes 30 · Políticas públicas con **Elena Villalobos** · lunes 30 y martes 1]{.adelante}
+[Más adelante: ética de la IA con **Matteo Marsili** · políticas públicas con **Elena Villalobos**]{.adelante}
 
 ::: aside
 Kranzberg, M. (1986). Technology and History: "Kranzberg's Laws". *Technology and Culture* 27(3), 544–560. · Winner, L. (1980). Do artifacts have politics? *Daedalus* 109(1), 121–136.
@@ -738,7 +737,7 @@ for q in an["consultas"]:
         c = q["negativo"][0]
         res = q["resultado"][0][0]
         filas.append(f"<tr><td><b>{traducir.get(a, a)}</b> − {traducir.get(c, c)} + {traducir.get(b, b)}</td>"
-                     f"<td>≈ <b style='color:{NARANJA}'>{traducir.get(res, res)}</b></td></tr>")
+                     f"<td>≈ <b style='color:{CORAL_OSCURO}'>{traducir.get(res, res)}</b></td></tr>")
 display(HTML("<table style='font-size:0.85em'><tr><th>Operación con vectores</th><th>Resultado más cercano</th></tr>"
              + "".join(filas) + "</table>"))
 ```
@@ -755,7 +754,7 @@ e_el, e_ella = mlm["ejemplos"][3], mlm["ejemplos"][4]
 fig = make_subplots(rows=1, cols=2, subplot_titles=["«<b>Él</b> trabaja como ___ en el hospital.»",
                                                     "«<b>Ella</b> trabaja como ___ en el hospital.»"],
                     horizontal_spacing=0.25)
-for c, (e, color) in enumerate([(e_el, AZUL), (e_ella, NARANJA)]):
+for c, (e, color) in enumerate([(e_el, ABETO), (e_ella, CORAL)]):
     fig.add_trace(go.Bar(x=e["probs"][:6][::-1], y=e["tokens"][:6][::-1], orientation="h", marker=dict(color=color),
                          hovertemplate="%{y}: %{x:.1%}<extra></extra>", showlegend=False), 1, c + 1)
 fig.update_xaxes(tickformat=".0%")
@@ -880,7 +879,7 @@ for f in fracciones:
 fig = go.Figure()
 for f, glob, aA, aB in res:
     fig.add_trace(go.Bar(x=["Exactitud global", "Grupo A (mayoría)", "Grupo B (minoría)"], y=[glob, aA, aB],
-                         marker=dict(color=[GRIS, AZUL, NARANJA]), text=[f"{v:.0%}" for v in (glob, aA, aB)],
+                         marker=dict(color=[PISTACHO, ABETO, CORAL]), text=[f"{v:.0%}" for v in (glob, aA, aB)],
                          textposition="outside", textfont=dict(size=22), visible=(f == 0.05),
                          hovertemplate="%{x}: %{y:.1%}<extra></extra>"))
 fig.update_layout(sliders=deslizador(pasos_visibilidad(1, [f"{f:.0%}" for f in fracciones]),
@@ -924,7 +923,7 @@ Ojo: hay **varias definiciones matemáticas** de "justo" y en general **no se pu
 Kamiran, F. & Calders, T. (2012). *Knowledge and Information Systems* 33, 1–33. · Zhang, B. H., Lemoine, B. & Mitchell, M. (2018). *AIES '18*. · Hardt, M., Price, E. & Srebro, N. (2016). *NeurIPS*. · Kleinberg, J., Mullainathan, S. & Raghavan, M. (2016). arXiv:1609.05807. · Chouldechova, A. (2017). *Big Data* 5(2). · Reglamento (UE) 2024/1689 (modificado por el Reglamento (UE) 2026/1744). · fairlearn.org · github.com/Trusted-AI/AIF360
 :::
 
-## ¿Es real esta foto? 🤔 {.compacta}
+## ¿Es real esta foto? {.compacta}
 
 :::: {.columns}
 ::: {.column width="40%"}
@@ -958,31 +957,31 @@ Imagen generada con Midjourney (2023), dominio público, Wikimedia Commons. Se m
 :::: {.columns}
 ::: {.column width="33%"}
 ::: {.tarjeta}
-[⚖️ Discriminación]{.titulo-tarjeta}
+[Discriminación]{.titulo-tarjeta}
 Absorbe los sesgos de la sociedad y los aplica **a escala**, con apariencia de objetividad.
 
-[🎨 Artistas y autores]{.titulo-tarjeta}
+[Artistas y autores]{.titulo-tarjeta}
 Modelos entrenados con obras **sin consentimiento** ni pago. Demandas: *Andersen v. Stability AI*, *Getty v. Stability AI*; Anthropic pagó **1 500 millones USD** (~3 000 USD por libro) en *Bartz v. Anthropic* (2025–2026). Ilustradores y escritores *freelance* ya ven menos trabajo e ingresos.
 :::
 :::
 ::: {.column width="33%"}
 ::: {.tarjeta}
-[📹 Vigilancia]{.titulo-tarjeta}
+[Vigilancia]{.titulo-tarjeta}
 Reconocimiento facial masivo: Clearview AI recibió multas de 20–30 millones de euros en Italia, Grecia, Francia y Países Bajos por recopilar fotos de internet sin permiso.
 
-[🗞️ Desinformación y deepfakes]{.titulo-tarjeta}
+[Desinformación y deepfakes]{.titulo-tarjeta}
 El "Papa con abrigo blanco" (Midjourney, 2023); una llamada falsa con la voz de Biden pidiendo no votar (2024); audios falsos días antes de las elecciones de Eslovaquia (2023). Contenido sexual no consentido.
 :::
 :::
 ::: {.column width="33%"}
 ::: {.tarjeta}
-[🏭 Trabajo]{.titulo-tarjeta}
+[Trabajo]{.titulo-tarjeta}
 FMI (2024): ~**40 %** del empleo mundial está expuesto a la IA. OIT (2025): la exposición más alta afecta a casi el **doble de mujeres** que de hombres (trabajo administrativo).
 
-[🌎 Medio ambiente]{.titulo-tarjeta}
+[Medio ambiente]{.titulo-tarjeta}
 Electricidad y agua de los centros de datos (siguiente diapositiva).
 
-[🔍 Transparencia]{.titulo-tarjeta}
+[Transparencia]{.titulo-tarjeta}
 ¿Por qué el modelo decidió eso? Las redes neuronales son "cajas negras".
 :::
 :::
@@ -998,7 +997,7 @@ Hui, X., Reshef, O. & Zhou, L. (2024). *Organization Science* 35(6). · Cazzanig
 ::: {.column width="55%"}
 ```{python}
 fig = go.Figure()
-fig.add_trace(go.Bar(x=["2024", "2030 (proyección)"], y=[415, 945], marker=dict(color=[AZUL, NARANJA]),
+fig.add_trace(go.Bar(x=["2024", "2030 (proyección)"], y=[415, 945], marker=dict(color=[ABETO, CORAL]),
                      text=["415 TWh<br>~1.5 % de la electricidad mundial", "~945 TWh<br>≈ todo el consumo de Japón hoy"],
                      textposition="outside", textfont=dict(size=19), width=0.55,
                      hovertemplate="%{x}: %{y} TWh<extra></extra>"))
@@ -1028,7 +1027,7 @@ IEA (2025). *Energy and AI*. · Li, P., Yang, J., Islam, M. A. & Ren, S. (2025).
 ## Transparencia: ¿qué pasa dentro de la "caja negra"? {.compacta}
 
 :::: {.columns}
-::: {.column width="45%"}
+::: {.column width="58%"}
 - Las redes neuronales tienen **millones o miles de millones** de parámetros: no sabemos "leer" directamente por qué deciden algo
 - Eso es un problema para la **medicina**, la **justicia**, el **crédito**… y para la **seguridad** de la IA
 - La **interpretabilidad** busca entender los mecanismos internos de los modelos, como una "neurociencia" de las redes artificiales
@@ -1037,23 +1036,19 @@ IEA (2025). *Energy and AI*. · Li, P., Yang, J., Islam, M. A. & Ren, S. (2025).
 **Dos ejemplos:**
 
 - **Visualización de características** (Distill, 2017): ¿qué imagen "excita" más a cada neurona? → a la derecha
-- **Autocodificadores dispersos** en Claude (Anthropic, 2024): se encontraron millones de "conceptos" internos, como el **puente Golden Gate**, el **código con errores** o los **elogios aduladores**; al "amplificar" el del Golden Gate, ¡el modelo empezó a decir que *era* el puente! 🌉
+- **Autocodificadores dispersos** en Claude (Anthropic, 2024): se encontraron millones de "conceptos" internos, como el **puente Golden Gate**, el **código con errores** o los **elogios aduladores**; al "amplificar" el del Golden Gate, ¡el modelo empezó a decir que *era* el puente!
 :::
 :::
-::: {.column width="55%"}
-![](img/distill_fv_capas.jpg){height="430" .redondeada}
+::: {.column width="42%"}
+![](img/distill_fv_capas.jpg){height="400" .redondeada}
 
 ::: {.credito}
-Lo que "buscan" neuronas de capas cada vez más profundas de una red de imágenes (GoogLeNet): bordes → texturas → patrones → partes → objetos. Olah, Mordvintsev y Schubert (2017), *Feature Visualization*, Distill, CC BY 4.0.
+Lo que "buscan" neuronas de capas cada vez más profundas de una red de imágenes (GoogLeNet): bordes → texturas → patrones → partes → objetos. Olah, Mordvintsev y Schubert (2017), *Feature Visualization*, Distill, CC BY 4.0. · Templeton, A. *et al.* (2024). Scaling Monosemanticity: Extracting Interpretable Features from Claude 3 Sonnet. *Transformer Circuits Thread* (Anthropic).
 :::
+
+[Más adelante: interpretabilidad de redes convolucionales y de transformers · charla invitada de **Alessio Ansuini**]{.adelante}
 :::
 ::::
-
-[📅 Interpretabilidad de redes convolucionales y de transformers · lunes 30 · charla invitada de **Alessio Ansuini** · martes 1]{.adelante}
-
-::: {.credito}
-Templeton, A. *et al.* (2024). Scaling Monosemanticity: Extracting Interpretable Features from Claude 3 Sonnet. *Transformer Circuits Thread* (Anthropic).
-:::
 
 ## Para llevar a casa
 
@@ -1067,7 +1062,13 @@ Templeton, A. *et al.* (2024). Scaling Monosemanticity: Extracting Interpretable
 :::
 
 ::: {.fragment .center .grande}
-¡Gracias! ¿Preguntas? 🙌
+¡Gracias! ¿Preguntas?
+:::
 
-Nos vemos a las **13:30** para Linux y la terminal 🐧
+## {.center .qr-final}
+
+![](img/qr_sitio.png){height="560" fig-align="center" fig-alt="Código QR que lleva a edithvillegas.github.io"}
+
+::: {.qr-url}
+[edithvillegas.github.io](https://edithvillegas.github.io)
 :::
