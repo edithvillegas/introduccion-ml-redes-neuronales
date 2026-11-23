@@ -637,7 +637,10 @@ A la derecha: la enzima que **fabrica la cafeína** en la planta de café (*Coff
 :::
 :::
 ::: {.column width="60%"}
-<iframe class="demo" data-src="https://alphafold.ebi.ac.uk/entry/Q8H0D3" height="640" loading="lazy"></iframe>
+<iframe class="demo" data-src="https://molstar.org/viewer/?afdb=Q8H0D3&hide-controls=1" height="640" loading="lazy"></iframe>
+:::
+::: {.credito}
+Visor Mol* con la predicción de AlphaFold DB (Q8H0D3). [Abrir la entrada en AlphaFold DB](https://alphafold.ebi.ac.uk/entry/Q8H0D3)
 :::
 ::::
 
