@@ -853,16 +853,23 @@ Con qué se entrenan estas redes, y para qué se usan
 [(14 millones en la versión completa) · 1000 categorías]{.desc-datos}
 :::
 ::: {.tarjeta-datos}
+[MS COCO]{.nombre-datos} [330 000]{.numero-datos}
+
+![](img/conjuntos_datos/coco_autos.jpg){fig-alt="Foto de COCO con las cajas de los autos anotados"}
+
+[detección y segmentación: 1.5 millones de objetos en 80 categorías (aquí, los **autos** anotados)]{.desc-datos}
+:::
+::: {.tarjeta-datos}
 [LAION-5B]{.nombre-datos} [5 850 millones]{.numero-datos}
 
 ::: {.pares-laion}
-![](img/imagenet_malamute.jpg){fig-alt="Foto de un perro"}
+![](img/foto_convolucion.jpg){fig-alt="Foto de una guacamaya"}
 
-«alaskan malamute standing on grass, dog show»
+«scarlet macaw perched on a branch, copán, honduras»
 
-![](img/imagenet_portacontenedores.jpg){fig-alt="Foto de un barco"}
+![](img/aplicaciones/waymo.jpg){fig-alt="Foto de un auto autónomo"}
 
-«container ship at the port of rotterdam»
+«white self-driving car parked on a city street»
 :::
 
 [pares **imagen + texto** extraídos de internet (ilustración del formato)]{.desc-datos}
@@ -870,7 +877,7 @@ Con qué se entrenan estas redes, y para qué se usan
 :::
 
 ::: {.credito}
-LeCun *et al.* (1998); Cohen *et al.* (2017) EMNIST; Xiao *et al.* (2017); Yang *et al.* (2023) *Scientific Data* 10, 41; Krizhevsky (2009); Deng *et al.* (2009), Russakovsky *et al.* (2015); Schuhmann *et al.* (2022). Ejemplos de cada conjunto (muestras de prueba); ImageNet y LAION ilustrados con fotos de Wikimedia Commons.
+LeCun *et al.* (1998); Cohen *et al.* (2017) EMNIST; Xiao *et al.* (2017); Yang *et al.* (2023) *Scientific Data* 10, 41; Krizhevsky (2009); Deng *et al.* (2009), Russakovsky *et al.* (2015); Lin *et al.* (2014) COCO, imagen 175438 con sus anotaciones; Schuhmann *et al.* (2022). Ejemplos de cada conjunto (muestras de validación o prueba); ImageNet y LAION ilustrados con fotos de Wikimedia Commons.
 :::
 
 ## Ética: ¿de dónde salen las imágenes? {.compacta}
@@ -939,6 +946,11 @@ Buolamwini, J. & Gebru, T. (2018). Gender Shades. *FAT\**. · Grother, P. *et al
 ![](img/aplicaciones/waymo.jpg){fig-alt="Conducción autónoma"}
 :::
 ::: {.tarjeta-app}
+[Segmentación de objetos]{.titulo-tarjeta}
+
+![](img/aplicaciones/segmentacion.jpg){fig-alt="Foto de una mesa con laptop y vaso, junto a su máscara de segmentación por colores"}
+:::
+::: {.tarjeta-app}
 [Medicina]{.titulo-tarjeta}
 
 ![](img/mamografia_nci.jpg){fig-alt="Medicina"}
@@ -951,7 +963,7 @@ Buolamwini, J. & Gebru, T. (2018). Gender Shades. *FAT\**. · Grother, P. *et al
 :::
 
 ::: {.credito}
-Fotos (Wikimedia Commons): detección con YOLO, MTheiler, CC BY-SA 4.0; detección de caras, CC BY 3.0; auto de Waymo, Grendelkhan, CC BY-SA 4.0; mamografía, National Cancer Institute, dominio público; segmentación de texto con OCR, LA2, CC0.
+Fotos (Wikimedia Commons): detección con YOLO, MTheiler, CC BY-SA 4.0; detección de caras, CC BY 3.0; auto de Waymo, Grendelkhan, CC BY-SA 4.0; segmentación (foto y máscara), MartinThoma, CC0; mamografía, National Cancer Institute, dominio público; segmentación de texto con OCR, LA2, CC0.
 :::
 
 ## Para llevar a casa

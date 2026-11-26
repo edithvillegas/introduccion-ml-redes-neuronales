@@ -336,7 +336,7 @@ $presentation-title-slide-text-align: left;
   img { height: 150px; width: auto; max-width: 100%; object-fit: contain; margin: 0.1em auto !important; border-radius: 6px; }
   .pares-laion { display: grid; grid-template-columns: 1fr 1fr; gap: 0.1em 0.4em; align-items: center; font-size: 0.42em; color: $pavo-real; font-style: italic; text-align: left; }
   .pares-laion p { margin: 0 !important; }
-  .pares-laion img { height: 68px; width: 100%; object-fit: cover; }
+  .pares-laion img { height: auto; max-height: 74px; width: 100%; object-fit: contain; }  // sin recortar
 }
 
 // Rejilla de aplicaciones (deck 05)
@@ -344,6 +344,6 @@ $presentation-title-slide-text-align: left;
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6em 0.9em; margin-top: 0.3em;
   .tarjeta-app { background: white; border: 2px solid $artico; border-radius: 10px; padding: 0.35em 0.5em 0.5em; text-align: center; }
   .tarjeta-app p { margin: 0.1em 0 !important; }
-  img { height: 270px; width: 100%; object-fit: cover; border-radius: 8px; margin: 0.15em 0 0 !important; }
-  .tarjeta-app:nth-child(5) img { object-fit: contain; background: white; }
+  img { height: 250px; width: 100%; object-fit: cover; border-radius: 8px; margin: 0.15em 0 0 !important; }
+  .tarjeta-app:nth-child(4) img, .tarjeta-app:nth-child(6) img { object-fit: contain; background: white; }
 }
