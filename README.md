@@ -72,5 +72,5 @@ Materiales de las sesiones de **Edith Natalia Villegas García** (ICTP): introdu
 **Materiales:** Edith Natalia Villegas García (ICTP).  
 **Organizan la escuela:** 
 Edith Natalia Villegas García (ICTP),  Carlos Soto (OGS),  
-coordinación local: Lucio Villanueva y Melissa Cruz (UNAH).  
+**Coordinación local**: Lucio Villanueva y Melissa Cruz (UNAH).  
 Con el apoyo de ICTP – Physics Without Frontiers, la UNAH y el Tecnológico de Monterrey.
