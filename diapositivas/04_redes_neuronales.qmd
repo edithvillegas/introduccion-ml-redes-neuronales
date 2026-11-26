@@ -366,8 +366,6 @@ mostrar(fig, 760, 520)
 :::
 ::::
 
-[Más en la sesión de probabilidad con **Javier Aguilar**]{.adelante}
-
 ## Paso 2: bajar la montaña con descenso de gradiente
 
 ```{python}
@@ -686,7 +684,7 @@ Recuerdos guardados: las letras **H**, **N** y **D**. Mueve el deslizador: la re
 :::
 
 ::: {.fragment .center .grande}
-Próximas sesiones: **redes convolucionales**, **autocodificadores** y **transformers**. ¡Traigan su cuenta de Google para Colab!
+Próximas sesiones: **redes convolucionales**, **autocodificadores** y **transformers**. 
 :::
 
 ::: {.absolute bottom="0" right="0" width="200" style="text-align: center;"}
