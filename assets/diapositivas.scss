@@ -273,6 +273,7 @@ $presentation-title-slide-text-align: left;
   .quarto-figure, figure, p { margin: 0 0 0.15em 0 !important; }
   img { width: 100%; height: 165px; object-fit: cover; border-radius: 10px; margin: 0 !important; }
   figcaption { margin-top: 0 !important; text-align: center; }
+  img.recorte-arriba { object-position: 50% 0%; }  // cabezas de perro arriba
 }
 
 // Explorador de capas de InceptionV1 (deck 04)

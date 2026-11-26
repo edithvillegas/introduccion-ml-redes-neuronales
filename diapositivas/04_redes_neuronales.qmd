@@ -784,9 +784,9 @@ mostrar(fig, 1120, 600)
 :::
 ::: {.column width="28%"}
 ::: {.ejemplos-imagenet}
-![husky siberiano](img/imagenet_husky.jpg){fig-alt="Foto de un husky siberiano"}
+![husky siberiano](img/imagenet_husky.jpg){fig-alt="Foto de un husky siberiano" .recorte-arriba}
 
-![malamute de Alaska](img/imagenet_malamute.jpg){fig-alt="Foto de un malamute de Alaska"}
+![malamute de Alaska](img/imagenet_malamute.jpg){fig-alt="Foto de un malamute de Alaska" .recorte-arriba}
 
 ![buque portacontenedores](img/imagenet_portacontenedores.jpg){fig-alt="Foto de un buque portacontenedores"}
 :::
