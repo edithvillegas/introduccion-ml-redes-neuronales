@@ -9,6 +9,8 @@ project:
     - soluciones/*.ipynb
     - diapositivas/img/*.webm
     - diapositivas/img/distill_neuronas/*
+    - diapositivas/img/distill_curva_ejemplos/*
+    - diapositivas/img/distill_emociones/*
 
 lang: es
 

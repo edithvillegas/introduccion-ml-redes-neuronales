@@ -32,6 +32,8 @@ Todas las imágenes de terceros tienen licencias libres o están en el dominio p
 | `distill_curvas.jpg`, `distill_circuito_auto.jpg`, `distill_polisemantica.jpg` | Detectores de curvas, circuito de autos, neurona polisemántica | Olah *et al.* (2020), [*Zoom In: An Introduction to Circuits*](https://distill.pub/2020/circuits/zoom-in/), Distill | CC BY 4.0 |
 | `distill_atlas.jpg` | Atlas de activaciones | Carter *et al.* (2019), [*Activation Atlas*](https://distill.pub/2019/activation-atlas/), Distill | CC BY 4.0 |
 | `distill_neuronas/*` | Visualizaciones de neuronas de InceptionV1 (capas conv2d0–mixed3b) | Olah *et al.* (2020), [*An Overview of Early Vision in InceptionV1*](https://distill.pub/2020/circuits/early-vision/), Distill | CC BY 4.0 |
+| `distill_curva_ejemplos/*` | Recortes de ImageNet que más activan la neurona de curvas 3b:379 | Cammarata *et al.* (2020), [*Curve Detectors*](https://distill.pub/2020/circuits/curve-detectors/), Distill | CC BY 4.0 |
+| `distill_emociones/*` | Visualizaciones facetadas (cara, pose, texto) de neuronas de emociones de CLIP RN50x4 | Goh *et al.* (2021), [*Multimodal Neurons in Artificial Neural Networks*](https://distill.pub/2021/multimodal-neurons/), Distill | CC BY 4.0 |
 | `imagenet_husky.jpg` | Husky siberiano | xJaM, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Husky_L.jpg) | CC BY-SA 3.0 |
 | `imagenet_malamute.jpg` | Malamute de Alaska | SCMW, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Alaskan_Malamute.jpg) | CC BY 3.0 |
 | `imagenet_portacontenedores.jpg` | Buque portacontenedores | kees torn, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:MAERSK_MC_KINNEY_M%C3%96LLER_%26_MARSEILLE_MAERSK_(48694054418).jpg) | CC BY-SA 2.0 |

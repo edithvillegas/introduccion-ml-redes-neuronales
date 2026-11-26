@@ -2,7 +2,7 @@
 title: "Redes neuronales convolucionales y autocodificadores"
 subtitle: "Cómo «ve» una red neuronal"
 author: "Edith Natalia Villegas García · ICTP"
-description: "Convolución, filtros, agrupamiento (pooling), arquitecturas clásicas, qué aprenden las redes convolucionales (interpretabilidad), ejemplos adversarios y autocodificadores."
+description: "Convolución, filtros, agrupamiento (pooling), arquitecturas clásicas, qué aprenden las redes convolucionales (interpretabilidad), ejemplos adversarios, autocodificadores, conjuntos de datos, ética y aplicaciones."
 ---
 
 ```{python}
@@ -58,21 +58,76 @@ mostrar(fig, 1000, 680)
 Esta foto: 270 × 360 píxeles × 3 colores = **291 600 números**. Una foto de celular (12 megapíxeles): **36 millones**.
 :::
 
-## ¿Por qué no usar un perceptrón multicapa?
+## ¿Por qué no usar un perceptrón multicapa? {.compacta}
 
 :::: {.columns}
-::: {.column width="50%"}
+::: {.column width="52%"}
 ::: {.incremental}
 - **Demasiados parámetros:** una imagen de 1000×1000×3 conectada a 1000 neuronas = **3 000 millones** de pesos en la primera capa
 - **Ignora la geometría:** si revolvemos los píxeles (siempre de la misma forma), un perceptrón aprende igual de bien. ¡No sabe qué píxeles son vecinos!
 - **No reutiliza lo aprendido:** un detector de "ojo" arriba a la izquierda no sirve abajo a la derecha
 :::
+
+```{python}
+# Revolver los píxeles con una permutación fija: para un perceptrón multicapa ambas imágenes son igual de fáciles
+peq = np.asarray(Image.open("img/foto_convolucion.jpg").convert("L").resize((96, 72)), dtype=float) / 255
+perm = np.random.default_rng(0).permutation(peq.size)
+revuelta = peq.ravel()[perm].reshape(peq.shape)
+fig = make_subplots(rows=1, cols=2, horizontal_spacing=0.05,
+                    subplot_titles=["Imagen original", "Los mismos píxeles, revueltos"])
+for c, z in [(1, peq), (2, revuelta)]:
+    fig.add_trace(go.Heatmap(z=a_uint8(z), colorscale=GRISES, zmin=0, zmax=255, showscale=False, hoverinfo="skip"), 1, c)
+    fig.update_yaxes(autorange="reversed", visible=False, scaleanchor=f"x{'' if c == 1 else c}", row=1, col=c)
+    fig.update_xaxes(visible=False, row=1, col=c)
+fig.update_layout(margin=dict(l=0, r=0, t=40, b=0))
+fig.update_annotations(font_size=17)
+mostrar(fig, 760, 300)
+```
+
+::: {.muy-pequeno}
+Un perceptrón multicapa ve una lista de 6 912 números: para él, **las dos imágenes son igual de fáciles** de aprender. Nosotros ya no reconocemos la de la derecha.
 :::
-::: {.column width="50%"}
-::: {.definicion .fragment}
+:::
+::: {.column width="48%"}
+::: {.definicion}
 **Inspiración biológica:** Hubel y Wiesel (1959–1962, Nobel 1981) descubrieron que las neuronas de la corteza visual responden a **bordes con cierta orientación** en una **región pequeña** del campo visual (*campo receptivo*), y que se organizan en **jerarquías**.
 
 → Neocognitrón (Fukushima, 1980) → redes convolucionales (LeCun *et al.*, 1989)
+:::
+
+```{python}
+# Esquema de una «célula simple» de la corteza visual primaria (V1): campo receptivo con una franja
+# excitadora (+) entre dos inhibidoras (−); responde a barras con su orientación.
+fig = go.Figure()
+angulos = [0, 45, 90, 135]
+n_picos = [14, 5, 0, 5]
+rng_e = np.random.default_rng(3)
+for k, (ang, n) in enumerate(zip(angulos, n_picos)):
+    cx = k * 3.0
+    fig.add_shape(type="circle", x0=cx - 1.1, x1=cx + 1.1, y0=-1.1, y1=1.1, line=dict(color=GRIS, width=2, dash="dot"),
+                  fillcolor="white")
+    for dx, signo, color in [(-0.55, "−", ABETO), (0, "+", CORAL_OSCURO), (0.55, "−", ABETO)]:
+        for dy in (-0.6, 0, 0.6):
+            fig.add_annotation(x=cx + dx, y=dy, text=f"<b>{signo}</b>", showarrow=False, font=dict(size=17, color=color))
+    t = np.radians(ang)
+    dxl, dyl = 1.0 * np.sin(t), 1.0 * np.cos(t)
+    fig.add_shape(type="line", x0=cx - dxl, y0=-dyl, x1=cx + dxl, y1=dyl, line=dict(color=mezclar(PISTACHO, 0.15), width=12),
+                  opacity=0.75)
+    # tren de pulsos (espigas)
+    tiempos = np.sort(rng_e.uniform(cx - 1.2, cx + 1.2, n))
+    for tt in tiempos:
+        fig.add_shape(type="line", x0=tt, x1=tt, y0=-2.05, y1=-1.55, line=dict(color=PAVO_REAL, width=2))
+    fig.add_shape(type="line", x0=cx - 1.3, x1=cx + 1.3, y0=-2.05, y1=-2.05, line=dict(color=ARTICO, width=1))
+    fig.add_annotation(x=cx, y=1.45, text=f"barra a {ang}°", showarrow=False, font=dict(size=15, color=GRIS))
+fig.add_annotation(x=-1.55, y=0, text="campo<br>receptivo", showarrow=False, xanchor="right", font=dict(size=14, color=GRIS))
+fig.add_annotation(x=-1.55, y=-1.8, text="respuesta", showarrow=False, xanchor="right", font=dict(size=14, color=GRIS))
+fig.update_layout(xaxis=dict(visible=False, range=[-3.1, 10.4]), yaxis=dict(visible=False, range=[-2.3, 1.7], scaleanchor="x"),
+                  plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=0, r=0, t=0, b=0))
+mostrar(fig, 720, 260)
+```
+
+::: {.muy-pequeno}
+Esquema de una «célula simple»: dispara muchos pulsos cuando la barra coincide con la orientación de su franja excitadora (+), y casi nada si está girada. Basado en Hubel y Wiesel (1962), *J. Physiol.* 160, 106–154.
 :::
 :::
 ::::
@@ -129,37 +184,47 @@ El filtro se desliza sobre la imagen; en cada posición se multiplica elemento a
 
 ```{python}
 filtros = {
-    "Original": None,
+    "Original": np.array([[0, 0, 0], [0, 1, 0], [0, 0, 0]]),
     "Bordes verticales (Sobel x)": np.array([[1, 0, -1], [2, 0, -2], [1, 0, -1]]),
     "Bordes horizontales (Sobel y)": np.array([[1, 2, 1], [0, 0, 0], [-1, -2, -1]]),
     "Bordes en todas direcciones (Laplaciano)": np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]]),
     "Desenfoque (promedio 7×7)": np.ones((7, 7)) / 49,
     "Realce de nitidez": np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]]),
 }
-fig = go.Figure()
+fig = make_subplots(rows=1, cols=2, column_widths=[0.74, 0.26], horizontal_spacing=0.05,
+                    subplot_titles=["", "Filtro (matriz)"])
 for i, (nombre, k) in enumerate(filtros.items()):
-    if k is None:
-        z, zmin, zmax = foto, 0, 1
+    z = correlate2d(foto, k, mode="same", boundary="symm")
+    if "Bordes" in nombre:
+        z = np.abs(z)
+        zmin, zmax = 0, np.percentile(z, 99.5)
     else:
-        z = correlate2d(foto, k, mode="same", boundary="symm")
-        if "Bordes" in nombre:
-            z = np.abs(z)
-            zmin, zmax = 0, np.percentile(z, 99.5)
-        else:
-            z, zmin, zmax = np.clip(z, 0, 1), 0, 1
-    fig.add_trace(go.Heatmap(z=a_uint8(z, zmin, zmax), colorscale=GRISES, zmin=0, zmax=255, showscale=False, visible=(i == 0), hoverinfo="skip"))
-botones = [dict(label=n, method="update", args=[{"visible": [j == i for j in range(len(filtros))]}]) for i, n in enumerate(filtros)]
+        z, zmin, zmax = np.clip(z, 0, 1), 0, 1
+    fig.add_trace(go.Heatmap(z=a_uint8(z, zmin, zmax), colorscale=GRISES, zmin=0, zmax=255, showscale=False, visible=(i == 0),
+                             hoverinfo="skip"), 1, 1)
+    texto = np.where(k == 1 / 49, "1/49", k.astype(int).astype(str)) if k.shape[0] == 7 else k.astype(int).astype(str)
+    lim = max(np.abs(k).max(), 1e-9)
+    # rellenamos los filtros 3×3 a 7×7 para que todas las matrices ocupen el mismo lugar
+    fig.add_trace(go.Heatmap(z=k, colorscale=DIVERGENTE, zmid=0, zmin=-lim, zmax=lim, showscale=False, visible=(i == 0),
+                             text=texto, texttemplate="%{text}", textfont=dict(size=24 if k.shape[0] == 3 else 13),
+                             xgap=3, ygap=3, hoverinfo="skip"), 1, 2)
+botones = [dict(label=n, method="update", args=[{"visible": [j // 2 == i for j in range(2 * len(filtros))]}])
+           for i, n in enumerate(filtros)]
 fig.update_layout(updatemenus=[dict(type="dropdown", direction="down", buttons=botones, x=0, y=1.1, xanchor="left",
-                                    font=dict(size=18), bgcolor="white")], margin=dict(t=70, l=0, r=0, b=0),
-                  yaxis=dict(autorange="reversed", visible=False, scaleanchor="x"), xaxis=dict(visible=False))
-mostrar(fig, 1000, 680)
+                                    font=dict(size=18), bgcolor="white")], margin=dict(t=70, l=0, r=0, b=0))
+fig.update_yaxes(autorange="reversed", visible=False, scaleanchor="x", row=1, col=1)
+fig.update_xaxes(visible=False, row=1, col=1)
+fig.update_yaxes(autorange="reversed", visible=False, scaleanchor="x2", row=1, col=2)
+fig.update_xaxes(visible=False, row=1, col=2)
+fig.update_annotations(font_size=19)
+mostrar(fig, 1350, 680)
 ```
 
 ::: {.pequeno}
 Antes del aprendizaje profundo, estos filtros se **diseñaban a mano**. Una red convolucional **aprende** sus filtros a partir de los datos. *Foto: Charles J. Sharp, guacamaya roja en Copán, CC BY-SA 4.0, Wikimedia Commons.*
 :::
 
-## Las tres ideas de una capa convolucional
+## Las tres ideas de una capa convolucional {.compacta}
 
 :::: {.columns}
 ::: {.column width="33%"}
@@ -182,7 +247,73 @@ Cada capa aprende **decenas o cientos** de filtros; cada uno produce un **mapa d
 :::
 ::::
 
-::: {.fragment}
+```{python}
+# Ilustraciones de las tres ideas, debajo de cada tarjeta
+fig = make_subplots(rows=1, cols=3, horizontal_spacing=0.06)
+# (a) Conexiones locales: una ventana 3×3 de la entrada → una neurona de la salida
+for i in range(6):
+    for j in range(6):
+        en_ventana = 1 <= i <= 3 and 2 <= j <= 4
+        fig.add_shape(type="rect", x0=j, x1=j + 0.9, y0=-i, y1=-i + 0.9, line=dict(width=0),
+                      fillcolor=ZAFIRO if en_ventana else ARTICO, row=1, col=1)
+for i in range(4):
+    for j in range(4):
+        fig.add_shape(type="rect", x0=8 + j * 0.9, x1=8 + j * 0.9 + 0.8, y0=-0.9 - i * 0.9, y1=-0.9 - i * 0.9 + 0.8,
+                      line=dict(width=0), fillcolor=CORAL if (i, j) == (1, 2) else ENCAJE, row=1, col=1)
+fig.add_trace(go.Scatter(x=[2, 4.9, 2, 4.9], y=[-3, -3, 0.9, 0.9], mode="markers", marker=dict(opacity=0),
+                         hoverinfo="skip", showlegend=False), 1, 1)
+for (x0, y0) in [(4.9, -0.1), (4.9, -3.0)]:
+    fig.add_annotation(x=8 + 2 * 0.9 + 0.4, y=-0.9 - 0.9 + 0.4, ax=x0, ay=y0, xref="x", yref="y", axref="x", ayref="y",
+                       showarrow=True, arrowhead=0, arrowwidth=2, arrowcolor=CORAL_OSCURO, text="")
+fig.update_xaxes(visible=False, range=[-0.3, 11.8], row=1, col=1)
+fig.update_yaxes(visible=False, range=[-5.6, 1.4], scaleanchor="x", row=1, col=1)
+# (b) Pesos compartidos: el mismo filtro «ojo» encuentra los dos ojos
+yy, xx = np.mgrid[0:30, 0:46]
+def ojo(cx, cy):
+    r = np.hypot(xx - cx, yy - cy)
+    return np.exp(-((r - 3.2) / 0.9) ** 2) + 1.4 * np.exp(-(r / 1.3) ** 2)
+img_ojos = ojo(11, 9) + ojo(35, 21)
+ty, tx = np.mgrid[-6:7, -6:7]
+plantilla = np.exp(-((np.hypot(tx, ty) - 3.2) / 0.9) ** 2) + 1.4 * np.exp(-(np.hypot(tx, ty) / 1.3) ** 2)
+plantilla -= plantilla.mean()
+resp = correlate2d(img_ojos, plantilla, mode="same")
+resp = np.maximum(resp, 0) / resp.max()
+mosaico = np.full((30, 46 + 4 + 13 + 4 + 46), np.nan)
+mosaico[:, :46] = img_ojos / img_ojos.max()
+mosaico[8:21, 50:63] = (plantilla - plantilla.min()) / np.ptp(plantilla)
+mosaico[:, 67:] = resp
+fig.add_trace(go.Heatmap(z=mosaico, colorscale=SECUENCIAL, zmin=0, zmax=1, showscale=False, hoverinfo="skip"), 1, 2)
+for x, t in [(23, "imagen"), (56.5, "filtro «ojo»"), (89.5, "respuesta")]:
+    fig.add_annotation(x=x, y=-2.5, xref="x2", yref="y2", text=t, showarrow=False, font=dict(size=15, color=GRIS))
+fig.update_xaxes(visible=False, row=1, col=2)
+fig.update_yaxes(visible=False, autorange="reversed", scaleanchor="x2", row=1, col=2)
+# (c) Muchos filtros: una imagen → varios mapas de características apilados
+yy3, xx3 = np.mgrid[0:36, 0:48]
+mini = np.zeros((36, 48))
+mini[8:28, 5:22] = 1.0                                        # un cuadrado
+mini[np.hypot(xx3 - 35, yy3 - 18) < 9] = 1.0                  # y un círculo
+kernels = [np.array([[1, 0, -1], [2, 0, -2], [1, 0, -1]]), np.array([[1, 2, 1], [0, 0, 0], [-1, -2, -1]]),
+           np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]]), np.array([[2, 1, 0], [1, 0, -1], [0, -1, -2]])]
+lienzo = np.full((36 + 3 * 7, 48 + 16 + 48 + 3 * 9), np.nan)
+lienzo[10:46, :48] = 1 - mini
+for k, K3 in enumerate(kernels[::-1]):
+    m = np.abs(correlate2d(mini, K3, mode="same", boundary="symm"))
+    off_y, off_x = 3 * 7 - 7 * (3 - k), 64 + 9 * (3 - k)
+    mapa = 0.82 - 0.82 * m / m.max()
+    mapa[[0, -1], :] = 0.45
+    mapa[:, [0, -1]] = 0.45                                    # borde para distinguir los mapas apilados
+    lienzo[off_y:off_y + 36, off_x:off_x + 48] = mapa
+fig.add_trace(go.Heatmap(z=np.clip(lienzo, 0, 1), colorscale=GRISES, zmin=0, zmax=1, showscale=False, hoverinfo="skip"), 1, 3)
+fig.add_annotation(x=56, y=28, ax=49, ay=28, xref="x3", yref="y3", axref="x3", ayref="y3", showarrow=True, arrowhead=3,
+                   arrowwidth=2, arrowcolor=GRIS, text="")
+fig.add_annotation(x=103, y=-3.5, xref="x3", yref="y3", text="4 filtros → 4 mapas", showarrow=False, font=dict(size=15, color=GRIS))
+fig.update_xaxes(visible=False, row=1, col=3)
+fig.update_yaxes(visible=False, autorange="reversed", scaleanchor="x3", row=1, col=3)
+fig.update_layout(margin=dict(l=0, r=0, t=10, b=0), plot_bgcolor="rgba(0,0,0,0)")
+mostrar(fig, 1480, 300)
+```
+
+::: {.fragment style="margin-top: 0.8em;"}
 | Entrada: imagen 224×224×3 | Capa densa | Capa convolucional |
 |---|---|---|
 | Salida | solo **64 números** | **64 mapas completos** de 224×224 |
@@ -320,7 +451,7 @@ fig.update_annotations(font_size=16)
 fig.update_layout(margin=dict(t=40, l=0, r=0, b=0))
 mostrar(fig, 720, 420)
 ```
-Muchos errores son **ambiguos** incluso para humanos. Métricas como la matriz de confusión las vieron con **Daniela Pinto**.
+Muchos errores son **ambiguos** incluso para humanos.
 :::
 ::::
 
@@ -360,14 +491,65 @@ Aplicaciones: diagnóstico por imagen (U-Net), autos autónomos, clasificación 
 
 Interpretabilidad: abrir la caja negra
 
-## Visualizar características {.compacta}
+## Visualizar características: dos maneras {.compacta}
+
+¿Qué detecta la neurona **3b:379** de GoogLeNet (InceptionV1)?
+
+:::: {.columns}
+::: {.column width="48%"}
+[1 · Ejemplos reales que más la activan]{.titulo-tarjeta}
+
+Pasamos **millones de imágenes** del conjunto de datos (ImageNet) por la red y nos quedamos con los recortes donde la neurona responde **más fuerte**.
+
+::: {.mosaico-curvas}
+![](img/distill_curva_ejemplos/curva_900_0.jpg)
+![](img/distill_curva_ejemplos/curva_900_1.jpg)
+![](img/distill_curva_ejemplos/curva_900_2.jpg)
+![](img/distill_curva_ejemplos/curva_900_3.jpg)
+![](img/distill_curva_ejemplos/curva_900_4.jpg)
+![](img/distill_curva_ejemplos/curva_900_5.jpg)
+![](img/distill_curva_ejemplos/curva_800_0.jpg)
+![](img/distill_curva_ejemplos/curva_800_1.jpg)
+![](img/distill_curva_ejemplos/curva_800_2.jpg)
+![](img/distill_curva_ejemplos/curva_800_3.jpg)
+![](img/distill_curva_ejemplos/curva_800_4.jpg)
+![](img/distill_curva_ejemplos/curva_800_5.jpg)
+:::
+:::
+::: {.column width="52%"}
+[2 · Visualización por optimización]{.titulo-tarjeta}
+
+Partimos de **ruido** y cambiamos los **píxeles** con ascenso de gradiente para que la neurona se active al máximo (¡los pesos quedan fijos!):
+
+$$
+\mathbf{x} \leftarrow \mathbf{x} + \eta\,\frac{\partial\, a_{379}(\mathbf{x})}{\partial \mathbf{x}}
+$$
+
+:::: {.columns}
+::: {.column width="40%"}
+![](img/distill_neuronas/mixed3b_379.jpg){width="230" .redondeada fig-alt="Visualización de la neurona 3b:379: curvas orientadas"}
+:::
+::: {.column width="60%"}
+::: {.caja .pequeno}
+Las dos maneras coinciden: es un **detector de curvas** con una orientación concreta. Los ejemplos reales muestran **qué** la activa en la práctica; la optimización muestra **lo que más** la activa, sin distracciones.
+:::
+:::
+::::
+:::
+::::
+
+::: {.credito}
+Cammarata, N. *et al.* (2020). Curve Detectors. *Distill*. doi:10.23915/distill.00024.003. · Olah, C. *et al.* (2020). An Overview of Early Vision in InceptionV1. *Distill*. Imágenes CC BY 4.0.
+:::
+
+## Visualizar características: neuronas más profundas {.compacta}
 
 :::: {.columns}
 ::: {.column width="55%"}
 ![Cuatro neuronas de la capa *mixed4a* de GoogLeNet: ¿béisbol o rayas? ¿caras de animales u hocicos? ¿nubes o "esponjosidad"? ¿edificios o cielo?](img/distill_fv_neuronas.png){width="100%"}
 
-- **Visualización de características:** partir de ruido y ajustar los **píxeles** (con descenso de gradiente) para activar al máximo una neurona
-- Complementa ver los **ejemplos reales** que más la activan
+- En capas profundas las neuronas responden a **conceptos**: caras de perro, nubes, edificios…
+- Comparar la visualización con los **ejemplos reales** ayuda a saber qué detectan de verdad
 :::
 ::: {.column width="45%"}
 ![El *Atlas de activaciones*: un mapa de lo que "ve" la red](img/distill_atlas.jpg){width="100%" .redondeada}
@@ -384,44 +566,128 @@ Olah, C. *et al.* (2017). Feature Visualization. *Distill*. · Carter, S. *et al
 
 ## Circuitos dentro de la red {.compacta}
 
-![**Detectores de curvas** en GoogLeNet (capa mixed3b): una familia de neuronas, cada una para una orientación](img/distill_curvas.jpg){height="250"}
+[De bordes a círculos: cada capa combina las características de la anterior (neuronas reales de GoogLeNet)]{.titulo-tarjeta}
+
+::: {.cadena-circuito}
+::: {.etapa}
+![](img/distill_neuronas/conv2d0_9.png) ![](img/distill_neuronas/conv2d0_53.png)
+
+**Bordes** (capa 1)
+:::
+::: {.flecha-c}
+→
+:::
+::: {.etapa}
+![](img/distill_neuronas/conv2d2_107.png) ![](img/distill_neuronas/conv2d2_182.png)
+
+**Líneas y curvas pequeñas** (capa 3)
+:::
+::: {.flecha-c}
+→
+:::
+::: {.etapa}
+![](img/distill_neuronas/mixed3a_81.jpg) ![](img/distill_neuronas/mixed3a_104.jpg)
+
+**Curvas** (capa 4)
+:::
+::: {.flecha-c}
+→
+:::
+::: {.etapa}
+![](img/distill_neuronas/mixed3b_389.jpg) ![](img/distill_neuronas/mixed3b_384.jpg)
+
+**Círculos** (capa 5)
+:::
+:::
 
 :::: {.columns}
-::: {.column width="58%"}
-![Un **circuito**: neuronas de "ventanas" (arriba), "carrocería" y "ruedas" (abajo) se combinan para formar un detector de **autos**](img/distill_circuito_auto.jpg){height="330"}
+::: {.column width="47%"}
+```{python}
+# Esquema: un detector de triángulos = tres detectores de líneas (uno por lado), con pesos positivos
+fig = go.Figure()
+vert = np.array([[3.3, 0.0], [4.7, 0.0], [4.0, 1.25]])
+lados = [(vert[0], vert[1], ZAFIRO, "línea horizontal"), (vert[1], vert[2], PISTACHO, "línea inclinada \\"),
+         (vert[2], vert[0], CORAL_OSCURO, "línea inclinada /")]
+for k, (p0, p1, color, nombre) in enumerate(lados):
+    cy = 1.6 - k * 0.85
+    fig.add_shape(type="rect", x0=0.0, x1=0.7, y0=cy - 0.35, y1=cy + 0.35, fillcolor="white", line=dict(color=ARTICO, width=2))
+    d = (p1 - p0) / np.linalg.norm(p1 - p0) * 0.28
+    fig.add_shape(type="line", x0=0.35 - d[0], y0=cy - d[1], x1=0.35 + d[0], y1=cy + d[1], line=dict(color=color, width=7))
+    fig.add_annotation(x=0.85, y=cy + 0.22, text=nombre, showarrow=False, xanchor="left", font=dict(size=14, color=GRIS))
+    medio = (p0 + p1) / 2
+    fig.add_annotation(x=medio[0] - 0.08, y=medio[1], ax=0.75, ay=cy, xref="x", yref="y", axref="x", ayref="y",
+                       showarrow=True, arrowhead=3, arrowwidth=2, arrowcolor=mezclar(color, 0.2), text="")
+    fig.add_shape(type="line", x0=p0[0], y0=p0[1], x1=p1[0], y1=p1[1], line=dict(color=color, width=7))
+fig.add_annotation(x=4.0, y=-0.35, text="<b>detector de triángulos</b>", showarrow=False, font=dict(size=16, color=PAVO_REAL))
+fig.update_layout(xaxis=dict(visible=False, range=[-0.1, 5.0]), yaxis=dict(visible=False, range=[-0.6, 2.05], scaleanchor="x"),
+                  plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=0, r=0, t=0, b=0))
+mostrar(fig, 640, 330)
+```
+
+::: {.muy-pequeno}
+Esquema: tres detectores de líneas con distinta orientación, conectados con pesos **positivos** a una neurona de la capa siguiente, forman un detector de **triángulos**.
 :::
-::: {.column width="42%"}
+:::
+::: {.column width="53%"}
+![Un circuito real: neuronas de "ventanas", "carrocería" y "ruedas" se combinan en un detector de **autos**](img/distill_circuito_auto.jpg){height="270"}
+
+::: {.muy-pequeno}
+**Hipótesis de los circuitos** (Olah *et al.*, 2020): las **características** se conectan mediante pesos formando **circuitos** que podemos leer, y los mismos circuitos aparecen en **distintas redes**.
+:::
+:::
+::::
+
+::: {.credito}
+Olah, C. *et al.* (2020). Zoom In: An Introduction to Circuits; An Overview of Early Vision in InceptionV1. *Distill*. Figuras CC BY 4.0.
+:::
+
+## Neuronas multimodales {.compacta}
+
+:::: {.columns}
+::: {.column width="47%"}
+[Neuronas de **emociones** en CLIP (imagen + texto)]{.titulo-tarjeta}
+
+::: {.tabla-emociones}
+| | cara | cuerpo | texto |
+|---|:---:|:---:|:---:|
+| **tristeza / llanto** | ![](img/distill_emociones/1193_face.png) | ![](img/distill_emociones/1193_pose.png) | ![](img/distill_emociones/1193_text.png) |
+| **felicidad** | ![](img/distill_emociones/1512_face.png) | ![](img/distill_emociones/1512_pose.png) | ![](img/distill_emociones/1512_text.png) |
+| **sorpresa** | ![](img/distill_emociones/2478_face.png) | ![](img/distill_emociones/2478_pose.png) | ![](img/distill_emociones/2478_text.png) |
+| **sueño** | ![](img/distill_emociones/91_face.png) | ![](img/distill_emociones/91_pose.png) | ![](img/distill_emociones/91_text.png) |
+:::
+:::
+::: {.column width="53%"}
+- **CLIP** (OpenAI, 2021) aprendió a relacionar imágenes con su texto. Una misma neurona responde a una emoción en **caras**, en **lenguaje corporal** y en **palabras escritas**
+- Cada cuadro: la imagen que más activa la neurona, optimizada para parecerse a una cara, a una pose o a un texto
+
+```{python}
+# Esquema de una «neurona de concepto» del lóbulo temporal medial humano (Quiroga et al., 2005)
+estimulos = [("fotos de<br>Halle Berry", 13), ("caricatura<br>de ella", 9), ("su nombre<br>escrito", 11), ("otras<br>personas", 1)]
+fig = go.Figure()
+rng_q = np.random.default_rng(8)
+for k, (texto, n) in enumerate(estimulos):
+    cx = k * 2.3
+    color = ENCAJE if k < 3 else REJILLA
+    fig.add_shape(type="rect", x0=cx - 0.95, x1=cx + 0.95, y0=0.2, y1=1.35, fillcolor=color, line=dict(color=ARTICO, width=2))
+    fig.add_annotation(x=cx, y=0.78, text=f"<b>{texto}</b>" if k == 2 else texto, showarrow=False,
+                       font=dict(size=15, color=PAVO_REAL, family="monospace" if k == 2 else None))
+    for tt in np.sort(rng_q.uniform(cx - 0.9, cx + 0.9, n)):
+        fig.add_shape(type="line", x0=tt, x1=tt, y0=-0.55, y1=-0.05, line=dict(color=PAVO_REAL, width=2))
+    fig.add_shape(type="line", x0=cx - 1, x1=cx + 1, y0=-0.55, y1=-0.55, line=dict(color=ARTICO, width=1))
+fig.add_annotation(x=-1.15, y=-0.3, text="pulsos de<br>la neurona", showarrow=False, xanchor="right", font=dict(size=13, color=GRIS))
+fig.update_layout(xaxis=dict(visible=False, range=[-2.4, 8.0]), yaxis=dict(visible=False, range=[-0.8, 1.5]),
+                  plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=0, r=0, t=0, b=0))
+mostrar(fig, 760, 230)
+```
+
 ::: {.pequeno}
-**La hipótesis de los circuitos** (Olah *et al.*, 2020):
-
-1. Las **características** son las unidades fundamentales
-2. Se conectan mediante pesos formando **circuitos** que podemos leer
-3. Las mismas características y circuitos aparecen en **distintas redes** (¿universalidad?)
+¡En el cerebro humano también! Registrando neuronas individuales en pacientes, Quiroga *et al.* (2005) hallaron **neuronas de concepto**: una respondía a distintas fotos de **Jennifer Aniston**, y otra a fotos de **Halle Berry**, a su caricatura **y a su nombre escrito** (esquema arriba). [Más en la sesión de neurociencia con **Joshua Lemus**]{.adelante}
 :::
 :::
 ::::
 
 ::: {.credito}
-Olah, C. *et al.* (2020). Zoom In: An Introduction to Circuits. *Distill*. doi:10.23915/distill.00024.001. Figuras CC BY 4.0.
-:::
-
-## Neuronas polisemánticas y neuronas multimodales
-
-![Una neurona **polisemántica**: responde a caras de gatos, frentes de autos y patas de gatos](img/distill_polisemantica.jpg){height="300"}
-
-:::: {.columns .pequeno}
-::: {.column width="50%"}
-- Algunas neuronas responden a **varias cosas sin relación**: dificulta interpretarlas
-- Hipótesis: la red guarda **más conceptos que neuronas**, mezclados (*superposición*) → veremos cómo separarlos con **autocodificadores dispersos** en la sesión de transformers
-:::
-::: {.column width="50%"}
-- En CLIP (OpenAI), un modelo de imágenes y texto, hay neuronas **multimodales**: una neurona de "Spider-Man" responde a fotos, dibujos **y a la palabra escrita** "spider" (Goh *et al.*, 2021)
-- ¡Parecido a las "neuronas de concepto" medidas en el lóbulo temporal medial humano, como la famosa neurona de "Jennifer Aniston" (Quiroga *et al.*, 2005)! [Más en la sesión de neurociencia con **Joshua Lemus**]{.adelante}
-:::
-::::
-
-::: {.credito}
-Olah, C. *et al.* (2020). Zoom In. *Distill* (CC BY 4.0). · Goh, G. *et al.* (2021). Multimodal Neurons in Artificial Neural Networks. *Distill*. · Quiroga, R. Q. *et al.* (2005). Invariant visual representation by single neurons in the human brain. *Nature* 435, 1102–1107.
+Goh, G. *et al.* (2021). Multimodal Neurons in Artificial Neural Networks. *Distill*. doi:10.23915/distill.00030. Imágenes CC BY 4.0. · Quiroga, R. Q. *et al.* (2005). Invariant visual representation by single neurons in the human brain. *Nature* 435, 1102–1107 (esquema propio, no son sus datos).
 :::
 
 ## Una advertencia: ejemplos adversarios {.compacta}
@@ -511,7 +777,6 @@ $$
   - **Quitar ruido** (*denoising*)
   - **Detectar anomalías**: lo que no se reconstruye bien es raro (¡búsqueda de física nueva en el LHC!)
   - **Generar** datos nuevos (autocodificadores variacionales, Kingma y Welling, 2013)
-  - **Interpretabilidad**: los *autocodificadores dispersos* (*sparse autoencoders*) se usan para leer el "pensamiento" de los modelos de lenguaje → ¡lo veremos en la sesión de transformers!
 :::
 ::::
 
@@ -601,6 +866,144 @@ En Colab: *Entorno de ejecución → Cambiar tipo de entorno de ejecución → G
 :::
 :::
 ::::
+
+# Datos, ética y aplicaciones {background-color="#053229" .seccion}
+
+Con qué se entrenan estas redes, y para qué se usan
+
+## Conjuntos de datos abiertos para entrenar {.compacta}
+
+```{python}
+datos_img = [
+    ("MNIST", 1998, 7.0e4, "dígitos escritos a mano · 28×28 · 10 clases", ARTICO),
+    ("Fashion-MNIST", 2017, 7.0e4, "ropa (Zalando) · 28×28 · 10 clases", ARTICO),
+    ("CIFAR-10 / CIFAR-100", 2009, 6.0e4, "objetos · 32×32 · 10 o 100 clases", ARTICO),
+    ("MedMNIST v2", 2023, 7.08e5, "12 conjuntos médicos 2D (rayos X, histología, retina, piel, sangre…) + 6 en 3D · 28×28", ZAFIRO),
+    ("MS COCO", 2014, 3.3e5, "detección y segmentación · 80 categorías · 1.5 millones de objetos", ZAFIRO),
+    ("ImageNet-1k", 2012, 1.33e6, "1000 categorías · la competencia ILSVRC", ZAFIRO),
+    ("Open Images V7", 2016, 9.0e6, "≈ 9 millones de imágenes · 16 millones de cajas de objetos", ABETO),
+    ("SA-1B (Segment Anything)", 2023, 1.1e7, "11 millones de imágenes · 1100 millones de máscaras", ABETO),
+    ("ImageNet-21k", 2009, 1.42e7, "≈ 21 800 categorías", ABETO),
+    ("LAION-5B", 2022, 5.85e9, "5850 millones de pares imagen-texto extraídos de internet (entrenó Stable Diffusion)", CORAL),
+]
+datos_img = sorted(datos_img, key=lambda d: d[2])
+def legible(n):
+    return f"{n / 1e9:.2f} mil millones" if n >= 1e9 else (f"{n / 1e6:.1f} millones" if n >= 1e6 else f"{n / 1e3:.0f} mil")
+fig = go.Figure(go.Bar(y=[f"{d[0]} ({d[1]})" for d in datos_img], x=[d[2] for d in datos_img], orientation="h",
+                       marker=dict(color=[d[4] for d in datos_img]), text=[legible(d[2]) for d in datos_img],
+                       textposition="outside", textfont=dict(size=17), customdata=[d[3] for d in datos_img],
+                       hovertemplate="<b>%{y}</b><br>%{customdata}<br>%{text} imágenes<extra></extra>"))
+fig.update_layout(xaxis=dict(type="log", title="número de imágenes (escala logarítmica)", range=[4.5, 10.6], exponentformat="SI"),
+                  yaxis=dict(tickfont=dict(size=17)), margin=dict(l=10, r=10, t=10, b=10), showlegend=False)
+mostrar(fig, 1450, 560)
+```
+
+::: {.pequeno}
+De **decenas de miles** de imágenes etiquetadas a mano (MNIST, CIFAR) a **miles de millones** de imágenes de internet con su texto (LAION-5B): ¡5 órdenes de magnitud! Para la práctica usaremos **Fashion-MNIST**; para imágenes médicas, **MedMNIST** es un buen punto de partida. Muchos modelos grandes usan además conjuntos **privados** (p. ej. JFT-3B de Google).
+:::
+
+::: {.credito}
+LeCun *et al.* (1998); Xiao *et al.* (2017); Krizhevsky (2009); Yang *et al.* (2023) *Scientific Data* 10, 41; Lin *et al.* (2014); Russakovsky *et al.* (2015); Kuznetsova *et al.* (2020); Kirillov *et al.* (2023); Deng *et al.* (2009); Schuhmann *et al.* (2022).
+:::
+
+## Ética: ¿de dónde salen las imágenes? {.compacta}
+
+:::: {.columns}
+::: {.column width="56%" .texto-etica}
+[Artistas sin consentimiento]{.titulo-tarjeta}
+
+- LAION-5B se armó **descargando imágenes de internet** sin pedir permiso: obras de artistas, fotos de bancos de imágenes, incluso fotos médicas privadas
+- Los generadores de imágenes imitan el **estilo** de artistas vivos que nunca dieron su consentimiento ni reciben pago
+
+[Demandas por derechos de autor]{.titulo-tarjeta}
+
+- **Andersen y otros vs. Stability AI, Midjourney y DeviantArt** (EE. UU., 2023): demanda colectiva de artistas, sigue en curso
+- **Getty Images vs. Stability AI** (EE. UU. y Reino Unido, 2023): millones de fotos usadas, ¡a veces con la marca de agua visible en las imágenes generadas!
+
+[Tus fotos en redes sociales]{.titulo-tarjeta}
+
+- **Clearview AI** extrajo decenas de miles de millones de fotos de redes sociales para un buscador de caras vendido a la policía; multas de 20–30 millones de euros en Europa
+- Meta entrena sus modelos con publicaciones **públicas** de Facebook e Instagram
+:::
+::: {.column width="44%"}
+[Sesgo en el reconocimiento facial]{.titulo-tarjeta}
+
+```{python}
+# Gender Shades (Buolamwini y Gebru, 2018): error al clasificar el género, por grupo
+sistemas = ["Microsoft", "Face++", "IBM"]
+mujeres_oscuras = [20.8, 34.5, 34.7]
+hombres_claros = [0.0, 0.8, 0.3]
+fig = go.Figure()
+fig.add_trace(go.Bar(x=sistemas, y=hombres_claros, name="hombres de piel clara", marker_color=ARTICO,
+                     text=[f"{v}%" for v in hombres_claros], textposition="outside", textfont=dict(size=17)))
+fig.add_trace(go.Bar(x=sistemas, y=mujeres_oscuras, name="mujeres de piel oscura", marker_color=CORAL,
+                     text=[f"{v}%" for v in mujeres_oscuras], textposition="outside", textfont=dict(size=17)))
+fig.update_layout(yaxis=dict(title="error (%)", range=[0, 42]), barmode="group", legend=dict(x=0, y=1.12, orientation="h"),
+                  margin=dict(l=10, r=10, t=40, b=10))
+mostrar(fig, 660, 380)
+```
+
+::: {.pequeno}
+Los datos de entrenamiento tenían **pocas** caras de piel oscura. En EE. UU., varias personas afroamericanas fueron **arrestadas por error** por un reconocimiento facial equivocado (p. ej. Robert Williams, Detroit, 2020).
+:::
+:::
+::::
+
+::: {.credito}
+Buolamwini, J. & Gebru, T. (2018). Gender Shades. *FAT\**. · Grother, P. *et al.* (2019). NIST FRVT Part 3: Demographic Effects. · Andersen v. Stability AI, N.D. Cal. 3:23-cv-00201 · Getty Images v. Stability AI (D. Del. 2023; High Court of England and Wales 2023).
+:::
+
+## Aplicaciones {.compacta}
+
+::: {style="max-width: 82%;"}
+:::: {.columns}
+::: {.column width="33%"}
+::: {.tarjeta}
+[Detección de objetos]{.titulo-tarjeta}
+Encontrar **qué** hay y **dónde** (cajas alrededor de cada objeto): YOLO, conteo de animales en cámaras trampa, control de calidad en fábricas.
+:::
+
+::: {.tarjeta}
+[Reconocimiento facial]{.titulo-tarjeta}
+Desbloquear el teléfono, controles fronterizos… y vigilancia masiva (¡ver la diapositiva de ética!).
+:::
+:::
+::: {.column width="33%"}
+::: {.tarjeta}
+[Conducción autónoma]{.titulo-tarjeta}
+Cámaras + redes convolucionales para ver carriles, peatones y semáforos: Waymo, Tesla, robots de reparto.
+:::
+
+::: {.tarjeta}
+[Lectura de texto (OCR)]{.titulo-tarjeta}
+Desde los cheques bancarios de LeNet (1998) hasta digitalizar archivos históricos y traducir carteles con la cámara.
+
+```{python}
+digitos = [m["imagen"] for m in cnn["mapas"]][:5]
+fig = make_subplots(rows=1, cols=len(digitos), horizontal_spacing=0.03)
+for k, d in enumerate(digitos):
+    fig.add_trace(go.Heatmap(z=d, colorscale=GRISES, showscale=False, hoverinfo="skip"), 1, k + 1)
+    fig.update_yaxes(autorange="reversed", visible=False, scaleanchor=f"x{'' if k == 0 else k + 1}", row=1, col=k + 1)
+    fig.update_xaxes(visible=False, row=1, col=k + 1)
+fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
+mostrar(fig, 380, 80)
+```
+:::
+:::
+::: {.column width="33%"}
+::: {.tarjeta}
+[Medicina]{.titulo-tarjeta}
+Detectar retinopatía diabética (IDx-DR, primer sistema autónomo aprobado por la FDA, 2018), cáncer de piel, tumores en mamografías y segmentar órganos (U-Net).
+
+![](img/mamografia_nci.jpg){height="180" .redondeada fig-alt="Mamografía"}
+:::
+:::
+::::
+:::
+
+::: {.credito}
+Mamografía: National Cancer Institute, dominio público.
+:::
 
 ::: {.absolute bottom="0" right="0" width="200" style="text-align: center;"}
 ![](img/qr_sitio.png){width="180" fig-alt="Código QR que lleva a edithvillegas.github.io"}

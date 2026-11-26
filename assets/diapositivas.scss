@@ -296,3 +296,31 @@ $presentation-title-slide-text-align: left;
   .familia .neuronas { display: grid; grid-template-columns: repeat(3, 118px); gap: 6px; justify-content: center; }
   .familia img { width: 118px; height: 118px; object-fit: cover; border-radius: 4px; margin: 0 !important; }
 }
+
+// Ejemplos reales que activan una neurona de curvas (deck 05)
+.reveal .mosaico-curvas {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-top: 0.4em;
+  p { display: contents; }
+  img { width: 100% !important; aspect-ratio: 1; height: auto; margin: 0 !important; border-radius: 6px; image-rendering: auto; }
+}
+
+// Cadena bordes → curvas → círculos (deck 05)
+.reveal .cadena-circuito {
+  display: flex; align-items: center; justify-content: space-between; margin: 0.2em 0 0.5em;
+  .etapa { text-align: center; font-size: 0.6em; color: $abeto; line-height: 1.2; }
+  .etapa p { margin: 0.1em 0 !important; }
+  .etapa img { width: 105px; height: 105px; margin: 0 3px !important; border-radius: 6px; }
+  .flecha-c { font-size: 1.4em; color: $gris; }
+}
+
+// Tabla de neuronas de emociones de CLIP (deck 05)
+.reveal .tabla-emociones {
+  table { font-size: 0.6em; margin: 0.3em 0 0 0 !important; border: none !important; }
+  th, td { padding: 3px 6px !important; vertical-align: middle; border: none !important; background: transparent !important; }
+  th { color: $abeto !important; }
+  img { width: 128px; height: 128px; margin: 0 !important; border-radius: 6px; }
+}
+
+// Diapositiva de ética (deck 05): texto más compacto
+.reveal .texto-etica { font-size: 0.78em; }
+.reveal .texto-etica li { margin-bottom: 0.15em; }
