@@ -468,43 +468,46 @@ Acertar con seguridad cuesta casi 0; estar **seguro y equivocado** cuesta muchí
 ## Paso 2: bajar la montaña con descenso de gradiente
 
 ```{python}
+# Pérdida con forma de campana invertida: un solo mínimo en (0, 0)
 def perdida(w):
-    return 0.5 * (w[..., 0] ** 2 + 8 * w[..., 1] ** 2)
+    return 1 - np.exp(-(w[..., 0] ** 2 + 4 * w[..., 1] ** 2) / 8)
 def gradiente(w):
-    return np.array([w[0], 8 * w[1]])
-g = np.linspace(-3.2, 3.2, 120)
+    return np.exp(-(w[0] ** 2 + 4 * w[1] ** 2) / 8) * np.array([w[0] / 4, w[1]])
+g = np.linspace(-4, 4, 120)
 G0, G1 = np.meshgrid(g, g)
 Lmap = perdida(np.stack([G0, G1], -1))
-tasas = [0.02, 0.08, 0.2, 0.24, 0.26]
-desc = {0.02: "muy pequeña: avanza lentísimo", 0.08: "adecuada", 0.2: "grande: oscila", 0.24: "casi diverge", 0.26: "demasiado grande: ¡diverge!"}
+tasas = [0.3, 1.2, 1.9, 2.2, 3.5]
+desc = {0.3: "muy pequeña: avanza lentísimo", 1.2: "adecuada", 1.9: "grande: oscila pero llega",
+        2.2: "demasiado grande: oscila y no se asienta", 3.5: "demasiado grande: rebota sin llegar al mínimo"}
 fig = go.Figure()
-# Superficie 3D de la pérdida: ¡una montaña (o más bien un valle)!
-fig.add_trace(go.Surface(x=g, y=g, z=Lmap, colorscale=SECUENCIAL, showscale=False, opacity=0.85,
+# Superficie 3D de la pérdida: un valle con un único mínimo
+fig.add_trace(go.Surface(x=g, y=g, z=Lmap, colorscale=SECUENCIAL, showscale=False, opacity=0.6,
                          contours=dict(z=dict(show=True, usecolormap=True, project=dict(z=True), width=1)),
                          hovertemplate="w₁=%{x:.2f}, w₂=%{y:.2f}<br>L=%{z:.2f}<extra></extra>"))
 titulos = []
 for eta in tasas:
-    w = np.array([-2.8, 1.2])
+    w = np.array([-2.5, 1.0])
     camino = [w.copy()]
     for _ in range(30):
         w = w - eta * gradiente(w)
         camino.append(w.copy())
-    camino = np.clip(np.array(camino), -3.2, 3.2)
-    zc = perdida(camino) + 0.4  # un poco por encima de la superficie para que se vea
+    camino = np.array(camino)
+    zc = perdida(camino) + 0.015  # un poco por encima de la superficie para que se vea
     fig.add_trace(go.Scatter3d(x=camino[:, 0], y=camino[:, 1], z=zc, mode="lines+markers", line=dict(color=CORAL, width=7),
-                               marker=dict(size=5, color=CORAL, line=dict(color="white", width=1)), visible=(eta == 0.08),
+                               marker=dict(size=5, color=CORAL, line=dict(color="white", width=1)), visible=(eta == 1.2),
                                showlegend=False, hovertemplate="paso %{pointNumber}<br>L=%{z:.2f}<extra></extra>"))
     titulos.append({"title.text": f"Tasa de aprendizaje η = {eta}: {desc[eta]}"})
-fig.add_trace(go.Scatter3d(x=[0], y=[0], z=[0.3], mode="markers", marker=dict(symbol="diamond", size=9, color=PAVO_REAL),
+# Scatter3d no tiene símbolo de estrella: la dibujamos como texto
+fig.add_trace(go.Scatter3d(x=[0], y=[0], z=[0.02], mode="text", text=["★"], textfont=dict(size=44, color=PAVO_REAL),
                            showlegend=False, hovertext="mínimo", hoverinfo="text"))
 pasos = []
 for i, eta in enumerate(tasas):
     vis = [True] + [j == i for j in range(len(tasas))] + [True]
     pasos.append(dict(method="update", label=str(eta), args=[{"visible": vis}, titulos[i]]))
 fig.update_layout(sliders=deslizador(pasos, prefijo="η = ", activo=1), title=titulos[1]["title.text"],
-                  scene=dict(xaxis=dict(title="peso w₁", range=[-3.2, 3.2]), yaxis=dict(title="peso w₂", range=[-3.2, 3.2]),
-                             zaxis=dict(title="pérdida L"), aspectmode="manual", aspectratio=dict(x=1.2, y=1.2, z=0.75),
-                             camera=dict(eye=dict(x=-1.15, y=-1.3, z=0.8), center=dict(x=0, y=0, z=-0.05))),
+                  scene=dict(xaxis=dict(title="peso w₁", range=[-4, 4]), yaxis=dict(title="peso w₂", range=[-4, 4]),
+                             zaxis=dict(title="pérdida L"), aspectmode="manual", aspectratio=dict(x=1.2, y=1.2, z=0.6),
+                             camera=dict(eye=dict(x=-0.95, y=-1.1, z=1.3), center=dict(x=0, y=0, z=-0.1))),
                   margin=dict(l=0, r=0, t=50, b=0))
 mostrar(fig, 1400, 700)
 ```
@@ -876,32 +879,6 @@ display(HTML(html))
 
 ::: {.credito}
 Cada cuadrito es la imagen **sintética** que más activa a una neurona de InceptionV1 (GoogLeNet), obtenida con descenso de gradiente sobre la imagen. Olah, C. *et al.* (2020). An Overview of Early Vision in InceptionV1. *Distill*. doi:10.23915/distill.00024.002. Imágenes con licencia CC BY 4.0.
-:::
-
-## ¿Qué aprende cada capa? Hasta los objetos {.compacta}
-
-:::: {.columns}
-::: {.column width="58%"}
-![](img/distill_fv_capas.jpg){height="640" .redondeada}
-
-```{python}
-etiquetas_capas = ["Bordes", "Texturas", "Patrones", "Partes", "Objetos"]
-display(HTML("<div style='display:flex;justify-content:space-around;font-size:0.6em;font-weight:700;color:#355E58;margin-top:-0.4em'>"
-             + "".join(f"<span>{e}</span>" for e in etiquetas_capas) + "</div>"))
-```
-:::
-::: {.column width="42%"}
-- Siguiendo hacia capas más **profundas**, las neuronas responden a **partes** (caras de perro, ruedas) y luego a **objetos** completos
-- La red construye una **jerarquía** de conceptos
-
-::: {.caja .pequeno}
-Nadie le dijo a la red que usara bordes ni ojos de perro: lo **descubrió** porque le sirve para clasificar. Más en la sesión de redes convolucionales, con **circuitos** dentro de las redes.
-:::
-:::
-::::
-
-::: {.credito}
-Olah, C., Mordvintsev, A. & Schubert, L. (2017). Feature Visualization. *Distill*. doi:10.23915/distill.00007. Figura con licencia CC BY 4.0.
 :::
 
 ## El zoológico de arquitecturas
