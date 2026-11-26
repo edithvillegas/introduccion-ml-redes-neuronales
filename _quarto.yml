@@ -8,6 +8,7 @@ project:
     - notebooks/*.ipynb
     - soluciones/*.ipynb
     - diapositivas/img/*.webm
+    - diapositivas/img/distill_neuronas/*
 
 lang: es
 

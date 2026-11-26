@@ -267,3 +267,31 @@ $presentation-title-slide-text-align: left;
   line-height: 1.2;
   a { color: $abeto; font-weight: 700; text-decoration: none; }
 }
+
+// Ejemplos de categorías de ImageNet (deck 04)
+.reveal .ejemplos-imagenet {
+  .quarto-figure, figure, p { margin: 0 0 0.15em 0 !important; }
+  img { width: 100%; height: 165px; object-fit: cover; border-radius: 10px; margin: 0 !important; }
+  figcaption { margin-top: 0 !important; text-align: center; }
+}
+
+// Explorador de capas de InceptionV1 (deck 04)
+.reveal .explorador-capas {
+  font-size: 0.68em;
+  .capas-red { display: flex; align-items: center; justify-content: center; gap: 0.35em; margin-bottom: 0.5em; }
+  .capas-red button {
+    font: inherit; font-size: 1em; cursor: pointer; border-radius: 10px; padding: 0.3em 0.7em;
+    border: 3px solid $zafiro; background: white; color: $pavo-real; line-height: 1.15;
+  }
+  .capas-red button small { display: block; font-size: 0.75em; color: $gris; }
+  .capas-red button.activa { background: $abeto; border-color: $abeto; color: white; }
+  .capas-red button.activa small { color: $artico; }
+  .capas-red .flecha { color: $gris; font-size: 1.2em; }
+  .capas-red .fija { border: 3px dashed $artico; border-radius: 10px; padding: 0.3em 0.7em; color: $gris; line-height: 1.15; }
+  .descripcion-capa { text-align: center; color: $abeto; margin-bottom: 0.5em; min-height: 1.3em; }
+  .familias { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5em 1em; }
+  .familia { background: white; border: 2px solid $artico; border-radius: 10px; padding: 0.35em 0.5em 0.5em; }
+  .familia .nombre { font-weight: 700; color: $abeto; margin-bottom: 0.25em; }
+  .familia .neuronas { display: grid; grid-template-columns: repeat(3, 118px); gap: 6px; justify-content: center; }
+  .familia img { width: 118px; height: 118px; object-fit: cover; border-radius: 4px; margin: 0 !important; }
+}

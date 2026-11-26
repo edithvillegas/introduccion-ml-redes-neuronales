@@ -2,7 +2,7 @@
 title: "Teoría de redes neuronales"
 subtitle: "De una neurona al aprendizaje profundo"
 author: "Edith Natalia Villegas García · ICTP"
-description: "La neurona artificial, el perceptrón y XOR, redes multicapa, aproximación universal, funciones de pérdida, descenso de gradiente, retropropagación, sobreajuste, representaciones jerárquicas y redes de Hopfield."
+description: "La neurona artificial, el perceptrón y XOR, redes multicapa, aproximación universal, funciones de pérdida, descenso de gradiente, retropropagación, sobreajuste y representaciones jerárquicas."
 ---
 
 ```{python}
@@ -89,6 +89,69 @@ Con $\sigma$ = sigmoide, ¡una neurona es exactamente una **regresión logístic
 :::
 :::
 ::: {.column width="60%"}
+```{python}
+# Diagrama: entradas x_i --(w_i)--> nodo (Σ, σ) --> salida a
+n_ent = 3
+ys_ent = [1.8, 0.6, -0.6]
+nodo = (3.4, 0.0)
+fig = go.Figure()
+etiquetas_ent = ["x₁", "x₂", "x₃"]
+pesos_txt = ["w₁", "w₂", "w₃"]
+for j, y0 in enumerate(ys_ent):
+    fig.add_trace(go.Scatter(x=[0, nodo[0]], y=[y0, nodo[1]], mode="lines", hoverinfo="skip", showlegend=False,
+                             line=dict(color=[CORAL, ABETO, CORAL][j], width=[5, 2.5, 3.5][j])))
+    fig.add_annotation(x=0.45 * nodo[0], y=0.55 * y0 + 0.45 * nodo[1], text=f"<b>{pesos_txt[j]}</b>", showarrow=False,
+                       yshift=18, font=dict(size=26, color=CORAL_OSCURO if j != 1 else ABETO))
+# sesgo: entrada constante 1
+fig.add_trace(go.Scatter(x=[0, nodo[0]], y=[-1.9, nodo[1]], mode="lines", hoverinfo="skip", showlegend=False,
+                         line=dict(color=GRIS, width=2.5, dash="dot")))
+fig.add_annotation(x=0.45 * nodo[0], y=0.55 * -1.9, text="<b>b</b>", showarrow=False, yshift=-20, font=dict(size=26, color=GRIS))
+# salida
+fig.add_annotation(x=5.9, y=0, ax=nodo[0] + 0.62, ay=0, xref="x", yref="y", axref="x", ayref="y", showarrow=True,
+                   arrowhead=3, arrowsize=1.6, arrowwidth=4, arrowcolor=PAVO_REAL, text="")
+fig.add_annotation(x=6.05, y=0, text="<b>a = σ(z)</b>", showarrow=False, xanchor="left", font=dict(size=28, color=PAVO_REAL))
+# nodos de entrada
+fig.add_trace(go.Scatter(x=[0] * n_ent + [0], y=ys_ent + [-1.9], mode="markers+text", showlegend=False, hoverinfo="skip",
+                         text=etiquetas_ent + ["1"], textfont=dict(size=24, color=PAVO_REAL),
+                         marker=dict(size=58, color=["white"] * n_ent + [ENCAJE], line=dict(color=PAVO_REAL, width=3))))
+# neurona
+fig.add_trace(go.Scatter(x=[nodo[0]], y=[nodo[1]], mode="markers+text", showlegend=False, hoverinfo="skip",
+                         text=["Σ │ σ"], textfont=dict(size=30, color="white"),
+                         marker=dict(size=120, color=ABETO, line=dict(color=PAVO_REAL, width=4))))
+fig.add_annotation(x=nodo[0], y=-1.25, text="z = Σ wᵢxᵢ + b", showarrow=False, font=dict(size=22, color=GRIS))
+fig.add_annotation(x=0, y=2.75, text="entradas", showarrow=False, font=dict(size=20, color=GRIS))
+fig.add_annotation(x=nodo[0], y=2.75, text="neurona", showarrow=False, font=dict(size=20, color=GRIS))
+fig.update_layout(xaxis=dict(visible=False, range=[-0.6, 8.2]), yaxis=dict(visible=False, range=[-2.5, 3.0]),
+                  plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=0, r=0, t=0, b=0))
+mostrar(fig, 880, 600)
+```
+
+::: {.credito}
+El grosor de cada flecha representa el tamaño del peso; coral = peso positivo, verde = negativo. Es el mismo dibujo que usaremos para el perceptrón multicapa, pero con una sola neurona.
+:::
+:::
+::::
+
+## La neurona artificial: ¿qué calcula?
+
+:::: {.columns}
+::: {.column width="38%"}
+Con dos entradas $(x_1, x_2)$:
+
+$$
+a = \sigma(w_1 x_1 + w_2 x_2 + b)
+$$
+
+- La recta $w_1 x_1 + w_2 x_2 + b = 0$ divide el plano en dos
+- De un lado $a \approx 1$ (la neurona «se enciende»), del otro $a \approx 0$
+- El vector $\mathbf{w}$ (flecha) apunta hacia donde la neurona se activa
+- $b$ desplaza la recta; $|\mathbf{w}|$ controla qué tan brusca es la transición
+
+::: {.caja .pequeno}
+Muevan el deslizador para girar $\mathbf{w}$: una sola neurona solo puede separar el plano con una **recta**.
+:::
+:::
+::: {.column width="62%"}
 ```{python}
 xx = np.linspace(-4, 4, 70)
 X1, X2 = np.meshgrid(xx, xx)
@@ -278,32 +341,56 @@ mostrar(fig, 1400, 600)
 La capa oculta **cambia la representación** de los datos: en el espacio $(h_1, h_2)$, XOR **sí** es separable por una recta. Esta es la idea central del aprendizaje profundo.
 :::
 
-## Las capas ocultas "doblan" el espacio
+## Las capas ocultas "doblan" el espacio {.compacta}
+
+Red: 2 entradas $(x_1, x_2)$ → **3 neuronas ocultas** (tanh) → 1 salida, entrenada para separar **dos círculos concéntricos**.
 
 :::: {.columns}
-::: {.column width="40%"}
-- Datos: dos círculos concéntricos (no separables con una recta)
-- Red: 2 entradas → **3 neuronas ocultas** (tanh) → 1 salida
-- A la derecha: cada punto dibujado en las coordenadas de las **3 neuronas ocultas** después de entrenar
-
-::: {.caja .pequeno}
-¡Gírenlo! En el espacio oculto, un **plano** separa las dos clases. La red **aprendió sola** una característica parecida al $r^2$ que diseñamos a mano en la introducción.
-:::
-:::
-::: {.column width="60%"}
+::: {.column width="45%"}
 ```{python}
 Xc, yc = make_circles(n_samples=500, noise=0.07, factor=0.4, random_state=3)
 red = MLPClassifier(hidden_layer_sizes=(3,), activation="tanh", solver="lbfgs", max_iter=3000, random_state=3).fit(Xc, yc)
 Hc = np.tanh(Xc @ red.coefs_[0] + red.intercepts_[0])
+fig = go.Figure()
+for c, (nombre, color) in enumerate([("clase 0 (exterior)", ABETO), ("clase 1 (interior)", CORAL)]):
+    fig.add_trace(go.Scatter(x=Xc[yc == c, 0], y=Xc[yc == c, 1], mode="markers", name=nombre,
+                             marker=dict(size=7, color=color, line=dict(color="white", width=1)),
+                             hovertemplate="x₁=%{x:.2f}, x₂=%{y:.2f}<extra></extra>"))
+# La recta de cada neurona oculta: w₁x₁ + w₂x₂ + b = 0 (donde h cambia de signo)
+t = np.linspace(-1.6, 1.6, 2)
+for k, color in enumerate([ZAFIRO, PISTACHO, PAVO_REAL]):
+    (w1, w2), b = red.coefs_[0][:, k], red.intercepts_[0][k]
+    if abs(w2) > abs(w1):
+        xs, ys = t, -(w1 * t + b) / w2
+    else:
+        xs, ys = -(w2 * t + b) / w1, t
+    fig.add_trace(go.Scatter(x=xs, y=ys, mode="lines", name=f"recta de h{'₁₂₃'[k]}", visible="legendonly",
+                             line=dict(color=color, width=4, dash="dash"), hoverinfo="skip"))
+fig.update_layout(title="Datos de entrada (x₁, x₂)", legend=dict(x=1.02, y=1, font=dict(size=15)),
+                  xaxis=dict(title="x₁", range=[-1.5, 1.5]), yaxis=dict(title="x₂", range=[-1.5, 1.5], scaleanchor="x"),
+                  margin=dict(l=60, r=10, t=60, b=50))
+mostrar(fig, 700, 520)
+```
+
+::: {.pequeno}
+En la leyenda pueden mostrar la recta de cada neurona oculta: cada $h_k$ mide de qué lado de su recta (y a qué distancia) cae el punto.
+:::
+:::
+::: {.column width="55%"}
+```{python}
 fig = go.Figure()
 for c, (nombre, color) in enumerate([("clase 0 (círculo exterior)", ABETO), ("clase 1 (círculo interior)", CORAL)]):
     fig.add_trace(go.Scatter3d(x=Hc[yc == c, 0], y=Hc[yc == c, 1], z=Hc[yc == c, 2], mode="markers", name=nombre,
                                marker=dict(size=4, color=color)))
 fig.update_layout(scene=dict(xaxis_title="h₁", yaxis_title="h₂", zaxis_title="h₃", camera=dict(eye=dict(x=1.5, y=1.5, z=0.9))),
                   legend=dict(x=0, y=0.97), margin=dict(l=0, r=0, t=60, b=0),
-                  title=dict(text=f"Exactitud: {red.score(Xc, yc):.0%}", y=0.97))
-mostrar(fig, 880, 660)
+                  title=dict(text=f"Espacio oculto (h₁, h₂, h₃) · exactitud: {red.score(Xc, yc):.0%}", y=0.97))
+mostrar(fig, 840, 560)
 ```
+
+::: {.caja .pequeno}
+¡Gírenlo! En el espacio oculto, un **plano** separa las dos clases. La red **aprendió sola** una característica parecida al $r^2$ que diseñamos a mano en la introducción.
+:::
 :::
 ::::
 
@@ -339,7 +426,7 @@ Una red con **una sola capa oculta** y suficientes neuronas puede aproximar cual
 
 Pérdida, gradientes y retropropagación
 
-## Paso 1: medir el error con una función de pérdida
+## Paso 1: medir el error con una función de pérdida {.compacta}
 
 :::: {.columns}
 ::: {.column width="50%"}
@@ -348,21 +435,33 @@ $$
 L = \frac{1}{N}\sum_{i=1}^{N}\big(\hat{y}_i - y_i\big)^2
 $$
 
-[Clasificación: entropía cruzada]{.titulo-tarjeta}
+[Clasificación binaria: entropía cruzada]{.titulo-tarjeta}
 $$
-L = -\frac{1}{N}\sum_{i=1}^{N}\sum_{c} y_{ic}\,\log \hat{p}_{ic}
+L = -\frac{1}{N}\sum_{i=1}^{N}\Big[\,y_i\log \hat{p}_i + (1-y_i)\log\big(1-\hat{p}_i\big)\Big]
 $$
-donde $\hat{p}_{ic}$ es la probabilidad que la red asigna a la clase correcta (salida **softmax**).
+donde $y_i \in \{0, 1\}$ es la etiqueta real y $\hat{p}_i = \sigma(z_i)$ es la probabilidad de la clase 1 que da la red.
+
+- Si $y_i = 1$, solo queda $-\log \hat{p}_i$
+- Si $y_i = 0$, solo queda $-\log(1-\hat{p}_i)$
 :::
 ::: {.column width="50%"}
 ```{python}
-p = np.linspace(0.01, 1, 200)
-fig = go.Figure(go.Scatter(x=p, y=-np.log(p), line=dict(color=CORAL, width=5),
-                           hovertemplate="p = %{x:.2f}<br>pérdida = %{y:.2f}<extra></extra>"))
-fig.update_layout(title="Entropía cruzada: castiga mucho estar seguro y equivocarse",
-                  xaxis=dict(title="probabilidad asignada a la clase correcta"), yaxis=dict(title="pérdida −log p"))
+p = np.linspace(0.005, 0.995, 300)
+fig = go.Figure()
+fig.add_trace(go.Scatter(x=p, y=-np.log(p), name="ejemplo con y = 1", line=dict(color=CORAL, width=5),
+                         hovertemplate="p̂ = %{x:.2f}<br>pérdida = %{y:.2f}<extra>y = 1</extra>"))
+fig.add_trace(go.Scatter(x=p, y=-np.log(1 - p), name="ejemplo con y = 0", line=dict(color=ABETO, width=5),
+                         hovertemplate="p̂ = %{x:.2f}<br>pérdida = %{y:.2f}<extra>y = 0</extra>"))
+fig.update_layout(title="Pérdida de un ejemplo según lo que predice la red",
+                  xaxis=dict(title="p̂ = probabilidad de clase 1 que da la red", range=[0, 1]),
+                  yaxis=dict(title="pérdida L", range=[0, 5.3]),
+                  legend=dict(x=0.32, y=0.98, xanchor="center", font=dict(size=18)))
 mostrar(fig, 760, 520)
 ```
+
+::: {.pequeno}
+Acertar con seguridad cuesta casi 0; estar **seguro y equivocado** cuesta muchísimo.
+:::
 :::
 ::::
 
@@ -379,8 +478,10 @@ Lmap = perdida(np.stack([G0, G1], -1))
 tasas = [0.02, 0.08, 0.2, 0.24, 0.26]
 desc = {0.02: "muy pequeña: avanza lentísimo", 0.08: "adecuada", 0.2: "grande: oscila", 0.24: "casi diverge", 0.26: "demasiado grande: ¡diverge!"}
 fig = go.Figure()
-fig.add_trace(go.Contour(x=g, y=g, z=np.log1p(Lmap), colorscale=SECUENCIAL, showscale=False, ncontours=25,
-                         hoverinfo="skip", line=dict(width=0.5)))
+# Superficie 3D de la pérdida: ¡una montaña (o más bien un valle)!
+fig.add_trace(go.Surface(x=g, y=g, z=Lmap, colorscale=SECUENCIAL, showscale=False, opacity=0.85,
+                         contours=dict(z=dict(show=True, usecolormap=True, project=dict(z=True), width=1)),
+                         hovertemplate="w₁=%{x:.2f}, w₂=%{y:.2f}<br>L=%{z:.2f}<extra></extra>"))
 titulos = []
 for eta in tasas:
     w = np.array([-2.8, 1.2])
@@ -388,37 +489,55 @@ for eta in tasas:
     for _ in range(30):
         w = w - eta * gradiente(w)
         camino.append(w.copy())
-    camino = np.clip(np.array(camino), -3.5, 3.5)
-    fig.add_trace(go.Scatter(x=camino[:, 0], y=camino[:, 1], mode="lines+markers", line=dict(color=CORAL, width=3),
-                             marker=dict(size=9, color=CORAL, line=dict(color="white", width=1)), visible=(eta == 0.08),
-                             showlegend=False, hovertemplate="paso %{pointNumber}<extra></extra>"))
+    camino = np.clip(np.array(camino), -3.2, 3.2)
+    zc = perdida(camino) + 0.4  # un poco por encima de la superficie para que se vea
+    fig.add_trace(go.Scatter3d(x=camino[:, 0], y=camino[:, 1], z=zc, mode="lines+markers", line=dict(color=CORAL, width=7),
+                               marker=dict(size=5, color=CORAL, line=dict(color="white", width=1)), visible=(eta == 0.08),
+                               showlegend=False, hovertemplate="paso %{pointNumber}<br>L=%{z:.2f}<extra></extra>"))
     titulos.append({"title.text": f"Tasa de aprendizaje η = {eta}: {desc[eta]}"})
-fig.add_trace(go.Scatter(x=[0], y=[0], mode="markers", marker=dict(symbol="star", size=24, color=PAVO_REAL), showlegend=False,
-                         hovertext="mínimo", hoverinfo="text"))
+fig.add_trace(go.Scatter3d(x=[0], y=[0], z=[0.3], mode="markers", marker=dict(symbol="diamond", size=9, color=PAVO_REAL),
+                           showlegend=False, hovertext="mínimo", hoverinfo="text"))
 pasos = []
 for i, eta in enumerate(tasas):
     vis = [True] + [j == i for j in range(len(tasas))] + [True]
     pasos.append(dict(method="update", label=str(eta), args=[{"visible": vis}, titulos[i]]))
 fig.update_layout(sliders=deslizador(pasos, prefijo="η = ", activo=1), title=titulos[1]["title.text"],
-                  xaxis=dict(title="peso w₁", range=[-3.2, 3.2]), yaxis=dict(title="peso w₂", range=[-3.2, 3.2], scaleanchor="x"))
-mostrar(fig, 1000, 680)
+                  scene=dict(xaxis=dict(title="peso w₁", range=[-3.2, 3.2]), yaxis=dict(title="peso w₂", range=[-3.2, 3.2]),
+                             zaxis=dict(title="pérdida L"), aspectmode="manual", aspectratio=dict(x=1.2, y=1.2, z=0.75),
+                             camera=dict(eye=dict(x=-1.15, y=-1.3, z=0.8), center=dict(x=0, y=0, z=-0.05))),
+                  margin=dict(l=0, r=0, t=50, b=0))
+mostrar(fig, 1400, 700)
 ```
 
 ::: {.pequeno}
 $\mathbf{w} \leftarrow \mathbf{w} - \eta\,\nabla_{\mathbf{w}} L$. La **tasa de aprendizaje** $\eta$ es el hiperparámetro más importante. [Más en la sesión de optimización con **Carlos Soto**]{.adelante}
 :::
 
-## Paso 3: calcular el gradiente con retropropagación
+## Paso 3: calcular el gradiente con retropropagación {.compacta}
 
 :::: {.columns}
-::: {.column width="50%"}
-Una red es una **composición de funciones**: $L = \ell(f_3(f_2(f_1(x))))$
-
-La **regla de la cadena** da el gradiente respecto a *cualquier* peso:
+::: {.column width="58%"}
+Ejemplo: una red con **una neurona por capa**
 
 $$
-\frac{\partial L}{\partial w^{(1)}} = \frac{\partial L}{\partial \hat y}\cdot\frac{\partial \hat y}{\partial h^{(2)}}\cdot\frac{\partial h^{(2)}}{\partial h^{(1)}}\cdot\frac{\partial h^{(1)}}{\partial w^{(1)}}
+\begin{aligned}
+z_1 &= w_1 x + b_1, & h &= \sigma(z_1),\\
+z_2 &= w_2 h + b_2, & \hat y &= \sigma(z_2), \qquad L = (\hat y - y)^2
+\end{aligned}
 $$
+
+La **regla de la cadena**: multiplicar las derivadas de cada eslabón, **de la salida hacia atrás**
+
+$$
+\frac{\partial L}{\partial w_1}
+= \underbrace{\frac{\partial L}{\partial \hat y}}_{2(\hat y - y)}\cdot
+\underbrace{\frac{\partial \hat y}{\partial z_2}}_{\sigma'(z_2)}\cdot
+\underbrace{\frac{\partial z_2}{\partial h}}_{w_2}\cdot
+\underbrace{\frac{\partial h}{\partial z_1}}_{\sigma'(z_1)}\cdot
+\underbrace{\frac{\partial z_1}{\partial w_1}}_{x}
+$$
+
+Los dos primeros factores ya se calcularon para $\frac{\partial L}{\partial w_2} = 2(\hat y - y)\,\sigma'(z_2)\,h$: se **reutilizan**. Con más capas, la cadena simplemente es más larga.
 
 - **Hacia adelante:** calcular la predicción y la pérdida
 - **Hacia atrás:** propagar los gradientes desde la salida hasta la entrada, reutilizando cálculos
@@ -427,7 +546,7 @@ $$
 Rumelhart, D. E., Hinton, G. E. & Williams, R. J. (1986). Learning representations by back-propagating errors. *Nature* 323, 533–536.
 :::
 :::
-::: {.column width="50%"}
+::: {.column width="42%"}
 En **PyTorch** la retropropagación es automática (*autograd*):
 
 ```python
@@ -456,7 +575,10 @@ print(w.grad, b.grad)   # ∂L/∂w, ∂L/∂b
 1. Tomar un **lote** (*mini-batch*) de ejemplos
 2. **Hacia adelante:** predicciones y pérdida
 3. **Hacia atrás:** gradientes
-4. **Actualizar** los pesos (SGD, Adam…)
+4. **Actualizar** los pesos (SGD, Adam…). La versión más simple, descenso de gradiente:
+$$
+w \leftarrow w - \eta\,\frac{\partial L}{\partial w}
+$$
 5. Repetir; una pasada por todos los datos = una **época**
 
 ```python
@@ -535,6 +657,93 @@ La red empieza a **memorizar** los datos de entrenamiento: la pérdida de entren
 :::
 ::::
 
+## Regularización: penalizar pesos vs. *dropout* {.compacta}
+
+:::: {.columns}
+::: {.column width="50%"}
+[Penalizar pesos grandes (*weight decay*, $L_2$)]{.titulo-tarjeta}
+
+$$
+L_{\text{total}} = L + \lambda \sum_j w_j^2
+\quad\Rightarrow\quad
+w \leftarrow (1 - 2\eta\lambda)\,w - \eta\,\frac{\partial L}{\partial w}
+$$
+
+```{python}
+lambdas = [0.0, 0.0003, 0.001, 0.01, 0.03]
+gx = np.linspace(-2.2, 3.2, 120)
+gy = np.linspace(-1.8, 2.3, 100)
+GX, GY = np.meshgrid(gx, gy)
+fig = go.Figure()
+titulos = []
+for lam in lambdas:
+    # sklearn usa alpha/(2·n) · Σw²; tomamos alpha = 2·n·λ para que λ coincida con la fórmula
+    red_l2 = MLPClassifier(hidden_layer_sizes=(64, 64), alpha=2 * len(Xa) * lam, solver="lbfgs", max_iter=3000,
+                           random_state=0).fit(Xa, ya)
+    Z = red_l2.predict_proba(np.c_[GX.ravel(), GY.ravel()])[:, 1].reshape(GX.shape)
+    fig.add_trace(go.Contour(x=gx, y=gy, z=Z, colorscale=DIVERGENTE, opacity=0.45, showscale=False, visible=(lam == 0.0),
+                             contours=dict(start=0, end=1, size=0.1), hoverinfo="skip"))
+    titulos.append({"title.text": f"λ = {lam}: exactitud entrenamiento {red_l2.score(Xa, ya):.0%} · validación {red_l2.score(Xv, yv):.0%}"})
+for c, color in [(0, ABETO), (1, CORAL)]:
+    fig.add_trace(go.Scatter(x=Xa[ya == c, 0], y=Xa[ya == c, 1], mode="markers", showlegend=False, hoverinfo="skip",
+                             marker=dict(color=color, size=9, line=dict(color="white", width=1))))
+fig.update_layout(sliders=deslizador(pasos_visibilidad(1, lambdas, extras=titulos), prefijo="λ = "),
+                  title=dict(text=titulos[0]["title.text"], font=dict(size=18)),
+                  xaxis=dict(range=[-2.2, 3.2], showticklabels=False), yaxis=dict(range=[-1.8, 2.3], showticklabels=False),
+                  margin=dict(l=20, r=20, t=50, b=20))
+for paso in fig.layout.sliders[0].steps:
+    paso.args[0]["visible"] = paso.args[0]["visible"] + [True, True]
+mostrar(fig, 740, 540)
+```
+:::
+::: {.column width="50%"}
+[*Dropout*: apagar neuronas al azar]{.titulo-tarjeta}
+
+En **cada paso de entrenamiento** se apaga cada neurona oculta con probabilidad $p$ (p. ej. $p = 0.5$). Al **predecir** se usan todas.
+
+```{python}
+capas_d = [4, 6, 6, 2]
+pos_d = {(l, j): (l * 1.7, (j - (n - 1) / 2) * 0.85) for l, n in enumerate(capas_d) for j in range(n)}
+rng_d = np.random.default_rng(5)
+etapas = ["predicción", "paso 1", "paso 2", "paso 3"]
+fig = go.Figure()
+for e, etapa in enumerate(etapas):
+    apagadas = set()
+    if e > 0:
+        for l in (1, 2):
+            for j in range(capas_d[l]):
+                if rng_d.random() < 0.5:
+                    apagadas.add((l, j))
+    xs_e, ys_e = [], []
+    for l in range(len(capas_d) - 1):
+        for j in range(capas_d[l]):
+            for k in range(capas_d[l + 1]):
+                if (l, j) in apagadas or (l + 1, k) in apagadas:
+                    continue
+                (x0, y0), (x1, y1) = pos_d[(l, j)], pos_d[(l + 1, k)]
+                xs_e += [x0, x1, None]
+                ys_e += [y0, y1, None]
+    fig.add_trace(go.Scatter(x=xs_e, y=ys_e, mode="lines", line=dict(color=ZAFIRO, width=1.5), hoverinfo="skip",
+                             showlegend=False, visible=(e == 1)))
+    activas = [v for v in pos_d if v not in apagadas]
+    fig.add_trace(go.Scatter(x=[pos_d[v][0] for v in activas], y=[pos_d[v][1] for v in activas], mode="markers",
+                             marker=dict(size=30, color="white", line=dict(color=PAVO_REAL, width=3)),
+                             hoverinfo="skip", showlegend=False, visible=(e == 1)))
+    fig.add_trace(go.Scatter(x=[pos_d[v][0] for v in apagadas] or [None], y=[pos_d[v][1] for v in apagadas] or [None],
+                             mode="markers", marker=dict(size=30, color=REJILLA, line=dict(color=ARTICO, width=2)),
+                             hoverinfo="skip", showlegend=False, visible=(e == 1)))
+fig.update_layout(sliders=deslizador(pasos_visibilidad(3, etapas), prefijo="", activo=1),
+                  xaxis=dict(visible=False), yaxis=dict(visible=False, range=[-2.6, 2.6]),
+                  plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=10, r=10, t=10, b=10))
+mostrar(fig, 700, 420)
+```
+
+::: {.pequeno}
+La red no puede depender de **una** neurona en particular: es como entrenar muchas redes más pequeñas a la vez y promediarlas.
+:::
+:::
+::::
+
 ## ¡Jueguen ustedes! TensorFlow Playground
 
 <iframe class="demo" data-src="https://playground.tensorflow.org/#activation=tanh&batchSize=10&dataset=spiral&regDataset=reg-plane&learningRate=0.03&regularizationRate=0&noise=0&networkShape=4,2&seed=0.5&showTestData=false&discretize=false&percTrainData=50&x=true&y=true&xTimesY=false&xSquared=false&ySquared=false&cosX=false&sinX=false&cosY=false&sinY=false&collectStats=false&problem=classification&initZero=false&hideText=true" height="640" loading="lazy"></iframe>
@@ -547,8 +756,10 @@ Retos: (1) la espiral con 0 capas ocultas: imposible. (2) Agregar capas y neuron
 
 Representaciones jerárquicas
 
-## 2012: el año en que todo cambió
+## 2012: el año en que todo cambió {.compacta}
 
+:::: {.columns}
+::: {.column width="72%"}
 ```{python}
 imagenet = [(2010, 28.2, "NEC-UIUC"), (2011, 25.8, "XRCE"), (2012, 16.4, "AlexNet (red convolucional, GPU)"),
             (2013, 11.7, "Clarifai / ZFNet"), (2014, 6.7, "GoogLeNet"), (2015, 3.57, "ResNet (152 capas)"),
@@ -561,14 +772,113 @@ fig.add_hline(y=5.1, line=dict(color=PAVO_REAL, dash="dash", width=3), layer="be
 fig.add_annotation(x=2010.2, y=5.1, text="humano (≈5.1 %)", showarrow=False, yshift=16, xanchor="left", font=dict(size=18))
 fig.update_layout(title="Error en ImageNet (1000 categorías, 1.2 millones de imágenes de entrenamiento)",
                   yaxis=dict(title="error top-5 (%)", range=[0, 32]), xaxis=dict(dtick=1, title=None), showlegend=False)
-mostrar(fig, 1350, 600)
+mostrar(fig, 1120, 600)
 ```
+
+::: {.pequeno}
+**Error top-5**: la respuesta correcta no está entre las 5 categorías que la red considera más probables.
+:::
+:::
+::: {.column width="28%"}
+::: {.ejemplos-imagenet}
+![husky siberiano](img/imagenet_husky.jpg){fig-alt="Foto de un husky siberiano"}
+
+![malamute de Alaska](img/imagenet_malamute.jpg){fig-alt="Foto de un malamute de Alaska"}
+
+![buque portacontenedores](img/imagenet_portacontenedores.jpg){fig-alt="Foto de un buque portacontenedores"}
+:::
+
+::: {.muy-pequeno}
+Tres de las 1000 categorías. ¡Hay 120 razas de perro distintas!
+:::
+:::
+::::
+
+::: {.credito}
+Fotos (Wikimedia Commons): xJaM, CC BY-SA 3.0; SCMW, CC BY 3.0; kees torn, CC BY-SA 2.0.
+:::
 
 ::: aside
 Russakovsky, O. *et al.* (2015). ImageNet Large Scale Visual Recognition Challenge. *IJCV* 115, 211–252. · Krizhevsky, A., Sutskever, I. & Hinton, G. (2012). *NeurIPS*. · He, K. *et al.* (2016). Deep residual learning. *CVPR*.
 :::
 
 ## ¿Qué aprende cada capa? {.compacta}
+
+```{python}
+# Visualizaciones de neuronas de InceptionV1 (GoogLeNet) de Olah et al. (2020), Distill, CC BY 4.0.
+# Cada imagen es la entrada sintética que más activa a una neurona.
+URL_DISTILL = "img/distill_neuronas/"  # copia local de https://distill.pub/2020/circuits/early-vision/images/neuron/
+capas_inception = [
+    ("conv2d0", "capa 1", "Primera capa: bordes orientados (filtros de Gabor) y contrastes de color", [
+        ("Bordes orientados (Gabor)", "conv2d0_9.png conv2d0_53.png conv2d0_54.png conv2d0_15.png conv2d0_22.png conv2d0_39.png"),
+        ("Contraste de color", "conv2d0_59.png conv2d0_23.png conv2d0_5.png conv2d0_7.png conv2d0_48.png conv2d0_29.png"),
+    ]),
+    ("conv2d1", "capa 2", "Combinaciones de bordes: frecuencias bajas, Gabor más complejos, varios colores", [
+        ("Baja frecuencia", "conv2d1_1.png conv2d1_13.png conv2d1_27.png conv2d1_47.png conv2d1_56.png conv2d1_60.png"),
+        ("Tipo Gabor", "conv2d1_4.png conv2d1_6.png conv2d1_32.png conv2d1_38.png conv2d1_41.png conv2d1_63.png"),
+        ("Gabor complejos", "conv2d1_51.png conv2d1_58.png conv2d1_30.png conv2d1_25.png conv2d1_52.png conv2d1_54.png"),
+        ("Multicolor", "conv2d1_3.png conv2d1_33.png conv2d1_35.png conv2d1_40.png conv2d1_17.png conv2d1_16.png"),
+    ]),
+    ("conv2d2", "capa 3", "Aparecen líneas, curvas pequeñas, esquinas y texturas", [
+        ("Líneas", "conv2d2_107.png conv2d2_31.png conv2d2_9.png conv2d2_112.png conv2d2_133.png conv2d2_103.png"),
+        ("Curvas pequeñas", "conv2d2_182.png conv2d2_117.png conv2d2_171.png conv2d2_111.png conv2d2_63.png conv2d2_130.png"),
+        ("Esquinas", "conv2d2_47.png conv2d2_87.png conv2d2_95.png conv2d2_26.png"),
+        ("Centro-periferia de color", "conv2d2_155.png conv2d2_34.png conv2d2_156.png conv2d2_13.png conv2d2_49.png conv2d2_138.png"),
+        ("Texturas", "conv2d2_21.png conv2d2_52.png conv2d2_59.png conv2d2_119.png conv2d2_148.png conv2d2_161.png"),
+    ]),
+    ("mixed3a", "capa 4", "Formas: curvas, ángulos, pequeños círculos (¡ojos!) y el inicio del pelaje", [
+        ("Curvas", "mixed3a_81.jpg mixed3a_104.jpg mixed3a_92.jpg mixed3a_145.jpg mixed3a_95.jpg mixed3a_163.jpg"),
+        ("Ángulos", "mixed3a_188.jpg mixed3a_94.jpg mixed3a_164.jpg mixed3a_107.jpg mixed3a_77.jpg mixed3a_157.jpg"),
+        ("Ojos / círculos pequeños", "mixed3a_174.jpg mixed3a_168.jpg mixed3a_79.jpg mixed3a_125.jpg mixed3a_175.jpg"),
+        ("Precursores de pelaje", "mixed3a_46.jpg mixed3a_47.jpg mixed3a_26.jpg mixed3a_63.jpg mixed3a_80.jpg mixed3a_23.jpg"),
+        ("Patrones repetidos", "mixed3a_237.jpg mixed3a_31.jpg mixed3a_17.jpg mixed3a_20.jpg mixed3a_39.jpg mixed3a_126.jpg"),
+    ]),
+    ("mixed3b", "capa 5", "Partes de objetos: ojos, proto-cabezas, pelaje orientado, contornos de objetos", [
+        ("Ojos", "mixed3b_370.jpg mixed3b_352.jpg mixed3b_363.jpg mixed3b_322.jpg mixed3b_83.jpg mixed3b_199.jpg"),
+        ("Proto-cabezas", "mixed3b_362.jpg mixed3b_413.jpg mixed3b_334.jpg mixed3b_331.jpg mixed3b_174.jpg mixed3b_225.jpg"),
+        ("Pelaje orientado", "mixed3b_57.jpg mixed3b_387.jpg mixed3b_404.jpg mixed3b_333.jpg mixed3b_375.jpg mixed3b_381.jpg"),
+        ("Curvas", "mixed3b_379.jpg mixed3b_406.jpg mixed3b_385.jpg mixed3b_343.jpg mixed3b_342.jpg mixed3b_388.jpg"),
+        ("Círculos / bucles", "mixed3b_389.jpg mixed3b_384.jpg mixed3b_346.jpg mixed3b_323.jpg"),
+        ("Contornos de objetos", "mixed3b_220.jpg mixed3b_402.jpg mixed3b_364.jpg mixed3b_293.jpg mixed3b_356.jpg mixed3b_151.jpg"),
+    ]),
+]
+botones, paneles = [], []
+for k, (cid, num, desc_capa, familias) in enumerate(capas_inception):
+    botones.append(f"<button data-capa='{k}' class='{'activa' if k == 0 else ''}'>{num}<small>{cid}</small></button>")
+    if k < len(capas_inception) - 1:
+        botones.append("<span class='flecha'>→</span>")
+    tarjetas = "".join(
+        "<div class='familia'><div class='nombre'>" + nombre + "</div><div class='neuronas'>"
+        + "".join(f"<img src='{URL_DISTILL}{f}' alt='{nombre}' loading='lazy'>" for f in archivos.split())
+        + "</div></div>" for nombre, archivos in familias)
+    paneles.append(f"<div class='panel-capa' data-desc='{desc_capa}' style='display:{'block' if k == 0 else 'none'}'>"
+                   f"<div class='familias'>{tarjetas}</div></div>")
+html = ("<div class='explorador-capas' id='explorador-capas'>"
+        "<div class='capas-red'><span class='fija'>imagen</span><span class='flecha'>→</span>" + "".join(botones)
+        + "<span class='flecha'>→ … →</span><span class='fija'>«perro»</span></div>"
+        f"<div class='descripcion-capa'>{capas_inception[0][2]}</div>" + "".join(paneles) + "</div>"
+        """<script>
+        (function () {
+          const raiz = document.getElementById('explorador-capas');
+          const botones = raiz.querySelectorAll('button[data-capa]');
+          const paneles = raiz.querySelectorAll('.panel-capa');
+          const desc = raiz.querySelector('.descripcion-capa');
+          botones.forEach(b => b.addEventListener('click', () => {
+            const k = +b.dataset.capa;
+            botones.forEach(x => x.classList.toggle('activa', x === b));
+            paneles.forEach((p, i) => { p.style.display = i === k ? 'block' : 'none'; });
+            desc.textContent = paneles[k].dataset.desc;
+          }));
+        })();
+        </script>""")
+display(HTML(html))
+```
+
+::: {.credito}
+Cada cuadrito es la imagen **sintética** que más activa a una neurona de InceptionV1 (GoogLeNet), obtenida con descenso de gradiente sobre la imagen. Olah, C. *et al.* (2020). An Overview of Early Vision in InceptionV1. *Distill*. doi:10.23915/distill.00024.002. Imágenes con licencia CC BY 4.0.
+:::
+
+## ¿Qué aprende cada capa? Hasta los objetos {.compacta}
 
 :::: {.columns}
 ::: {.column width="58%"}
@@ -581,9 +891,8 @@ display(HTML("<div style='display:flex;justify-content:space-around;font-size:0.
 ```
 :::
 ::: {.column width="42%"}
-- Cada cuadrito es la imagen **sintética** que más activa a una neurona de GoogLeNet (una red convolucional entrenada con ImageNet)
-- Se obtiene con **descenso de gradiente sobre la imagen** (no sobre los pesos): ¿qué entrada maximiza esta neurona?
-- De izquierda a derecha, capas cada vez más **profundas**: la red construye una **jerarquía** de conceptos
+- Siguiendo hacia capas más **profundas**, las neuronas responden a **partes** (caras de perro, ruedas) y luego a **objetos** completos
+- La red construye una **jerarquía** de conceptos
 
 ::: {.caja .pequeno}
 Nadie le dijo a la red que usara bordes ni ojos de perro: lo **descubrió** porque le sirve para clasificar. Más en la sesión de redes convolucionales, con **circuitos** dentro de las redes.
@@ -594,67 +903,6 @@ Nadie le dijo a la red que usara bordes ni ojos de perro: lo **descubrió** porq
 ::: {.credito}
 Olah, C., Mordvintsev, A. & Schubert, L. (2017). Feature Visualization. *Distill*. doi:10.23915/distill.00007. Figura con licencia CC BY 4.0.
 :::
-
-## Física y redes neuronales: la red de Hopfield {.compacta}
-
-:::: {.columns}
-::: {.column width="40%"}
-- Neuronas binarias $s_i = \pm 1$ (¡como espines!)
-- **Energía**, igual que en el modelo de Ising:
-$$
-E = -\frac{1}{2}\sum_{i\neq j} w_{ij}\, s_i s_j
-$$
-- **Aprendizaje de Hebb** ("neuronas que se activan juntas se conectan"): $w_{ij} = \frac{1}{N}\sum_\mu \xi_i^\mu \xi_j^\mu$
-- Cada actualización $s_i \leftarrow \text{signo}\big(\sum_j w_{ij} s_j\big)$ **baja la energía** → la red "cae" al recuerdo más cercano: **memoria asociativa**
-
-::: {.credito}
-Hopfield, J. J. (1982). Neural networks and physical systems with emergent collective computational abilities. *PNAS* 79, 2554–2558.
-:::
-:::
-::: {.column width="60%"}
-```{python}
-letras = {
-    "H": ["#......#", "#......#", "#......#", "########", "########", "#......#", "#......#", "#......#"],
-    "N": ["#......#", "##.....#", "#.#....#", "#..#...#", "#...#..#", "#....#.#", "#.....##", "#......#"],
-    "D": ["######..", "#.....#.", "#......#", "#......#", "#......#", "#......#", "#.....#.", "######.."],
-}
-patrones = np.array([[1 if ch == "#" else -1 for fila in letras[k] for ch in fila] for k in letras])
-Nh = patrones.shape[1]
-W = patrones.T @ patrones / Nh
-np.fill_diagonal(W, 0)
-estado = patrones[0].copy()
-voltear = rng.choice(Nh, 22, replace=False)
-estado[voltear] *= -1
-energia = lambda s: -0.5 * s @ W @ s  # noqa: E731
-instantaneas, energias = [estado.copy()], [energia(estado)]
-orden = rng.permutation(np.repeat(np.arange(Nh), 3))
-for paso, i in enumerate(orden):
-    estado[i] = 1 if W[i] @ estado >= 0 else -1
-    if (paso + 1) % 16 == 0:
-        instantaneas.append(estado.copy())
-        energias.append(energia(estado))
-instantaneas = instantaneas[:9]
-energias = energias[:9]
-fig = make_subplots(rows=1, cols=2, column_widths=[0.5, 0.5], horizontal_spacing=0.12,
-                    subplot_titles=["Estado de la red (8×8 neuronas)", "Energía"])
-for k, s in enumerate(instantaneas):
-    fig.add_trace(go.Heatmap(z=s.reshape(8, 8)[::-1], colorscale=[[0, "white"], [1, PAVO_REAL]], zmin=-1, zmax=1,
-                             showscale=False, visible=(k == 0), xgap=2, ygap=2, hoverinfo="skip"), 1, 1)
-    fig.add_trace(go.Scatter(x=list(range(k + 1)), y=energias[:k + 1], mode="lines+markers", visible=(k == 0),
-                             line=dict(color=CORAL, width=4), marker=dict(size=10), showlegend=False), 1, 2)
-etq = [str(16 * k) for k in range(len(instantaneas))]
-fig.update_layout(sliders=deslizador(pasos_visibilidad(2, etq), prefijo="actualizaciones de neuronas: "), margin=dict(t=50))
-fig.update_xaxes(visible=False, row=1, col=1)
-fig.update_yaxes(visible=False, scaleanchor="x", row=1, col=1)
-fig.update_xaxes(title_text="paso", range=[-0.3, len(instantaneas) - 0.7], row=1, col=2)
-fig.update_yaxes(title_text="E", range=[min(energias) - 2, max(energias) + 2], row=1, col=2)
-mostrar(fig, 900, 560)
-```
-::: {.credito}
-Recuerdos guardados: las letras **H**, **N** y **D**. Mueve el deslizador: la red recupera la **H** a partir de una versión con ruido.
-:::
-:::
-::::
 
 ## El zoológico de arquitecturas
 
@@ -680,7 +928,6 @@ Recuerdos guardados: las letras **H**, **N** y **D**. Mueve el deslizador: la re
 - Entrenar = minimizar una **pérdida** con **descenso de gradiente**; los gradientes se calculan con **retropropagación**
 - Cuidado con el **sobreajuste**: validación, regularización, más datos
 - Las redes **profundas** aprenden **jerarquías** de características: bordes → texturas → partes → objetos
-- La física estadística está en el origen de todo esto (Hopfield, Boltzmann, Nobel 2024)
 :::
 
 ::: {.fragment .center .grande}
