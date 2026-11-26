@@ -11,6 +11,8 @@ project:
     - diapositivas/img/distill_neuronas/*
     - diapositivas/img/distill_curva_ejemplos/*
     - diapositivas/img/distill_emociones/*
+    - diapositivas/img/conjuntos_datos/*
+    - diapositivas/img/aplicaciones/*
 
 lang: es
 

@@ -62,39 +62,27 @@ Esta foto: 270 × 360 píxeles × 3 colores = **291 600 números**. Una foto de 
 
 :::: {.columns}
 ::: {.column width="52%"}
-::: {.incremental}
-- **Demasiados parámetros:** una imagen de 1000×1000×3 conectada a 1000 neuronas = **3 000 millones** de pesos en la primera capa
-- **Ignora la geometría:** si revolvemos los píxeles (siempre de la misma forma), un perceptrón aprende igual de bien. ¡No sabe qué píxeles son vecinos!
-- **No reutiliza lo aprendido:** un detector de "ojo" arriba a la izquierda no sirve abajo a la derecha
-:::
-
 ```{python}
 # Revolver los píxeles con una permutación fija: para un perceptrón multicapa ambas imágenes son igual de fáciles
-peq = np.asarray(Image.open("img/foto_convolucion.jpg").convert("L").resize((96, 72)), dtype=float) / 255
-perm = np.random.default_rng(0).permutation(peq.size)
-revuelta = peq.ravel()[perm].reshape(peq.shape)
+peq = np.asarray(Image.open("img/foto_convolucion.jpg").convert("RGB").resize((96, 72)))
+perm = np.random.default_rng(0).permutation(96 * 72)
+revuelta = peq.reshape(-1, 3)[perm].reshape(peq.shape)          # mismos píxeles (con su color), otro orden
 fig = make_subplots(rows=1, cols=2, horizontal_spacing=0.05,
                     subplot_titles=["Imagen original", "Los mismos píxeles, revueltos"])
 for c, z in [(1, peq), (2, revuelta)]:
-    fig.add_trace(go.Heatmap(z=a_uint8(z), colorscale=GRISES, zmin=0, zmax=255, showscale=False, hoverinfo="skip"), 1, c)
+    fig.add_trace(go.Image(z=z, hoverinfo="skip"), 1, c)
     fig.update_yaxes(autorange="reversed", visible=False, scaleanchor=f"x{'' if c == 1 else c}", row=1, col=c)
     fig.update_xaxes(visible=False, row=1, col=c)
 fig.update_layout(margin=dict(l=0, r=0, t=40, b=0))
 fig.update_annotations(font_size=17)
-mostrar(fig, 760, 300)
+mostrar(fig, 760, 320)
 ```
 
 ::: {.muy-pequeno}
-Un perceptrón multicapa ve una lista de 6 912 números: para él, **las dos imágenes son igual de fáciles** de aprender. Nosotros ya no reconocemos la de la derecha.
+Un perceptrón multicapa ve una lista de 20 736 números: para él, **las dos imágenes son igual de fáciles** de aprender. Nosotros ya no reconocemos la de la derecha.
 :::
 :::
 ::: {.column width="48%"}
-::: {.definicion}
-**Inspiración biológica:** Hubel y Wiesel (1959–1962, Nobel 1981) descubrieron que las neuronas de la corteza visual responden a **bordes con cierta orientación** en una **región pequeña** del campo visual (*campo receptivo*), y que se organizan en **jerarquías**.
-
-→ Neocognitrón (Fukushima, 1980) → redes convolucionales (LeCun *et al.*, 1989)
-:::
-
 ```{python}
 # Esquema de una «célula simple» de la corteza visual primaria (V1): campo receptivo con una franja
 # excitadora (+) entre dos inhibidoras (−); responde a barras con su orientación.
@@ -127,7 +115,22 @@ mostrar(fig, 720, 260)
 ```
 
 ::: {.muy-pequeno}
-Esquema de una «célula simple»: dispara muchos pulsos cuando la barra coincide con la orientación de su franja excitadora (+), y casi nada si está girada. Basado en Hubel y Wiesel (1962), *J. Physiol.* 160, 106–154.
+Esquema de una «célula simple» de la corteza visual: dispara muchos pulsos cuando la barra coincide con la orientación de su franja excitadora (+), y casi nada si está girada. Basado en Hubel y Wiesel (1962), *J. Physiol.* 160, 106–154.
+:::
+:::
+::::
+
+:::: {.columns}
+::: {.column width="52%"}
+::: {.incremental .pequeno}
+- **Demasiados parámetros:** una imagen de 1000×1000×3 conectada a 1000 neuronas = **3 000 millones** de pesos en la primera capa
+- **Ignora la geometría:** si revolvemos los píxeles (siempre de la misma forma), un perceptrón aprende igual de bien. ¡No sabe qué píxeles son vecinos!
+- **No reutiliza lo aprendido:** un detector de "ojo" arriba a la izquierda no sirve abajo a la derecha
+:::
+:::
+::: {.column width="48%"}
+::: {.definicion .pequeno}
+**Inspiración biológica:** Hubel y Wiesel (1959–1962, Nobel 1981) descubrieron que las neuronas de la corteza visual responden a **bordes con cierta orientación** en una **región pequeña** del campo visual (*campo receptivo*), y que se organizan en **jerarquías**. → Neocognitrón (Fukushima, 1980) → redes convolucionales (LeCun *et al.*, 1989)
 :::
 :::
 ::::
@@ -542,28 +545,6 @@ Las dos maneras coinciden: es un **detector de curvas** con una orientación con
 Cammarata, N. *et al.* (2020). Curve Detectors. *Distill*. doi:10.23915/distill.00024.003. · Olah, C. *et al.* (2020). An Overview of Early Vision in InceptionV1. *Distill*. Imágenes CC BY 4.0.
 :::
 
-## Visualizar características: neuronas más profundas {.compacta}
-
-:::: {.columns}
-::: {.column width="55%"}
-![Cuatro neuronas de la capa *mixed4a* de GoogLeNet: ¿béisbol o rayas? ¿caras de animales u hocicos? ¿nubes o "esponjosidad"? ¿edificios o cielo?](img/distill_fv_neuronas.png){width="100%"}
-
-- En capas profundas las neuronas responden a **conceptos**: caras de perro, nubes, edificios…
-- Comparar la visualización con los **ejemplos reales** ayuda a saber qué detectan de verdad
-:::
-::: {.column width="45%"}
-![El *Atlas de activaciones*: un mapa de lo que "ve" la red](img/distill_atlas.jpg){width="100%" .redondeada}
-
-::: {.pequeno}
-Explórenlo en [distill.pub/2019/activation-atlas](https://distill.pub/2019/activation-atlas/) (interactivo)
-:::
-:::
-::::
-
-::: {.credito}
-Olah, C. *et al.* (2017). Feature Visualization. *Distill*. · Carter, S. *et al.* (2019). Activation Atlas. *Distill*. Figuras CC BY 4.0.
-:::
-
 ## Circuitos dentro de la red {.compacta}
 
 [De bordes a círculos: cada capa combina las características de la anterior (neuronas reales de GoogLeNet)]{.titulo-tarjeta}
@@ -600,32 +581,15 @@ Olah, C. *et al.* (2017). Feature Visualization. *Distill*. · Carter, S. *et al
 :::
 :::
 
+::: {style="height: 0.9em;"}
+:::
+
 :::: {.columns}
 ::: {.column width="47%"}
-```{python}
-# Esquema: un detector de triángulos = tres detectores de líneas (uno por lado), con pesos positivos
-fig = go.Figure()
-vert = np.array([[3.3, 0.0], [4.7, 0.0], [4.0, 1.25]])
-lados = [(vert[0], vert[1], ZAFIRO, "línea horizontal"), (vert[1], vert[2], PISTACHO, "línea inclinada \\"),
-         (vert[2], vert[0], CORAL_OSCURO, "línea inclinada /")]
-for k, (p0, p1, color, nombre) in enumerate(lados):
-    cy = 1.6 - k * 0.85
-    fig.add_shape(type="rect", x0=0.0, x1=0.7, y0=cy - 0.35, y1=cy + 0.35, fillcolor="white", line=dict(color=ARTICO, width=2))
-    d = (p1 - p0) / np.linalg.norm(p1 - p0) * 0.28
-    fig.add_shape(type="line", x0=0.35 - d[0], y0=cy - d[1], x1=0.35 + d[0], y1=cy + d[1], line=dict(color=color, width=7))
-    fig.add_annotation(x=0.85, y=cy + 0.22, text=nombre, showarrow=False, xanchor="left", font=dict(size=14, color=GRIS))
-    medio = (p0 + p1) / 2
-    fig.add_annotation(x=medio[0] - 0.08, y=medio[1], ax=0.75, ay=cy, xref="x", yref="y", axref="x", ayref="y",
-                       showarrow=True, arrowhead=3, arrowwidth=2, arrowcolor=mezclar(color, 0.2), text="")
-    fig.add_shape(type="line", x0=p0[0], y0=p0[1], x1=p1[0], y1=p1[1], line=dict(color=color, width=7))
-fig.add_annotation(x=4.0, y=-0.35, text="<b>detector de triángulos</b>", showarrow=False, font=dict(size=16, color=PAVO_REAL))
-fig.update_layout(xaxis=dict(visible=False, range=[-0.1, 5.0]), yaxis=dict(visible=False, range=[-0.6, 2.05], scaleanchor="x"),
-                  plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=0, r=0, t=0, b=0))
-mostrar(fig, 640, 330)
-```
+![](img/distill_triangulo.png){width="100%" fig-alt="Detectores de líneas horizontales y diagonales se combinan en un detector de triángulos"}
 
 ::: {.muy-pequeno}
-Esquema: tres detectores de líneas con distinta orientación, conectados con pesos **positivos** a una neurona de la capa siguiente, forman un detector de **triángulos**.
+Un **detector de triángulos** real: detectores de líneas **horizontales** (arriba) y **diagonales** (abajo) se conectan con pesos positivos (rojo) y negativos (azul).
 :::
 :::
 ::: {.column width="53%"}
@@ -839,71 +803,74 @@ mostrar(fig, 1450, 430)
 Con solo 2 números la reconstrucción es borrosa: hay un **compromiso** entre compresión y fidelidad. En la práctica se usan códigos de decenas o cientos de dimensiones. Los generadores de imágenes como Stable Diffusion o Z-Image trabajan en el **espacio latente** de un autocodificador.
 :::
 
-## Práctica: notebook 05 {.compacta}
-
-:::: {.columns}
-::: {.column width="55%"}
-**Notebook *05 · Redes convolucionales y autocodificadores*** (Colab, con GPU)
-
-1. Programar una **convolución a mano** con NumPy
-2. Clasificar ropa (**Fashion-MNIST**) con un perceptrón multicapa
-3. Construir y entrenar una **red convolucional** en PyTorch
-4. Visualizar **filtros** y **mapas de características**
-5. Entrenar un **autocodificador** que quita ruido
-6. Reto: superar el 90 % de exactitud
-
-::: {.caja .pequeno}
-En Colab: *Entorno de ejecución → Cambiar tipo de entorno de ejecución → GPU T4*
-:::
-:::
-::: {.column width="45%"}
-::: {.definicion}
-**Para profundizar**
-
-- Distill: *Feature Visualization* (2017), *Zoom In: An Introduction to Circuits* (2020), *Multimodal Neurons* (2021)
-- Stanford CS231n: *Convolutional Neural Networks for Visual Recognition*
-- Goodfellow, Bengio y Courville (2016), *Deep Learning*, cap. 9 y 14 (gratis en deeplearningbook.org)
-:::
-:::
-::::
-
 # Datos, ética y aplicaciones {background-color="#053229" .seccion}
 
 Con qué se entrenan estas redes, y para qué se usan
 
 ## Conjuntos de datos abiertos para entrenar {.compacta}
 
-```{python}
-datos_img = [
-    ("MNIST", 1998, 7.0e4, "dígitos escritos a mano · 28×28 · 10 clases", ARTICO),
-    ("Fashion-MNIST", 2017, 7.0e4, "ropa (Zalando) · 28×28 · 10 clases", ARTICO),
-    ("CIFAR-10 / CIFAR-100", 2009, 6.0e4, "objetos · 32×32 · 10 o 100 clases", ARTICO),
-    ("MedMNIST v2", 2023, 7.08e5, "12 conjuntos médicos 2D (rayos X, histología, retina, piel, sangre…) + 6 en 3D · 28×28", ZAFIRO),
-    ("MS COCO", 2014, 3.3e5, "detección y segmentación · 80 categorías · 1.5 millones de objetos", ZAFIRO),
-    ("ImageNet-1k", 2012, 1.33e6, "1000 categorías · la competencia ILSVRC", ZAFIRO),
-    ("Open Images V7", 2016, 9.0e6, "≈ 9 millones de imágenes · 16 millones de cajas de objetos", ABETO),
-    ("SA-1B (Segment Anything)", 2023, 1.1e7, "11 millones de imágenes · 1100 millones de máscaras", ABETO),
-    ("ImageNet-21k", 2009, 1.42e7, "≈ 21 800 categorías", ABETO),
-    ("LAION-5B", 2022, 5.85e9, "5850 millones de pares imagen-texto extraídos de internet (entrenó Stable Diffusion)", CORAL),
-]
-datos_img = sorted(datos_img, key=lambda d: d[2])
-def legible(n):
-    return f"{n / 1e9:.2f} mil millones" if n >= 1e9 else (f"{n / 1e6:.1f} millones" if n >= 1e6 else f"{n / 1e3:.0f} mil")
-fig = go.Figure(go.Bar(y=[f"{d[0]} ({d[1]})" for d in datos_img], x=[d[2] for d in datos_img], orientation="h",
-                       marker=dict(color=[d[4] for d in datos_img]), text=[legible(d[2]) for d in datos_img],
-                       textposition="outside", textfont=dict(size=17), customdata=[d[3] for d in datos_img],
-                       hovertemplate="<b>%{y}</b><br>%{customdata}<br>%{text} imágenes<extra></extra>"))
-fig.update_layout(xaxis=dict(type="log", title="número de imágenes (escala logarítmica)", range=[4.5, 10.6], exponentformat="SI"),
-                  yaxis=dict(tickfont=dict(size=17)), margin=dict(l=10, r=10, t=10, b=10), showlegend=False)
-mostrar(fig, 1450, 560)
-```
+::: {.rejilla-datos}
+::: {.tarjeta-datos}
+[MNIST]{.nombre-datos} [70 000]{.numero-datos}
 
-::: {.pequeno}
-De **decenas de miles** de imágenes etiquetadas a mano (MNIST, CIFAR) a **miles de millones** de imágenes de internet con su texto (LAION-5B): ¡5 órdenes de magnitud! Para la práctica usaremos **Fashion-MNIST**; para imágenes médicas, **MedMNIST** es un buen punto de partida. Muchos modelos grandes usan además conjuntos **privados** (p. ej. JFT-3B de Google).
+![](img/conjuntos_datos/mnist.png){fig-alt="Ejemplos de MNIST"}
+
+[dígitos escritos a mano]{.desc-datos}
+:::
+::: {.tarjeta-datos}
+[EMNIST letras]{.nombre-datos} [145 600]{.numero-datos}
+
+![](img/conjuntos_datos/emnist_letras.png){fig-alt="Ejemplos de EMNIST letras"}
+
+[letras escritas a mano]{.desc-datos}
+:::
+::: {.tarjeta-datos}
+[Fashion-MNIST]{.nombre-datos} [70 000]{.numero-datos}
+
+![](img/conjuntos_datos/fashion_mnist.png){fig-alt="Ejemplos de Fashion-MNIST"}
+
+[ropa y calzado]{.desc-datos}
+:::
+::: {.tarjeta-datos}
+[MedMNIST v2]{.nombre-datos} [708 069]{.numero-datos}
+
+![](img/conjuntos_datos/medmnist.png){fig-alt="Ejemplos de MedMNIST v2"}
+
+[imágenes médicas: histología, rayos X, mama, retina, piel]{.desc-datos}
+:::
+::: {.tarjeta-datos}
+[CIFAR-10 / 100]{.nombre-datos} [60 000]{.numero-datos}
+
+![](img/conjuntos_datos/cifar10.png){fig-alt="Ejemplos de CIFAR-10 / 100"}
+
+[fotos pequeñas (32×32) de 10 o 100 clases]{.desc-datos}
+:::
+::: {.tarjeta-datos}
+[ImageNet]{.nombre-datos} [1.3 millones]{.numero-datos}
+
+![](img/conjuntos_datos/imagenet.png){fig-alt="Ejemplos de ImageNet"}
+
+[(14 millones en la versión completa) · 1000 categorías]{.desc-datos}
+:::
+::: {.tarjeta-datos}
+[LAION-5B]{.nombre-datos} [5 850 millones]{.numero-datos}
+
+::: {.pares-laion}
+![](img/imagenet_malamute.jpg){fig-alt="Foto de un perro"}
+
+«alaskan malamute standing on grass, dog show»
+
+![](img/imagenet_portacontenedores.jpg){fig-alt="Foto de un barco"}
+
+«container ship at the port of rotterdam»
+:::
+
+[pares **imagen + texto** extraídos de internet (ilustración del formato)]{.desc-datos}
+:::
 :::
 
 ::: {.credito}
-LeCun *et al.* (1998); Xiao *et al.* (2017); Krizhevsky (2009); Yang *et al.* (2023) *Scientific Data* 10, 41; Lin *et al.* (2014); Russakovsky *et al.* (2015); Kuznetsova *et al.* (2020); Kirillov *et al.* (2023); Deng *et al.* (2009); Schuhmann *et al.* (2022).
+LeCun *et al.* (1998); Cohen *et al.* (2017) EMNIST; Xiao *et al.* (2017); Yang *et al.* (2023) *Scientific Data* 10, 41; Krizhevsky (2009); Deng *et al.* (2009), Russakovsky *et al.* (2015); Schuhmann *et al.* (2022). Ejemplos de cada conjunto (muestras de prueba); ImageNet y LAION ilustrados con fotos de Wikimedia Commons.
 :::
 
 ## Ética: ¿de dónde salen las imágenes? {.compacta}
@@ -955,54 +922,49 @@ Buolamwini, J. & Gebru, T. (2018). Gender Shades. *FAT\**. · Grother, P. *et al
 
 ## Aplicaciones {.compacta}
 
-::: {style="max-width: 82%;"}
-:::: {.columns}
-::: {.column width="33%"}
-::: {.tarjeta}
+::: {.rejilla-apps}
+::: {.tarjeta-app}
 [Detección de objetos]{.titulo-tarjeta}
-Encontrar **qué** hay y **dónde** (cajas alrededor de cada objeto): YOLO, conteo de animales en cámaras trampa, control de calidad en fábricas.
-:::
 
-::: {.tarjeta}
+![](img/aplicaciones/deteccion_yolo.jpg){fig-alt="Detección de objetos"}
+:::
+::: {.tarjeta-app}
 [Reconocimiento facial]{.titulo-tarjeta}
-Desbloquear el teléfono, controles fronterizos… y vigilancia masiva (¡ver la diapositiva de ética!).
+
+![](img/aplicaciones/deteccion_caras.jpg){fig-alt="Reconocimiento facial"}
 :::
-:::
-::: {.column width="33%"}
-::: {.tarjeta}
+::: {.tarjeta-app}
 [Conducción autónoma]{.titulo-tarjeta}
-Cámaras + redes convolucionales para ver carriles, peatones y semáforos: Waymo, Tesla, robots de reparto.
-:::
 
-::: {.tarjeta}
-[Lectura de texto (OCR)]{.titulo-tarjeta}
-Desde los cheques bancarios de LeNet (1998) hasta digitalizar archivos históricos y traducir carteles con la cámara.
-
-```{python}
-digitos = [m["imagen"] for m in cnn["mapas"]][:5]
-fig = make_subplots(rows=1, cols=len(digitos), horizontal_spacing=0.03)
-for k, d in enumerate(digitos):
-    fig.add_trace(go.Heatmap(z=d, colorscale=GRISES, showscale=False, hoverinfo="skip"), 1, k + 1)
-    fig.update_yaxes(autorange="reversed", visible=False, scaleanchor=f"x{'' if k == 0 else k + 1}", row=1, col=k + 1)
-    fig.update_xaxes(visible=False, row=1, col=k + 1)
-fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
-mostrar(fig, 380, 80)
-```
+![](img/aplicaciones/waymo.jpg){fig-alt="Conducción autónoma"}
 :::
-:::
-::: {.column width="33%"}
-::: {.tarjeta}
+::: {.tarjeta-app}
 [Medicina]{.titulo-tarjeta}
-Detectar retinopatía diabética (IDx-DR, primer sistema autónomo aprobado por la FDA, 2018), cáncer de piel, tumores en mamografías y segmentar órganos (U-Net).
 
-![](img/mamografia_nci.jpg){height="180" .redondeada fig-alt="Mamografía"}
+![](img/mamografia_nci.jpg){fig-alt="Medicina"}
 :::
+::: {.tarjeta-app}
+[Lectura de texto (OCR)]{.titulo-tarjeta}
+
+![](img/aplicaciones/ocr_segmentos.png){fig-alt="Lectura de texto (OCR)"}
 :::
-::::
 :::
 
 ::: {.credito}
-Mamografía: National Cancer Institute, dominio público.
+Fotos (Wikimedia Commons): detección con YOLO, MTheiler, CC BY-SA 4.0; detección de caras, CC BY 3.0; auto de Waymo, Grendelkhan, CC BY-SA 4.0; mamografía, National Cancer Institute, dominio público; segmentación de texto con OCR, LA2, CC0.
+:::
+
+## Para llevar a casa
+
+::: {style="max-width: 78%;"}
+::: {.incremental}
+- Una **convolución** desliza un filtro pequeño sobre la imagen: conexiones **locales**, pesos **compartidos** y **muchos** filtros → muchos menos parámetros que un perceptrón multicapa
+- Apilando convoluciones y *pooling*, la red aprende una **jerarquía**: bordes → texturas → partes → objetos
+- Podemos **abrir la caja negra**: visualizar qué activa a cada neurona y leer los **circuitos** que forman
+- Las redes **no ven como nosotros**: un ruido invisible (ejemplo adversario) puede engañarlas
+- Los **autocodificadores** comprimen sin etiquetas y aprenden un **espacio latente** útil para generar
+- Los **datos** importan: de dónde vienen, con qué permiso y a quién representan (¡o no!)
+:::
 :::
 
 ::: {.absolute bottom="0" right="0" width="200" style="text-align: center;"}

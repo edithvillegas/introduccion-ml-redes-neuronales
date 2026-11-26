@@ -324,3 +324,26 @@ $presentation-title-slide-text-align: left;
 // Diapositiva de ética (deck 05): texto más compacto
 .reveal .texto-etica { font-size: 0.78em; }
 .reveal .texto-etica li { margin-bottom: 0.15em; }
+
+// Rejilla de conjuntos de datos (deck 05)
+.reveal .rejilla-datos {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.45em 0.7em; margin-top: 0.2em;
+  .tarjeta-datos { background: white; border: 2px solid $artico; border-radius: 10px; padding: 0.3em 0.45em 0.35em; text-align: center; }
+  .tarjeta-datos p { margin: 0.1em 0 !important; line-height: 1.15; }
+  .nombre-datos { font-weight: 700; color: $abeto; font-size: 0.62em; }
+  .numero-datos { font-weight: 700; color: $coral-oscuro; font-size: 0.62em; margin-left: 0.3em; }
+  .desc-datos { color: $gris; font-size: 0.45em; }
+  img { height: 150px; width: auto; max-width: 100%; object-fit: contain; margin: 0.1em auto !important; border-radius: 6px; }
+  .pares-laion { display: grid; grid-template-columns: 1fr 1fr; gap: 0.1em 0.4em; align-items: center; font-size: 0.42em; color: $pavo-real; font-style: italic; text-align: left; }
+  .pares-laion p { margin: 0 !important; }
+  .pares-laion img { height: 68px; width: 100%; object-fit: cover; }
+}
+
+// Rejilla de aplicaciones (deck 05)
+.reveal .rejilla-apps {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6em 0.9em; margin-top: 0.3em;
+  .tarjeta-app { background: white; border: 2px solid $artico; border-radius: 10px; padding: 0.35em 0.5em 0.5em; text-align: center; }
+  .tarjeta-app p { margin: 0.1em 0 !important; }
+  img { height: 270px; width: 100%; object-fit: cover; border-radius: 8px; margin: 0.15em 0 0 !important; }
+  .tarjeta-app:nth-child(5) img { object-fit: contain; background: white; }
+}
