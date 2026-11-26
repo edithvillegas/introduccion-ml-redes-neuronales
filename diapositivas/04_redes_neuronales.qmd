@@ -387,10 +387,6 @@ fig.update_layout(scene=dict(xaxis_title="h₁", yaxis_title="h₂", zaxis_title
                   title=dict(text=f"Espacio oculto (h₁, h₂, h₃) · exactitud: {red.score(Xc, yc):.0%}", y=0.97))
 mostrar(fig, 840, 560)
 ```
-
-::: {.caja .pequeno}
-¡Gírenlo! En el espacio oculto, un **plano** separa las dos clases. La red **aprendió sola** una característica parecida al $r^2$ que diseñamos a mano en la introducción.
-:::
 :::
 ::::
 
