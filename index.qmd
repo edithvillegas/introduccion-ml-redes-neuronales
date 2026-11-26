@@ -42,7 +42,7 @@ Aprendizaje supervisado, no supervisado, autosupervisado y semisupervisado · cl
 :::
 
 ::: {.tarjeta-sesion}
-## 3. Linux, la terminal y git{.fecha}
+## 3. Linux, la terminal y git
 
 Sistema operativo y Linux · comandos esenciales, tuberías, permisos · git · C contra Python.
 
