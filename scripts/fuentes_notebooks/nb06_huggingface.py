@@ -1,4 +1,4 @@
-"""Notebook 07 · Python, PyTorch y Hugging Face: usa, ajusta y crea tus propios modelos."""
+"""Notebook 06 · Python, PyTorch y Hugging Face: usa, ajusta y crea tus propios modelos."""
 
 from pathlib import Path
 
@@ -10,7 +10,7 @@ CLASES_MINIGPT = _fuente[_fuente.index("class AutoAtencion"):_fuente.index("@tor
 
 celdas = [
     ("md", """
-# 07 · Python, PyTorch y Hugging Face
+# 06 · Python, PyTorch y Hugging Face
 
 **Notebook de práctica** · Escuela de Machine Learning Honduras 2026
 
@@ -524,4 +524,4 @@ Después, escribe una **tarjeta del modelo** explicando con qué datos se entren
 ]
 
 if __name__ == "__main__":
-    construir("07_huggingface", celdas, gpu=True)
+    construir("06_huggingface", celdas, gpu=True)

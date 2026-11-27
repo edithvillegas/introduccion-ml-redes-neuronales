@@ -46,5 +46,6 @@ Todas las imágenes de terceros tienen licencias libres o están en el dominio p
 | `imagenet_malamute.jpg` | Malamute de Alaska | SCMW, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Alaskan_Malamute.jpg) | CC BY 3.0 |
 | `imagenet_portacontenedores.jpg` | Buque portacontenedores | kees torn, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:MAERSK_MC_KINNEY_M%C3%96LLER_%26_MARSEILLE_MAERSK_(48694054418).jpg) | CC BY-SA 2.0 |
 | `engels2024_gpt2_circulos.png` | Días, meses y años en círculo en GPT-2 | Engels, Michaud, Liao, Gurnee y Tegmark (2025), [arXiv:2405.14860](https://arxiv.org/abs/2405.14860) (ICLR 2025) | CC BY 4.0 |
+| `huggingface_hub.png` | Captura del Hub (modelos en español, más descargados), 26 nov 2026 | [huggingface.co/models](https://huggingface.co/models?language=es&sort=downloads) | Captura de pantalla con fines educativos |
 
 Las gráficas interactivas, los diagramas dibujados con Plotly y los datos de `diapositivas/datos/` son de elaboración propia (ver `scripts/`).

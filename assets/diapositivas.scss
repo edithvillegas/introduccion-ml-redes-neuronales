@@ -347,3 +347,33 @@ $presentation-title-slide-text-align: left;
   img { height: 250px; width: 100%; object-fit: cover; border-radius: 8px; margin: 0.15em 0 0 !important; }
   .tarjeta-app:nth-child(4) img, .tarjeta-app:nth-child(6) img { object-fit: contain; background: white; }
 }
+
+// Ventana de navegador con captura enlazada (diapositiva de Hugging Face)
+.reveal .ventana-web {
+  border: 2px solid #bcdddc;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(5, 50, 41, 0.15);
+  margin-top: 0.2em;
+  .barra-web {
+    background: #e9efee;
+    padding: 0.2em 0.6em;
+    font-size: 0.5em;
+    line-height: 1.4;
+    margin: 0;
+    p { margin: 0; }
+  }
+  .punto-rojo { color: #e8665a; }
+  .punto-amarillo { color: #e3b341; }
+  .punto-verde { color: #6bb36b; }
+  .url-web {
+    display: inline-block;
+    margin-left: 0.6em;
+    padding: 0 0.8em;
+    background: #fff;
+    border-radius: 6px;
+    color: #355e58;
+  }
+  img { display: block; width: 100%; margin: 0; border: 0; }
+  p { margin: 0; }
+}

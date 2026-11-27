@@ -68,21 +68,21 @@ Convolución paso a paso · filtros · *pooling* · arquitecturas · qué aprend
 :::
 
 ::: {.tarjeta-sesion}
-## 6. Transformers y modelos de lenguaje
-Modelos de lenguaje y tokens · vectores de palabras · masking y next token · atención y arquitectura transformer · interpretabilidad (características, circuitos, emociones) · RNN, Mamba y otras alternativas.
+## 6. Práctica: Python, PyTorch y Hugging Face
+Repaso de Python · tensores y *autograd* · `pipeline` · ajuste fino de BETO con reseñas en español · un mini-GPT entrenado con el Quijote · demos con Gradio.
 
-[Diapositivas](diapositivas/06_transformers_lenguaje.html){.btn .btn-primary .btn-sm}
-[![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/06_transformers_lenguaje.ipynb)
-[Soluciones](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/soluciones/06_transformers_lenguaje_soluciones.ipynb){.small}
+[Diapositivas](diapositivas/06_practica_huggingface.html){.btn .btn-primary .btn-sm}
+[![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/06_huggingface.ipynb)
+[Soluciones](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/soluciones/06_huggingface_soluciones.ipynb){.small}
 :::
 
 ::: {.tarjeta-sesion}
-## 7. Práctica: Python, PyTorch y Hugging Face
-Repaso de Python · tensores y *autograd* · `pipeline` · ajuste fino de BETO con reseñas en español · un mini-GPT entrenado con el Quijote · demos con Gradio.
+## 7. Transformers y modelos de lenguaje
+Modelos de lenguaje y tokens · vectores de palabras · masking y next token · atención y arquitectura transformer · interpretabilidad (características, circuitos, emociones) · RNN, Mamba y otras alternativas.
 
-[Diapositivas](diapositivas/07_practica_huggingface.html){.btn .btn-primary .btn-sm}
-[![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/07_huggingface.ipynb)
-[Soluciones](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/soluciones/07_huggingface_soluciones.ipynb){.small}
+[Diapositivas](diapositivas/07_transformers_lenguaje.html){.btn .btn-primary .btn-sm}
+[![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/07_transformers_lenguaje.ipynb)
+[Soluciones](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/soluciones/07_transformers_lenguaje_soluciones.ipynb){.small}
 :::
 
 ---

@@ -1,7 +1,7 @@
 """
 Un GPT diminuto a nivel de caracteres (inspirado en nanoGPT de Andrej Karpathy).
 
-El mismo código aparece en el notebook 07; aquí se usa para precalcular la gráfica
+El mismo código aparece en el notebook 06; aquí se usa para precalcular la gráfica
 de la diapositiva "Un GPT que aprende a escribir como Cervantes".
 """
 

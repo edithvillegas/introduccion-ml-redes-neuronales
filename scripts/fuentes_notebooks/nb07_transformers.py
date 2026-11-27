@@ -1,10 +1,10 @@
-"""Notebook 06 · Transformers y modelos de lenguaje."""
+"""Notebook 07 · Transformers y modelos de lenguaje."""
 
 from utilidades import ESTILO_GRAFICAS, FUNCION_REVISAR, construir
 
 celdas = [
     ("md", """
-# 06 · Transformers y modelos de lenguaje
+# 07 · Transformers y modelos de lenguaje
 
 **Notebook de práctica** · Escuela de Machine Learning Honduras 2026
 
@@ -462,4 +462,4 @@ revisar(lambda: proyeccion.shape == (7, 2) and es_ciclo(proyeccion),
 ]
 
 if __name__ == "__main__":
-    construir("06_transformers_lenguaje", celdas, gpu=True)
+    construir("07_transformers_lenguaje", celdas, gpu=True)

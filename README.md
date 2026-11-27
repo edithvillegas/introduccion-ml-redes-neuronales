@@ -22,8 +22,8 @@ Materiales de las sesiones de **Edith Natalia Villegas García** (ICTP): introdu
 | 3 | Linux, la terminal y git | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/03_linux_terminal.html) | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/03_terminal_linux.ipynb) | [Colab](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/soluciones/03_terminal_linux_soluciones.ipynb) |
 | 4 | Teoría de redes neuronales | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/04_redes_neuronales.html) | — | — |
 | 5 | Redes convolucionales y autocodificadores | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/05_redes_convolucionales.html) | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/05_redes_convolucionales.ipynb) | [Colab](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/soluciones/05_redes_convolucionales_soluciones.ipynb) |
-| 6 | Transformers y modelos de lenguaje | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/06_transformers_lenguaje.html) | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/06_transformers_lenguaje.ipynb) | [Colab](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/soluciones/06_transformers_lenguaje_soluciones.ipynb) |
-| 7 | Práctica: Python, PyTorch y Hugging Face | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/07_practica_huggingface.html) | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/07_huggingface.ipynb) | [Colab](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/soluciones/07_huggingface_soluciones.ipynb) |
+| 6 | Práctica: Python, PyTorch y Hugging Face | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/06_practica_huggingface.html) | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/06_huggingface.ipynb) | [Colab](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/soluciones/06_huggingface_soluciones.ipynb) |
+| 7 | Transformers y modelos de lenguaje | [ver](https://edithvillegas.github.io/introduccion-ml-redes-neuronales/diapositivas/07_transformers_lenguaje.html) | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/notebooks/07_transformers_lenguaje.ipynb) | [Colab](https://colab.research.google.com/github/edithvillegas/introduccion-ml-redes-neuronales/blob/main/soluciones/07_transformers_lenguaje_soluciones.ipynb) |
 
 ### Qué se ve en cada sesión
 
@@ -48,7 +48,7 @@ Materiales de las sesiones de **Edith Natalia Villegas García** (ICTP): introdu
 ├── index.qmd                  # página de inicio del sitio (lista de sesiones)
 ├── _quarto.yml                # configuración del sitio web
 ├── diapositivas/
-│   ├── 01_introduccion_ia.qmd … 07_practica_huggingface.qmd
+│   ├── 01_introduccion_ia.qmd … 07_transformers_lenguaje.qmd
 │   ├── _metadata.yml          # opciones comunes de reveal.js
 │   ├── graficas.py            # estilo y utilidades de Plotly compartidas
 │   ├── programa.py            # programa de la escuela (gráfica del calendario)
@@ -59,7 +59,7 @@ Materiales de las sesiones de **Edith Natalia Villegas García** (ICTP): introdu
 ├── scripts/
 │   ├── fuentes_notebooks/     # código Python que genera los notebooks (versión estudiante + soluciones)
 │   ├── precalcular_*.py       # regeneran diapositivas/datos/ (necesitan torch, transformers…)
-│   ├── minigpt.py             # el mini-GPT del notebook 07
+│   ├── minigpt.py             # el mini-GPT del notebook 06
 │   └── configurar_repo.py     # pone su usuario/repositorio de GitHub en los enlaces
 ├── assets/                    # tema visual (SCSS) y colores del código (paleta.theme)
 ├── requirements.txt           # para construir las diapositivas

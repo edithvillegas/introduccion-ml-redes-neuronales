@@ -1064,11 +1064,11 @@ mostrar(fig, 700, 520)
 Gu, A. & Dao, T. (2023). Mamba: Linear-Time Sequence Modeling with Selective State Spaces. arXiv:2312.00752. · Peng, B. *et al.* (2023). RWKV. arXiv:2305.13048. · Beck, M. *et al.* (2024). xLSTM. arXiv:2405.04517. · Lieber, O. *et al.* (2024). Jamba. arXiv:2403.19887. · Nie, S. *et al.* (2025). Large Language Diffusion Models. arXiv:2502.09992.
 :::
 
-## Práctica: notebook 06 {.compacta}
+## Práctica: notebook 07 {.compacta}
 
 :::: {.columns}
 ::: {.column width="55%"}
-**Notebook *06 · Transformers y modelos de lenguaje*** (Colab)
+**Notebook *07 · Transformers y modelos de lenguaje*** (Colab)
 
 1. **Tokenizar** en español e inglés con distintos modelos
 2. **Vectores de palabras**: analogías y sesgos con GloVe
